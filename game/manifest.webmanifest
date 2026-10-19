@@ -1,0 +1,17 @@
+{
+  "name": "航空公司創始人",
+  "short_name": "航空創始人",
+  "description": "在真實的全球機場網路上創立航空公司的經營模擬遊戲（非營利粉絲作品）。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eef2f5",
+  "theme_color": "#eef2f5",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,29 @@
+// 版本、更新紀錄、遊戲標誌。
+(function () {
+  const G = (window.G = window.G || {});
+  G.VERSION = '1.0.0-rc';
+  G.REPORT_URL = 'https://github.com/Daystar0515/airline-founder/issues/new'; // 錯誤畫面與「關於」的回報按鈕
+  const LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="航空公司創始人標誌"><defs><linearGradient id="afbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123a7a"/><stop offset="1" stop-color="#1f6feb"/></linearGradient><clipPath id="afr"><rect width="512" height="512" rx="112"/></clipPath></defs><g clip-path="url(#afr)"><rect width="512" height="512" fill="url(#afbg)"/><circle cx="256" cy="700" r="420" fill="#fff" opacity="0.10"/><circle cx="256" cy="700" r="330" fill="#fff" opacity="0.07"/><path d="M120 372 C 165 262, 250 204, 318 186" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-dasharray="1 31" opacity="0.95"/><circle cx="120" cy="372" r="30" fill="#fff"/><circle cx="120" cy="372" r="17" fill="#f2a93b"/><g transform="translate(386 168) rotate(-18) scale(9.2)"><polygon points="11,0 9,-1.9 3.2,-2 -1.6,-11.5 -4.2,-11.5 -2.2,-2 -7.6,-1.7 -10,-5.4 -11.8,-5.4 -10.8,-1.2 -11.4,0 -10.8,1.2 -11.8,5.4 -10,5.4 -7.6,1.7 -2.2,2 -4.2,11.5 -1.6,11.5 3.2,2 9,1.9" fill="#fff"/></g></g></svg>`;
+  // 每次產生不同的 id，避免同一頁出現好幾個標誌時漸層與裁切互相干擾
+  let seq = 0;
+  G.logoSvg = () => { const k = 'af' + (++seq); return LOGO.replace(/afbg/g, k + 'bg').replace(/afr/g, k + 'r'); };
+  Object.defineProperty(G, 'LOGO_SVG', { get: () => G.logoSvg() });
+  G.CHANGELOG = [
+    ['1.0.0-rc', '正式版候選：多個存檔欄位與匯出匯入、錯誤保護、遊戲標誌與標題畫面、可加到手機主畫面、新手引導、遊戲百科、設定頁、成就與公司大事記、經營回顧、後期效能與數值平衡、多人連線的暫離與重新連線。'],
+    ['0.9.0', '機隊與航線篩選搜尋、已開發航線標示、航空聯盟（三大聯盟與自創聯盟）、股市投資與他家持股、公司債。'],
+    ['0.8.0', '房主制 4 人連線、真實機隊校正、換大／換小機型建議、前十大賺錢航線、地圖顯示切換。'],
+    ['0.7.0', '全球 596 家真實航空公司競爭、接近現實的飛行路徑、創始人背景「首富」。'],
+    ['0.6.4', '玩家自訂的會員方案、飛機整修與委外。'],
+    ['0.6.3', '機場類型：國際機場、國內線機場、限定國際機場。'],
+    ['0.6.2', '以一天為單位推進時間、機場依跑道分三級、二手市場、客艙改裝、批次購買。'],
+    ['0.6.1', '觀光客與商務客需求、2024 年真實旅客統計加成。'],
+    ['0.6.0', '政府合約、航班編號、自動最佳定價、推薦執飛飛機。'],
+    ['0.5.0', '地圖效能改善、自動產生航空公司標誌。'],
+    ['0.4.2', '社群媒體、全新淺色介面、高解析地圖。'],
+    ['0.4', '三大財務報表、銀行貸款、股票上市、手機版與電腦版。'],
+    ['0.3.1', '衛星底圖、三種飛機圖示、自選目的地、機型限制。'],
+    ['0.3', '創始人背景、員工與工會、餐飲與空廚。'],
+    ['0.2', '定期檢查與維修、事故與飛安、乘客滿意度、企業標誌。'],
+    ['0.1', '第一個原型：真實全球機場、購機與開航、飛機在地圖上飛行。'],
+  ];
+})();
