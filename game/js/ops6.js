@@ -118,7 +118,7 @@
   // 不含任何副作用的單班成本估算（與 sim.js 的 flightCosts 同一套公式）
   G.estFlightCost = (t, d, pax, h) => {
     const seats = pax;
-    const fuel = t.fuel * h * G.FUEL_PRICE;
+    const fuel = t.fuel * h * (G.fuelPrice ? G.fuelPrice() : G.FUEL_PRICE);
     const crew = h * (2 * 40 + Math.max(1, Math.ceil(seats / 45)) * 12);
     const maint = t.price * 1e6 * (t.used ? 1.4 : 1) * 3.5e-6 * h * G.fmod('mx');
     const airport = 7 * t.units + pax * 12 + 0.45 * d + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500);

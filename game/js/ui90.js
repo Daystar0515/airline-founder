@@ -66,7 +66,9 @@
       <label class="fsel"><span>排序</span><select id="fl-sort" data-act="fl-sort" aria-label="排序">${SORTS.map(([v, n]) => opt(v, n, FF.sort)).join('')}</select></label>
     </div>
     <p class="note fcount">${any ? `符合 ${list.length}／${fleet.length} 架${list.length ? '' : '，請放寬條件'} <button class="linkish" data-act="fl-clear">清除篩選</button>` : `共 ${fleet.length} 架`}</p>`;
-    return bar + list.map(rowOf).join('');
+    // v1.0.0-rc2 一次只畫 40 架，避免大機隊在手機上卡頓
+    const lim = U.pageLimit('fl', JSON.stringify(FF));
+    return bar + list.slice(0, lim).map(rowOf).join('') + U.moreBtn('fl', list.length - lim, '架');
   };
 
   // ---------- 航線 ----------
@@ -110,15 +112,19 @@
     <div class="cc-chips">${ccs.slice(0, 12).map(([c, n]) => `<button class="chip linkish ${RF.cc === c ? 'on' : ''}" data-act="rt-ccchip" data-cc="${c}">${esc(G.countryZh(c))} ${n}</button>`).join('')}</div>
     <p class="note fcount">${any ? `符合 ${list.length}／${routes.length} 條 <button class="linkish" data-act="rt-clear">清除篩選</button>` : `共 ${routes.length} 條航線、${ccs.length} 個國家或地區`}</p>`;
     if (!list.length) return bar + '<p class="empty">沒有符合的航線。</p>';
-    if (!RF.group) return bar + list.map(rowOf).join('');
+    const lim = U.pageLimit('rt', JSON.stringify(RF)), rest = list.length - lim;
+    const tot = {}; // 分組標題用完整清單的條數與損益
+    list.forEach((r) => { const c = destOf(r).cc, t = (tot[c] = tot[c] || { n: 0, p: 0 }); t.n++; t.p += r.stats.flights ? r.stats.rev - r.stats.cost : 0; });
+    list = list.slice(0, lim);
+    if (!RF.group) return bar + list.map(rowOf).join('') + U.moreBtn('rt', rest, '條');
     // 分組：保持排序後各國第一次出現的順序
     const groups = [];
     const idx = {};
     list.forEach((r) => { const c = destOf(r).cc; if (idx[c] == null) { idx[c] = groups.length; groups.push({ c, rs: [] }); } groups[idx[c]].rs.push(r); });
     return bar + groups.map((g) => {
-      const p = g.rs.reduce((s, r) => s + (r.stats.flights ? r.stats.rev - r.stats.cost : 0), 0);
-      return `<h4 class="cc-head"><span>${esc(G.countryZh(g.c))}</span><small>${g.rs.length} 條 · 本月 <b class="${p < 0 ? 'neg' : 'pos'}">${G.money(p)}</b></small></h4>${g.rs.map(rowOf).join('')}`;
-    }).join('');
+      const p = tot[g.c].p;
+      return `<h4 class="cc-head"><span>${esc(G.countryZh(g.c))}</span><small>${tot[g.c].n} 條 · 本月 <b class="${p < 0 ? 'neg' : 'pos'}">${G.money(p)}</b></small></h4>${g.rs.map(rowOf).join('')}`;
+    }).join('') + U.moreBtn('rt', rest, '條');
   };
 
   // ---------- 開航：已開發標示 ----------

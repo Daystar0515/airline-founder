@@ -892,3 +892,97 @@ pre.errbox { background: var(--panel-2); border: 1px solid var(--line); border-r
 .tut-inline .tut-top { display: flex; align-items: center; justify-content: space-between; }
 .tut-inline .tut-step { font-size: 11.5px; font-weight: 700; color: var(--accent); }
 .tut-inline .tut-x { border: 0; background: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 2px 8px; }
+
+/* ===== v1.0.0-rc2：鎖住雙擊放大 ===== */
+html, body, *, *::before, *::after { touch-action: manipulation; }
+#mapwrap canvas { touch-action: none; }
+
+/* ===== v1.0.0-rc2：手機版底部分頁（常用 5 個 + 更多）===== */
+#tabs .tab-more { display: none; }
+#tab-more-sheet { display: none; }
+:root[data-layout='mobile'] #tabs .tab2 { display: none; }
+:root[data-layout='mobile'] #tabs .tab-more { display: flex; }
+:root[data-layout='mobile'] #tabs button { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 7px 0 6px; font-size: 11px; border-radius: 10px; justify-content: center; }
+:root[data-layout='mobile'] #tabs .ti { width: 23px; height: 23px; }
+:root[data-layout='mobile'] #tabs button[data-badge]::after { right: calc(50% - 22px); top: 2px; }
+:root[data-layout='mobile'] #tabs .tab-more span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-layout='mobile'] #tab-more-sheet:not([hidden]) {
+  display: grid; position: fixed; left: 10px; right: 10px; z-index: 25; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+  padding: 10px; background: var(--panel); border-radius: 18px; box-shadow: 0 10px 40px rgba(16, 24, 32, 0.22), 0 0 0 1px var(--line);
+}
+#tab-more-sheet button {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 2px;
+  background: var(--panel-2); border: 0; border-radius: 12px; color: var(--fg); font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+#tab-more-sheet button .ti { width: 24px; height: 24px; color: var(--label); }
+#tab-more-sheet button[aria-current='true'] { background: var(--accent-soft); color: var(--accent); }
+#tab-more-sheet button[aria-current='true'] .ti { color: var(--accent); }
+#tab-more-sheet button[data-badge]::after { content: attr(data-badge); position: absolute; top: 6px; right: 10px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--neg); color: #fff; font: 700 10px/16px var(--font-body); }
+
+/* 面板把手加大，比較好點 */
+:root[data-layout='mobile'] #sheet-handle { height: 30px; }
+:root[data-layout='mobile'] #panel[data-sheet='full'] #panel-body { height: calc(100dvh - 214px); }
+
+/* ===== 長清單：顯示更多 ===== */
+.more-btn { display: block; width: 100%; margin: 10px 0 4px; }
+
+/* ===== 手機版表格 ===== */
+/* 競爭：對手徽章換行，價格戰欄位不會被擠出畫面 */
+:root[data-layout='mobile'] table.rv-table td { white-space: normal; }
+:root[data-layout='mobile'] table.rv-table td:nth-child(2) .cbadge { margin: 0 3px 3px 0; }
+/* 財報：第一欄固定在左邊，左右滑動看月份 */
+table.fs th:first-child, table.fs td:first-child { position: sticky; left: 0; background: var(--panel); z-index: 1; }
+:root[data-layout='mobile'] table.fs td:first-child { white-space: normal; min-width: 116px; max-width: 140px; }
+/* 餐點：改成一列一個艙等的卡片 */
+:root[data-layout='mobile'] table.meals thead { display: none; }
+:root[data-layout='mobile'] table.meals, :root[data-layout='mobile'] table.meals tbody { display: block; }
+:root[data-layout='mobile'] table.meals tr { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: center; }
+:root[data-layout='mobile'] table.meals td { display: block; border: 0; padding: 0; font-size: 13px; }
+:root[data-layout='mobile'] table.meals td:first-child { font-weight: 650; }
+:root[data-layout='mobile'] table.meals td:nth-child(n + 3) { grid-column: 1 / -1; color: var(--label); font-size: 12px; }
+:root[data-layout='mobile'] table.meals td:nth-child(n + 3)::before { content: attr(data-l) '　'; color: var(--muted); }
+:root[data-layout='mobile'] .meals select { font-size: 16px; padding: 6px 8px; }
+/* 選購飛機：改成卡片 */
+:root[data-layout='mobile'] table.catalog thead { display: none; }
+:root[data-layout='mobile'] table.catalog, :root[data-layout='mobile'] table.catalog tbody { display: block; }
+:root[data-layout='mobile'] table.catalog tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+:root[data-layout='mobile'] table.catalog tr.grp { display: block; padding: 14px 0 4px; border: 0; }
+:root[data-layout='mobile'] table.catalog td { display: block; border: 0; padding: 0; min-width: 0; text-align: left; white-space: normal; font-size: 13px; }
+:root[data-layout='mobile'] table.catalog td:first-child { grid-column: 1 / -1; min-width: 0; }
+:root[data-layout='mobile'] table.catalog td[data-l]::before { content: attr(data-l); display: block; font-size: 11px; color: var(--muted); }
+:root[data-layout='mobile'] table.catalog td.btns { grid-column: 1 / -1; display: flex; gap: 8px; }
+:root[data-layout='mobile'] table.catalog td.btns .btn { flex: 1; min-height: 42px; }
+:root[data-layout='mobile'] table.catalog td.btns .btn + .btn { margin-left: 0; }
+
+/* ===== v1.0.0-rc2：世界局勢 ===== */
+.world { margin: 14px 0 4px; }
+.world .sec-head { margin-bottom: 4px; }
+.world-fuel { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 8px; font-size: 13px; }
+.world-fuel span { color: var(--label); }
+.world-fuel em { font-style: normal; font-size: 12px; color: var(--label); }
+.world-fuel em.hedge { color: var(--accent); }
+.ev-row { display: flex; align-items: flex-start; gap: 10px; width: 100%; text-align: left; padding: 10px 12px; margin: 0 0 6px; background: var(--panel-2); border: 1px solid transparent; border-radius: var(--r); color: var(--fg); cursor: pointer; font: inherit; }
+.ev-row:hover { border-color: var(--line-2); }
+.ev-row.hit.bad { background: var(--neg-soft); }
+.ev-row.hit.good { background: var(--pos-soft); }
+.ev-ic { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--panel); color: var(--label); }
+.ev-row.bad .ev-ic, .ev-dlg.bad .ev-ic { color: var(--neg); }
+.ev-row.good .ev-ic, .ev-dlg.good .ev-ic { color: var(--pos); }
+.ev-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ev-main b { font-size: 13.5px; }
+.ev-main small { color: var(--label); font-size: 12px; }
+.ev-fx { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.ev-fx .chip { margin: 0; }
+.chip.fx-bad { background: var(--neg-soft); color: var(--neg); }
+.chip.fx-good { background: var(--pos-soft); color: var(--pos); }
+.ev-act { flex: none; align-self: center; font-style: normal; font-size: 11.5px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 10px; padding: 2px 8px; }
+.ev-dlg header { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; }
+.ev-dlg header h2 { margin: 2px 0 0; }
+.ev-dlg header small { color: var(--label); font-size: 12px; }
+.ev-dlg .ev-ic { width: 44px; height: 44px; background: var(--panel-2); }
+.ev-dlg > p { line-height: 1.7; }
+.ev-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 10px 0; font-size: 13px; }
+.ev-meta dt { color: var(--label); }
+.ev-meta dd { margin: 0; }
+.ev-dlg h3 { margin: 14px 0 6px; }
+:root[data-layout='mobile'] [data-act='rv-open'] { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 10px; margin-bottom: 4px; }

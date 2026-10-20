@@ -35,8 +35,8 @@
       <thead><tr><th>機型</th><th>最多座位</th><th>航程</th><th>跑道需求</th><th>油耗/時</th><th>價格</th><th>月租</th><th></th></tr></thead>
       <tbody>${Object.entries(groups).map(([mfr, ts]) => `<tr class="grp"><td colspan="8">${G.ZH(mfr)}</td></tr>` + ts.map((t) => `<tr>
         <td><b>${esc(t.model)}</b>${G.restrictionTags(t).map((x) => `<span class="chip warn">${x}</span>`).join('')}<small>${t.wide ? '寬體 · 4 艙等' : '3 艙等'}${G.presetsFor(t.id).length ? ` · ${G.presetsFor(t.id).length} 個艙位設定` : ''}</small></td>
-        <td>${t.maxSeats}</td><td>${G.num(t.range)} km</td><td>${G.num(t.rwy)} m</td><td>${G.num(t.fuel)} kg</td>
-        <td>${M(t.price * 1e6)}</td><td>${M(G.leaseMonthly(t))}</td>
+        <td data-l="最多座位">${t.maxSeats}</td><td data-l="航程">${G.num(t.range)} km</td><td data-l="跑道需求">${G.num(t.rwy)} m</td><td data-l="油耗/時">${G.num(t.fuel)} kg</td>
+        <td data-l="價格">${M(t.price * 1e6)}</td><td data-l="月租">${M(G.leaseMonthly(t))}</td>
         <td class="btns"><button class="btn sm primary" data-act="order" data-t="${t.id}" data-mode="buy">購買</button><button class="btn sm" data-act="order" data-t="${t.id}" data-mode="lease">租賃</button></td>
       </tr>`).join('')).join('')}</tbody></table></div>`;
   }

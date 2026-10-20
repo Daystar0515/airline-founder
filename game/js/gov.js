@@ -89,7 +89,7 @@
     const flightsMonth = weekly * 2 * 4.33;
     const budget = Math.round((flightsMonth * (2500 + 7 * d) * rnd(0.8, 1.25)) / 1000) * 1000;
     return { kind: 'pso', cc, a, b: B.iata, dist: d, weekly, fareCapY: pick([0.8, 0.9, 1.0]), months: 24, budget, title: `${A.city} ⇄ ${B.city} 偏遠航線補貼`,
-      desc: `每週至少 ${weekly} 個往返班次，經濟艙票價不得高於參考票價的 ${'{CAP}'}，為期 24 個月；每月依實際執飛比例撥付補貼。` };
+      desc: `每週至少 ${weekly} 個往返班次，${G.cname('Y')}票價不得高於參考票價的 ${'{CAP}'}，為期 24 個月；每月依實際執飛比例撥付補貼。` };
   }
   function makeCharter(cc) {
     const hubs = hubsIn(cc);
@@ -320,7 +320,7 @@
         const done = st ? st.flights : 0;
         ratio = clamp(done / need, 0, 1);
         note = `執飛 ${done}/${Math.round(need)} 班`;
-        if (r && r.fare.Y > c.fareCapY + 1e-9) { ratio *= 0.5; note += '，經濟艙票價超過上限'; }
+        if (r && r.fare.Y > c.fareCapY + 1e-9) { ratio *= 0.5; note += `，${G.cname('Y')}票價超過上限`; }
       } else {
         const rs = G.routesFrom(c.a);
         let fl = 0, dl = 0;

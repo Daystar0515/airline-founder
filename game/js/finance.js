@@ -257,7 +257,7 @@
     const crashMul = S.safety.lastCrash && S.time - S.safety.lastCrash < 3 * YEAR ? 2 : 1;
     const hull = S.fleet.reduce((s, a) => s + G.aircraftValue(a), 0) * G.HULL_RATE;
     const liab = S.fleet.reduce((s, a) => s + G.cabinSeats(a.cabin), 0) * G.LIAB_PER_SEAT * crashMul;
-    if (hull + liab > 0) G._spend((hull + liab) / 365, 'insurance');
+    if (hull + liab > 0) G._spend(((hull + liab) / 365) * (G.evCost ? G.evCost('insurance') : 1), 'insurance');
     // 上市審查
     if (F.stock.pending && S.time >= F.stock.pending.at) {
       if (G.ipoCheck().ok) listCompany();

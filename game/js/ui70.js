@@ -82,7 +82,7 @@
       <div class="row-btns"><button class="btn sm ${on ? 'primary' : ''}" data-act="rv-map" data-code="${c.code}">${on ? '隱藏地圖航網' : '在地圖顯示航網'}</button>
         ${G.allyState && G.allyState().kind === 'own' && !G.isPartner(c.code) ? `<button class="btn sm" data-act="ally-inv-ai" data-code="${c.code}">邀請加入${esc(G.allyState().name)}</button>` : ''}
         ${G.STOCK_OF && G.STOCK_OF[c.code] ? `<button class="btn sm" data-act="stk-goto" data-k="${G.STOCK_OF[c.code]}">買賣股票</button>` : ''}</div>
-      ${ov.length ? `<h4>與你重疊的航線</h4>${ov.map((r) => { const x = G.rivalsOn(r.a, r.b).find((y) => y.code === c.code); return `<p class="rv-line"><b>${r.a}–${r.b}</b> 每日約 ${x.f.toFixed(1)} 班 · 票價 ${x.war ? `<b class="neg">${pct(x.p)}</b>（降價中）` : pct(x.p)} · 你的經濟艙 ${pct(r.fare.Y || 1)}</p>`; }).join('')}` : ''}
+      ${ov.length ? `<h4>與你重疊的航線</h4>${ov.map((r) => { const x = G.rivalsOn(r.a, r.b).find((y) => y.code === c.code); return `<p class="rv-line"><b>${r.a}–${r.b}</b> 每日約 ${x.f.toFixed(1)} 班 · 票價 ${x.war ? `<b class="neg">${pct(x.p)}</b>（降價中）` : pct(x.p)} · 你的${esc(G.cname('Y'))} ${pct(r.fare.Y || 1)}</p>`; }).join('')}` : ''}
       <h4>班次最多的航線（估計）</h4>
       ${top.map((x) => `<p class="rv-line">${x.a}–${x.b} · 每日約 ${x.r.f.toFixed(1)} 班</p>`).join('')}
     </div>`;

@@ -17,7 +17,7 @@ out = root / 'dist'
 out.mkdir(exist_ok=True)
 (out / 'artifact.html').write_text(head + body + scripts, encoding='utf-8')
 full = ('<!doctype html>\n<html lang="zh-Hant">\n<head>\n<meta charset="utf-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">\n'
         + head + '</head>\n<body>\n' + body + scripts + '</body>\n</html>\n')
 (out / 'airline-founder.html').write_text(full, encoding='utf-8')
 import shutil

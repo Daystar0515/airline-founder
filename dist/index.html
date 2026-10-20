@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 
 <title>航空公司創始人</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -904,6 +904,100 @@ pre.errbox { background: var(--panel-2); border: 1px solid var(--line); border-r
 .tut-inline .tut-step { font-size: 11.5px; font-weight: 700; color: var(--accent); }
 .tut-inline .tut-x { border: 0; background: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 2px 8px; }
 
+/* ===== v1.0.0-rc2：鎖住雙擊放大 ===== */
+html, body, *, *::before, *::after { touch-action: manipulation; }
+#mapwrap canvas { touch-action: none; }
+
+/* ===== v1.0.0-rc2：手機版底部分頁（常用 5 個 + 更多）===== */
+#tabs .tab-more { display: none; }
+#tab-more-sheet { display: none; }
+:root[data-layout='mobile'] #tabs .tab2 { display: none; }
+:root[data-layout='mobile'] #tabs .tab-more { display: flex; }
+:root[data-layout='mobile'] #tabs button { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 7px 0 6px; font-size: 11px; border-radius: 10px; justify-content: center; }
+:root[data-layout='mobile'] #tabs .ti { width: 23px; height: 23px; }
+:root[data-layout='mobile'] #tabs button[data-badge]::after { right: calc(50% - 22px); top: 2px; }
+:root[data-layout='mobile'] #tabs .tab-more span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-layout='mobile'] #tab-more-sheet:not([hidden]) {
+  display: grid; position: fixed; left: 10px; right: 10px; z-index: 25; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+  padding: 10px; background: var(--panel); border-radius: 18px; box-shadow: 0 10px 40px rgba(16, 24, 32, 0.22), 0 0 0 1px var(--line);
+}
+#tab-more-sheet button {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 2px;
+  background: var(--panel-2); border: 0; border-radius: 12px; color: var(--fg); font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+#tab-more-sheet button .ti { width: 24px; height: 24px; color: var(--label); }
+#tab-more-sheet button[aria-current='true'] { background: var(--accent-soft); color: var(--accent); }
+#tab-more-sheet button[aria-current='true'] .ti { color: var(--accent); }
+#tab-more-sheet button[data-badge]::after { content: attr(data-badge); position: absolute; top: 6px; right: 10px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--neg); color: #fff; font: 700 10px/16px var(--font-body); }
+
+/* 面板把手加大，比較好點 */
+:root[data-layout='mobile'] #sheet-handle { height: 30px; }
+:root[data-layout='mobile'] #panel[data-sheet='full'] #panel-body { height: calc(100dvh - 214px); }
+
+/* ===== 長清單：顯示更多 ===== */
+.more-btn { display: block; width: 100%; margin: 10px 0 4px; }
+
+/* ===== 手機版表格 ===== */
+/* 競爭：對手徽章換行，價格戰欄位不會被擠出畫面 */
+:root[data-layout='mobile'] table.rv-table td { white-space: normal; }
+:root[data-layout='mobile'] table.rv-table td:nth-child(2) .cbadge { margin: 0 3px 3px 0; }
+/* 財報：第一欄固定在左邊，左右滑動看月份 */
+table.fs th:first-child, table.fs td:first-child { position: sticky; left: 0; background: var(--panel); z-index: 1; }
+:root[data-layout='mobile'] table.fs td:first-child { white-space: normal; min-width: 116px; max-width: 140px; }
+/* 餐點：改成一列一個艙等的卡片 */
+:root[data-layout='mobile'] table.meals thead { display: none; }
+:root[data-layout='mobile'] table.meals, :root[data-layout='mobile'] table.meals tbody { display: block; }
+:root[data-layout='mobile'] table.meals tr { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: center; }
+:root[data-layout='mobile'] table.meals td { display: block; border: 0; padding: 0; font-size: 13px; }
+:root[data-layout='mobile'] table.meals td:first-child { font-weight: 650; }
+:root[data-layout='mobile'] table.meals td:nth-child(n + 3) { grid-column: 1 / -1; color: var(--label); font-size: 12px; }
+:root[data-layout='mobile'] table.meals td:nth-child(n + 3)::before { content: attr(data-l) '　'; color: var(--muted); }
+:root[data-layout='mobile'] .meals select { font-size: 16px; padding: 6px 8px; }
+/* 選購飛機：改成卡片 */
+:root[data-layout='mobile'] table.catalog thead { display: none; }
+:root[data-layout='mobile'] table.catalog, :root[data-layout='mobile'] table.catalog tbody { display: block; }
+:root[data-layout='mobile'] table.catalog tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+:root[data-layout='mobile'] table.catalog tr.grp { display: block; padding: 14px 0 4px; border: 0; }
+:root[data-layout='mobile'] table.catalog td { display: block; border: 0; padding: 0; min-width: 0; text-align: left; white-space: normal; font-size: 13px; }
+:root[data-layout='mobile'] table.catalog td:first-child { grid-column: 1 / -1; min-width: 0; }
+:root[data-layout='mobile'] table.catalog td[data-l]::before { content: attr(data-l); display: block; font-size: 11px; color: var(--muted); }
+:root[data-layout='mobile'] table.catalog td.btns { grid-column: 1 / -1; display: flex; gap: 8px; }
+:root[data-layout='mobile'] table.catalog td.btns .btn { flex: 1; min-height: 42px; }
+:root[data-layout='mobile'] table.catalog td.btns .btn + .btn { margin-left: 0; }
+
+/* ===== v1.0.0-rc2：世界局勢 ===== */
+.world { margin: 14px 0 4px; }
+.world .sec-head { margin-bottom: 4px; }
+.world-fuel { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 8px; font-size: 13px; }
+.world-fuel span { color: var(--label); }
+.world-fuel em { font-style: normal; font-size: 12px; color: var(--label); }
+.world-fuel em.hedge { color: var(--accent); }
+.ev-row { display: flex; align-items: flex-start; gap: 10px; width: 100%; text-align: left; padding: 10px 12px; margin: 0 0 6px; background: var(--panel-2); border: 1px solid transparent; border-radius: var(--r); color: var(--fg); cursor: pointer; font: inherit; }
+.ev-row:hover { border-color: var(--line-2); }
+.ev-row.hit.bad { background: var(--neg-soft); }
+.ev-row.hit.good { background: var(--pos-soft); }
+.ev-ic { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--panel); color: var(--label); }
+.ev-row.bad .ev-ic, .ev-dlg.bad .ev-ic { color: var(--neg); }
+.ev-row.good .ev-ic, .ev-dlg.good .ev-ic { color: var(--pos); }
+.ev-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ev-main b { font-size: 13.5px; }
+.ev-main small { color: var(--label); font-size: 12px; }
+.ev-fx { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.ev-fx .chip { margin: 0; }
+.chip.fx-bad { background: var(--neg-soft); color: var(--neg); }
+.chip.fx-good { background: var(--pos-soft); color: var(--pos); }
+.ev-act { flex: none; align-self: center; font-style: normal; font-size: 11.5px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 10px; padding: 2px 8px; }
+.ev-dlg header { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; }
+.ev-dlg header h2 { margin: 2px 0 0; }
+.ev-dlg header small { color: var(--label); font-size: 12px; }
+.ev-dlg .ev-ic { width: 44px; height: 44px; background: var(--panel-2); }
+.ev-dlg > p { line-height: 1.7; }
+.ev-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 10px 0; font-size: 13px; }
+.ev-meta dt { color: var(--label); }
+.ev-meta dd { margin: 0; }
+.ev-dlg h3 { margin: 14px 0 6px; }
+:root[data-layout='mobile'] [data-act='rv-open'] { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 10px; margin-bottom: 4px; }
+
 </style>
 </head>
 <body>
@@ -923,18 +1017,20 @@ pre.errbox { background: var(--panel-2); border: 1px solid var(--line); border-r
     <button id="sheet-handle" type="button" aria-label="展開面板"><i></i></button>
     <nav id="tabs" role="tablist">
       <button data-act="tab" data-tab="overview" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg>總覽</button>
-      <button data-act="tab" data-tab="airport" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z"/></svg>機場</button>
+      <button class="tab2" data-act="tab" data-tab="airport" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z"/></svg>機場</button>
       <button data-act="tab" data-tab="fleet" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 13l8-2 4-7h2l-2 7 6 1v2l-6 1 2 7h-2l-4-7-8-2z"/></svg>機隊</button>
       <button data-act="tab" data-tab="routes" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><path d="M7 17c6-1 4-9 10-10"/></svg>航線</button>
-      <button data-act="tab" data-tab="hubs" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"/></svg>樞紐</button>
-      <button data-act="tab" data-tab="staff" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 20c0-2.5 1.5-4.5 4-4.5"/></svg>人事</button>
-      <button data-act="tab" data-tab="service" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15h16M6 15a6 6 0 0112 0M12 7V5M3 19h18"/></svg>服務</button>
+      <button class="tab2" data-act="tab" data-tab="hubs" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"/></svg>樞紐</button>
+      <button class="tab2" data-act="tab" data-tab="staff" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 20c0-2.5 1.5-4.5 4-4.5"/></svg>人事</button>
+      <button class="tab2" data-act="tab" data-tab="service" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15h16M6 15a6 6 0 0112 0M12 7V5M3 19h18"/></svg>服務</button>
       <button data-act="tab" data-tab="social" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>社群</button>
-      <button data-act="tab" data-tab="rivals" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l6-6M14 10l6-6M15 4h5v5M9 20H4v-5"/><path d="M4 4l16 16"/></svg>競爭</button>
-      <button data-act="tab" data-tab="alliance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.3 3.8 8.5s-1.2 6.1-3.8 8.5M12 3.5C9.4 5.9 8.2 8.8 8.2 12s1.2 6.1 3.8 8.5"/></svg>聯盟</button>
-      <button data-act="tab" data-tab="gov" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-5 9 5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg>合約</button>
+      <button class="tab2" data-act="tab" data-tab="rivals" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l6-6M14 10l6-6M15 4h5v5M9 20H4v-5"/><path d="M4 4l16 16"/></svg>競爭</button>
+      <button class="tab2" data-act="tab" data-tab="alliance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.3 3.8 8.5s-1.2 6.1-3.8 8.5M12 3.5C9.4 5.9 8.2 8.8 8.2 12s1.2 6.1 3.8 8.5"/></svg>聯盟</button>
+      <button class="tab2" data-act="tab" data-tab="gov" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-5 9 5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg>合約</button>
       <button data-act="tab" data-tab="finance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>財務</button>
+      <button class="tab-more" data-act="tab-more" aria-haspopup="true" aria-expanded="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>更多</span></button>
     </nav>
+    <div id="tab-more-sheet" role="menu" aria-label="更多分頁" hidden></div>
     <div id="panel-body"></div>
   </aside>
   <header id="topbar">
@@ -1000,7 +1096,7 @@ pre.errbox { background: var(--panel-2); border: 1px solid var(--line); border-r
 // 版本、更新紀錄、遊戲標誌。
 (function () {
   const G = (window.G = window.G || {});
-  G.VERSION = '1.0.0-rc';
+  G.VERSION = '1.0.0-rc2';
   G.REPORT_URL = 'https://github.com/Daystar0515/airline-founder/issues/new'; // 錯誤畫面與「關於」的回報按鈕
   const LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="航空公司創始人標誌"><defs><linearGradient id="afbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123a7a"/><stop offset="1" stop-color="#1f6feb"/></linearGradient><clipPath id="afr"><rect width="512" height="512" rx="112"/></clipPath></defs><g clip-path="url(#afr)"><rect width="512" height="512" fill="url(#afbg)"/><circle cx="256" cy="700" r="420" fill="#fff" opacity="0.10"/><circle cx="256" cy="700" r="330" fill="#fff" opacity="0.07"/><path d="M120 372 C 165 262, 250 204, 318 186" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-dasharray="1 31" opacity="0.95"/><circle cx="120" cy="372" r="30" fill="#fff"/><circle cx="120" cy="372" r="17" fill="#f2a93b"/><g transform="translate(386 168) rotate(-18) scale(9.2)"><polygon points="11,0 9,-1.9 3.2,-2 -1.6,-11.5 -4.2,-11.5 -2.2,-2 -7.6,-1.7 -10,-5.4 -11.8,-5.4 -10.8,-1.2 -11.4,0 -10.8,1.2 -11.8,5.4 -10,5.4 -7.6,1.7 -2.2,2 -4.2,11.5 -1.6,11.5 3.2,2 9,1.9" fill="#fff"/></g></g></svg>`;
   // 每次產生不同的 id，避免同一頁出現好幾個標誌時漸層與裁切互相干擾
@@ -1008,6 +1104,7 @@ pre.errbox { background: var(--panel-2); border: 1px solid var(--line); border-r
   G.logoSvg = () => { const k = 'af' + (++seq); return LOGO.replace(/afbg/g, k + 'bg').replace(/afr/g, k + 'r'); };
   Object.defineProperty(G, 'LOGO_SVG', { get: () => G.logoSvg() });
   G.CHANGELOG = [
+    ['1.0.0-rc2', '突發事件（油價、政局動盪、外交風波、疫情、經濟景氣、颱風與火山、航管罷工、大型活動、規費與保險）與燃油避險；社群改成每月刷新、內容加倍、提到艙等時用你自訂的名稱；手機版底部分頁改成常用 5 個加「更多」、鎖住雙擊放大、表格改成卡片、長清單分頁。'],
     ['1.0.0-rc', '正式版候選：多個存檔欄位與匯出匯入、錯誤保護、遊戲標誌與標題畫面、可加到手機主畫面、新手引導、遊戲百科、設定頁、成就與公司大事記、經營回顧、後期效能與數值平衡、多人連線的暫離與重新連線。'],
     ['0.9.0', '機隊與航線篩選搜尋、已開發航線標示、航空聯盟（三大聯盟與自創聯盟）、股市投資與他家持股、公司債。'],
     ['0.8.0', '房主制 4 人連線、真實機隊校正、換大／換小機型建議、前十大賺錢航線、地圖顯示切換。'],
@@ -1850,7 +1947,7 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
     const start = Date.UTC(2027, 0, 1, 0, 0);
     const F = G.FOUNDERS[opts.founder || 'classic'];
     G.S = {
-      v: 8, time: start, start, seq: 1, regSeq: 1, cabinPresets: [], rivals: { pairs: {}, ver: 1, news: [] },
+      v: 9, time: start, start, seq: 1, regSeq: 1, cabinPresets: [], rivals: { pairs: {}, ver: 1, news: [] },
       company: { name: opts.name, code: opts.code, color: opts.color, logo: opts.logo || null, logoAuto: opts.logoAuto || null, cabinNames: { ...G.CLASS_DEFAULT_NAME } },
       founder: { type: opts.founder || 'classic', equity: F.equity },
       cash: G.START_CASH * F.cash,
@@ -1866,6 +1963,7 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
     G.S.hubs[ap.iata] = { type: 'primary', since: start, upgrades: newUpgrades() };
     if (G.initV4) G.initV4(G.S);
     if (G.initV9) G.initV9(G.S); // v0.9.0：航空聯盟、股市、公司債
+    if (G.initWorld) G.initWorld(G.S); // v1.0.0-rc2：突發事件
     spend(G.hubFee(ap, 'primary'), 'facility');
     log(`${opts.name} 成立，主要樞紐設於 ${ap.city}（${ap.iata}）；創始人背景：${F.name}`);
     G.initV3(G.S);
@@ -1895,6 +1993,7 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
     if (S.v < 6) { if (G.migrateV62) G.migrateV62(S); S.v = 6; } // v0.6.2：機況、二手市場、艙位設定
     if (S.v < 7) { if (G.initRivals) G.initRivals(S); S.v = 7; } // v0.7.0：真實航空公司競爭
     if (S.v < 8) { if (G.initV9) G.initV9(S); S.v = 8; } // v0.9.0：航空聯盟、股市、公司債
+    if (S.v < 9) { if (G.initWorld) G.initWorld(S); S.v = 9; } // v1.0.0-rc2：突發事件
     if (G.repairSave) G.repairSave(S);
     return S;
   }
@@ -2269,8 +2368,19 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
       log(`${ac.reg} 在 ${from.iata} → ${to.iata} 找不到避開宵禁的起降時段`, 'warn');
       return;
     }
-    // 人力不足或罷工：取消營收航班，兩小時後再試
-    if (!ferry && Math.random() < G.cancelProb()) {
+    // v1.0.0-rc2 機場關閉（颱風、火山灰）：所有航班停飛，等機場重新開放
+    const shut = G.evClosed && (G.evClosed(from.iata) || G.evClosed(to.iata));
+    if (shut) {
+      ac.st = 'turn'; ac.leg = null; ac.readyAt = Math.max(G.S.time, earliest, Math.min(shut.end, G.S.time + 6 * HOUR));
+      if (!ferry) {
+        G.S.day.cancels = (G.S.day.cancels || 0) + 1; G.S.day.wxCancels = (G.S.day.wxCancels || 0) + 1;
+        const rr = G.S.routes.find((x) => x.id === ac.route);
+        if (rr) rr.stats.cancels = (rr.stats.cancels || 0) + 1;
+      }
+      return;
+    }
+    // 人力不足、罷工或航管罷工：取消營收航班，兩小時後再試
+    if (!ferry && Math.random() < 1 - (1 - G.cancelProb()) * (1 - (G.evCancel ? G.evCancel(from, to) : 0))) {
       ac.st = 'turn'; ac.leg = null; ac.readyAt = Math.max(G.S.time, earliest) + 2 * HOUR;
       G.S.day.cancels = (G.S.day.cancels || 0) + 1;
       const rr = G.S.routes.find((x) => x.id === ac.route);
@@ -2303,7 +2413,7 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
     if (L.ferry || !r) { L.booked = null; return; }
     const freq = G.routeFreq(r);
     const b = { pax: {}, rev: 0, sat: 0, meal: 0, anc: 0 };
-    const h = L.block / 60, svcK = G.cabinServiceFactor();
+    const h = L.block / 60, svcK = G.cabinServiceFactor(), evFare = G.evFare ? G.evFare() : 1;
     let paxAll = 0;
     G.classesFor(t).forEach((c) => {
       const k = ac.cabin[c];
@@ -2313,7 +2423,7 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
       const expect = ex.pax * G.timeOfDay(G.localMinutes(G.AP[L.from], L.dep));
       const pax = Math.min(k.seats, Math.max(0, Math.round(expect * (0.85 + Math.random() * 0.3))));
       b.pax[c] = pax; paxAll += pax; b.paxB = (b.paxB || 0) + pax * (1 - ex.leisure);
-      b.rev += pax * G.refFare(L.dist, c) * r.fare[c] * (G.socialYield ? G.socialYield() : 1);
+      b.rev += pax * G.refFare(L.dist, c) * r.fare[c] * (G.socialYield ? G.socialYield() : 1) * evFare;
       // 單一艙等的滿意度（0–1）
       const cat = G.catering(c, h, L.from, pax);
       b.meal += cat.cost; b.anc += cat.anc;
@@ -2335,12 +2445,12 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
   }
   function flightCosts(ac, h, dist, from, to, pax, svc) {
     const t = G.TYPES[ac.type], seats = G.cabinSeats(ac.cabin);
-    const fuel = t.fuel * h * G.FUEL_PRICE;
+    const fuel = t.fuel * h * (G.fuelPrice ? G.fuelPrice() : G.FUEL_PRICE); // v1.0.0-rc2 油價事件與避險
     // v0.3 起機組薪資改為每月人事費用，這裡只剩飛行津貼與外站住宿
     const crew = h * (2 * 40 + Math.max(1, Math.ceil(seats / 45)) * 12);
-    const maint = t.price * 1e6 * (t.used ? 1.4 : 1) * (1 + 1.2 * (1 - (ac.cond != null ? ac.cond : 1))) * 3.5e-6 * h * G.fmod('mx'); // 航線維修與零件（定期檢查另計）
+    const maint = t.price * 1e6 * (t.used ? 1.4 : 1) * (1 + 1.2 * (1 - (ac.cond != null ? ac.cond : 1))) * 3.5e-6 * h * G.fmod('mx') * (G.evCost ? G.evCost('maint') : 1); // 航線維修與零件（定期檢查另計）
     // 起降費、旅客服務費、航路費、地勤代理費（v0.4 依真實費率上調）
-    const airport = 7 * t.units + pax * (from.cc === to.cc ? 9 : 14) + 0.45 * dist + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500);
+    const airport = (7 * t.units + pax * (from.cc === to.cc ? 9 : 14) + 0.45 * dist + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500)) * (G.evCost ? G.evCost('airport', from, to) : 1);
     spend(fuel, 'fuel'); spend(crew, 'crew'); spend(maint, 'maint'); spend(airport, 'airport'); if (svc) spend(svc, 'service');
     ac.hours += h; ac.cycles += 1;
     G.CHECK_LEVELS.forEach((lv) => (ac.mx[lv] += h));
@@ -2498,7 +2608,8 @@ window.TILE_META={"tile": 1024, "base": 1024, "yMax": 117.30871701272397, "level
     S.fleet.forEach((ac) => { if (ac.mode === 'lease') spend(ac.lease / 30, 'lease'); spend(G.overheadDaily * G.fmod('overhead'), 'overhead'); });
     G.dailyV3(); // 人事薪資、招募離職、士氣、工會、董事會
     G.dailyV4(); // 保險費、股價
-    if (G.socialDaily) G.socialDaily(); // 社群媒體：每週刷新
+    if (G.worldDaily) G.worldDaily(); // v1.0.0-rc2 突發事件：油價、政局、疫情、天災……
+    if (G.socialDaily) G.socialDaily(); // 社群媒體：每月刷新
     if (G.govDaily) G.govDaily(); // 政府合約：新標案、開標、包機期限
     if (G.usedDaily) G.usedDaily(); // 二手飛機市場：每季刷新
     if (G.loyaltyDaily) G.loyaltyDaily(); // v0.6.4 會員方案：年費、福利成本、會員人數
@@ -2666,8 +2777,10 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   };
   // 每班期望旅客數（尚未乘時段係數）與其中觀光客的比例
   G.expectPax = (r, cls, tier, freq, pen) => {
-    const sg = G.routeSegments(G.AP[r.a], G.AP[r.b]), m = sg.cls[cls];
-    const l = m.L * G.segShare(r, 'L', cls, tier, freq, pen), b = m.B * G.segShare(r, 'B', cls, tier, freq, pen);
+    const A = G.AP[r.a], B = G.AP[r.b], sg = G.routeSegments(A, B), m = sg.cls[cls];
+    // v1.0.0-rc2 突發事件改變市場大小（疫情、政局、旅遊熱潮……）
+    const eL = G.evDemand ? G.evDemand(A, B, 'L') : 1, eB = G.evDemand ? G.evDemand(A, B, 'B') : 1;
+    const l = m.L * eL * G.segShare(r, 'L', cls, tier, freq, pen), b = m.B * eB * G.segShare(r, 'B', cls, tier, freq, pen);
     const n = Math.max(freq, 0.5);
     return { pax: (l + b) / n, leisure: l + b > 0 ? l / (l + b) : 1 };
   };
@@ -3481,7 +3594,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     const crashMul = S.safety.lastCrash && S.time - S.safety.lastCrash < 3 * YEAR ? 2 : 1;
     const hull = S.fleet.reduce((s, a) => s + G.aircraftValue(a), 0) * G.HULL_RATE;
     const liab = S.fleet.reduce((s, a) => s + G.cabinSeats(a.cabin), 0) * G.LIAB_PER_SEAT * crashMul;
-    if (hull + liab > 0) G._spend((hull + liab) / 365, 'insurance');
+    if (hull + liab > 0) G._spend(((hull + liab) / 365) * (G.evCost ? G.evCost('insurance') : 1), 'insurance');
     // 上市審查
     if (F.stock.pending && S.time >= F.stock.pending.at) {
       if (G.ipoCheck().ok) listCompany();
@@ -3694,31 +3807,42 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
 
 </script>
 <script>
-// v0.4.2 社群媒體：每週刷新的貼文（新聞、自媒體、企業、民眾）、公司回應、公司自行發文，以及對營運的影響。
+// v0.4.2 社群媒體：新聞、自媒體、企業、民眾的貼文；公司回應、公司自行發文，以及對營運的影響。
+// v1.0.0-rc2：改成每個遊戲月刷新一次（原本每週）；提到艙等時用玩家自訂的艙等名稱；貼文種類大幅增加；突發事件會出現即時新聞。
 // 所有作者都是虛構的帳號與媒體，不代表任何真實個人或企業。
 (function () {
   const G = window.G;
-  const DAY = 86400000, WEEK = 7 * DAY;
+  const DAY = 86400000, MONTH = 30 * DAY;
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const rnd = (a, b) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const nextMonth = (t) => { const d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1); };
+  const cityOf = (iata) => (G.AP[iata] ? G.AP[iata].city.replace(/\s*\(.*\)/, '') : iata);
+  // 玩家自訂的艙等名稱（例如把商務艙改叫「皇璽艙」）
+  G.cname = (c) => (G.S && G.S.company.cabinNames && G.S.company.cabinNames[c]) || G.CLASS_DEFAULT_NAME[c];
 
   G.SOCIAL_CATS = { news: { name: '新聞', color: '#2f6fde' }, kol: { name: '自媒體', color: '#a24bd6' }, biz: { name: '企業', color: '#0f8a6a' }, public: { name: '民眾', color: '#d9822b' } };
   const AUTHORS = {
-    news: [['環球航空新聞網', 'aviationdaily'], ['財經快報', 'finflash'], ['旅遊週刊', 'travelweekly'], ['每日新聞台', 'dailynews'], ['產業觀察報', 'industrywatch']],
-    kol: [['飛機迷阿傑', 'planespotter_j'], ['旅行吃貨小米', 'foodie.mi'], ['哩程達人 Max', 'milesmax'], ['航空觀察室', 'av_observer'], ['背包客小安', 'backpacker_an']],
-    biz: [['海島旅行社', 'islandtours'], ['環宇空廚', 'globalcatering'], ['星辰飯店集團', 'starhotels'], ['北辰航空', 'polaris_air'], ['南星航空', 'southstar_air'], ['雲端訂票網', 'cloudtrip']],
-    public: [['王小明', 'xm_wang'], ['陳佳慧', 'jiahui.c'], ['林大偉', 'dw_lin'], ['旅人 Amy', 'amy_on_the_go'], ['張志豪', 'chihao_z'], ['匿名旅客', 'anon_traveler'], ['李曉雯', 'hsiaowen'], ['黃柏翰', 'pohan.h']],
+    news: [['環球航空新聞網', 'aviationdaily'], ['財經快報', 'finflash'], ['旅遊週刊', 'travelweekly'], ['每日新聞台', 'dailynews'], ['產業觀察報', 'industrywatch'], ['晨間國際', 'morningworld'], ['城市生活誌', 'citylife']],
+    kol: [['飛機迷阿傑', 'planespotter_j'], ['旅行吃貨小米', 'foodie.mi'], ['哩程達人 Max', 'milesmax'], ['航空觀察室', 'av_observer'], ['背包客小安', 'backpacker_an'], ['商務艙研究所', 'bizclass.lab'], ['親子出遊 Ivy', 'ivy.familytrip'], ['機長日常', 'captain.daily']],
+    biz: [['海島旅行社', 'islandtours'], ['環宇空廚', 'globalcatering'], ['星辰飯店集團', 'starhotels'], ['北辰航空', 'polaris_air'], ['南星航空', 'southstar_air'], ['雲端訂票網', 'cloudtrip'], ['銀翼信用卡', 'silverwing_card'], ['旅安保險', 'safetrip_ins']],
+    public: [['王小明', 'xm_wang'], ['陳佳慧', 'jiahui.c'], ['林大偉', 'dw_lin'], ['旅人 Amy', 'amy_on_the_go'], ['張志豪', 'chihao_z'], ['匿名旅客', 'anon_traveler'], ['李曉雯', 'hsiaowen'], ['黃柏翰', 'pohan.h'], ['吳宜蓁', 'yichen.wu'], ['蔡承恩', 'chengen_t'], ['周芷若', 'zhiruo.z'], ['劉家豪', 'liu.jh']],
   };
 
   // ---------- 狀態 ----------
-  const blank = (S) => ({ week: 0, nextAt: S.time + WEEK, posts: [], effects: [], postedThisWeek: 0, seq: 1, snap: snapshot(S) });
+  const blank = (S) => ({ v2: true, month: 0, week: 0, nextAt: nextMonth(S.time), posts: [], effects: [], postedThisMonth: 0, seq: 1, snap: snapshot(S) });
   function snapshot(S) {
-    return { t: S.time, delays: S.safety.delays, emergencies: S.safety.emergencies, crashes: S.safety.crashes, routes: S.routes.map((r) => r.id), fleet: S.fleet.length, rep: S.rep, cash: S.cash };
+    return { t: S.time, delays: S.safety.delays, emergencies: S.safety.emergencies, crashes: S.safety.crashes, routes: S.routes.map((r) => r.id), fleet: S.fleet.length, types: [...new Set(S.fleet.map((a) => a.type))], hubs: Object.keys(S.hubs), rep: S.rep, cash: S.cash, price: S.fin && S.fin.stock ? S.fin.stock.price : null, gov: S.stats ? S.stats.govDone || 0 : 0, pax: S.stats ? S.stats.pax || 0 : 0, ally: S.ally ? S.ally.status : null, loyalty: !!S.loyalty };
   }
-  G.initSocial = (S) => { if (!S.social) { S.social = blank(S); generateWeek(S, true); } };
+  G.initSocial = (S) => { if (!S.social) { S.social = blank(S); generate(S, true); } };
+  // 舊存檔（每週刷新）改成每月刷新
+  function upgrade(so, S) {
+    if (so.v2) return;
+    so.v2 = true; so.month = so.month || 0; so.nextAt = nextMonth(S.time); so.postedThisMonth = so.postedThisWeek || 0;
+    so.snap = { ...snapshot(S), ...so.snap, types: [...new Set(S.fleet.map((a) => a.type))], hubs: Object.keys(S.hubs) };
+  }
 
-  // ---------- 影響：需求倍率與票價收益倍率 ----------
+  // ---------- 影響：攬客倍率與票價收益倍率 ----------
   G.socialDemand = (r) => {
     const S = G.S;
     if (!S || !S.social) return 1;
@@ -3730,12 +3854,12 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     if (!S || !S.social) return 1;
     return clamp(S.social.effects.reduce((m, e) => (S.time < e.until && e.yield ? m * e.yield : m), 1), 0.85, 1);
   };
-  function addEffect(S, e) { S.social.effects.push({ ...e, until: S.time + (e.days || 7) * DAY }); }
+  function addEffect(S, e) { S.social.effects.push({ ...e, until: S.time + (e.days || 14) * DAY }); }
   function applyOutcome(S, o, source) {
     if (o.cost) G._spend(o.cost, 'marketing');
-    // 正面效果邊際遞減：評價越高越難再往上推；同一週累積的正面加分也有上限
+    // 正面效果邊際遞減：評價越高越難再往上推；同一個月累積的正面加分也有上限
     if (o.rep > 0) {
-      const so = S.social, room = Math.max(0, 4 - (so.repGain || 0));
+      const so = S.social, room = Math.max(0, 6 - (so.repGain || 0));
       const v = Math.min(room, o.rep * Math.max(0.15, (100 - S.rep) / 50));
       so.repGain = (so.repGain || 0) + v;
       if (v > 0) G.repDelta(v);
@@ -3744,110 +3868,190 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     if (o.morale) G.STAFF_GROUPS.forEach((g) => (S.hr.groups[g].morale = clamp(S.hr.groups[g].morale + o.morale, 0, 100)));
     if (o.stock && G.stockShock) G.stockShock(o.stock);
   }
+  G.socialEffect = (o) => { const S = G.S; if (!S.social) G.initSocial(S); applyOutcome(S, o, 'event'); };
 
-  // ---------- 本週公司狀況 ----------
+  // ---------- 這個月公司的狀況 ----------
+  function classInfo(S) {
+    const info = {};
+    G.CLASSES.forEach((c) => {
+      const acs = S.fleet.filter((a) => a.cabin && a.cabin[c] && a.cabin[c].seats > 0);
+      if (!acs.length) return;
+      info[c] = { n: acs.length, tier: acs.reduce((s, a) => s + a.cabin[c].tier, 0) / acs.length, wide: acs.some((a) => G.TYPES[a.type].wide) };
+    });
+    return info;
+  }
   function context(S) {
     const sn = S.social.snap;
-    const days = S.days.slice(-7);
+    const days = S.days.slice(-30);
     const sat = days.filter((d) => d.sat != null);
     const avgSat = sat.length ? sat.reduce((s, d) => s + d.sat, 0) / sat.length : null;
     const newRoutes = S.routes.filter((r) => !sn.routes.includes(r.id));
     const fares = S.routes.map((r) => r.fare.Y);
     const hub = G.AP[G.primaryHub()];
     const meals = S.catering ? S.catering.meals : {};
+    const cls = classInfo(S);
+    const types = [...new Set(S.fleet.map((a) => a.type))];
+    const st = S.fin && S.fin.statements[S.fin.statements.length - 1];
+    const wars = S.routes.filter((r) => G.rivalsOn && G.rivalsOn(r.a, r.b).some((x) => x.war));
+    const old = S.fleet.filter((a) => a.cond != null && a.cond < 0.8).length;
+    const ev = G.activeEvents ? G.activeEvents().filter((e) => G.eventHitsMe(e)) : [];
+    const chef = ['F', 'J'].find((c) => cls[c] && meals[c] === 'chef');
+    const hasW = !!cls.W, hasF = !!cls.F;
     return {
-      co: S.company.name, hub: hub ? hub.city.replace(/\s*\(.*\)/, '') : '', hubIata: hub ? hub.iata : '',
+      co: S.company.name, code: S.company.code, hub: hub ? hub.city.replace(/\s*\(.*\)/, '') : '', hubIata: hub ? hub.iata : '',
       delays: S.safety.delays - sn.delays, emergencies: S.safety.emergencies - sn.emergencies, crashes: S.safety.crashes - sn.crashes,
-      newRoutes, newFleet: S.fleet.length - sn.fleet, avgSat, repUp: S.rep - sn.rep,
+      cancels: days.reduce((s, d) => s + (d.cancels || 0), 0), wx: days.reduce((s, d) => s + (d.wxCancels || 0), 0),
+      newRoutes, newFleet: S.fleet.length - sn.fleet, newTypes: types.filter((t) => !(sn.types || []).includes(t)), avgSat, repUp: S.rep - sn.rep,
+      newHubs: Object.keys(S.hubs).filter((h) => !(sn.hubs || []).includes(h)),
       cheap: fares.length && Math.min(...fares) <= 0.85, pricey: fares.length && Math.max(...fares) >= 1.25,
       strike: S.hr ? G.UNION_GROUPS.find((g) => S.hr.unions[g].strike) : null,
       demand: S.hr ? G.UNION_GROUPS.find((g) => S.hr.unions[g].demand) : null,
       lowMorale: S.hr ? G.STAFF_GROUPS.find((g) => S.hr.groups[g].morale < 40) : null,
-      listed: S.fin && S.fin.stock.listed, price: S.fin && S.fin.stock.price,
-      budgetMeal: meals.Y === 'none' || meals.Y === 'bob', chefMeal: meals.J === 'chef' || meals.F === 'chef',
+      highMorale: S.hr ? G.STAFF_GROUPS.every((g) => S.hr.groups[g].morale >= 80) : false,
+      listed: S.fin && S.fin.stock.listed, price: S.fin && S.fin.stock.price, priceWas: sn.price,
+      budgetMeal: cls.Y && (meals.Y === 'none' || meals.Y === 'bob'), chef, hasW, hasF, cls,
+      tightY: cls.Y && cls.Y.tier < 1, plushY: cls.Y && cls.Y.tier >= 3, flatJ: cls.J && cls.J.wide && cls.J.tier >= 3, poorJ: cls.J && cls.J.tier < 1.5,
       fleetSize: S.fleet.length, routeCount: S.routes.length,
-      someRoute: S.routes.length ? pick(S.routes) : null,
+      someRoute: S.routes.length ? pick(S.routes) : null, longRoute: S.routes.filter((r) => G.dist(G.AP[r.a], G.AP[r.b]) > 7000)[0] || null,
+      ni: st ? st.ni : 0, rev: st ? st.rev : 0,
+      govNew: (S.stats ? S.stats.govDone || 0 : 0) - (sn.gov || 0),
+      paxMilestone: S.stats ? [1e6, 5e6, 1e7, 5e7, 1e8, 2e8, 5e8, 1e9].filter((m) => (S.stats.pax || 0) >= m && (sn.pax || 0) < m).pop() || 0 : 0,
+      allyJoined: S.ally && S.ally.status === 'member' && sn.ally !== 'member' ? G.allyName() : null,
+      loyaltyNew: S.loyalty && !sn.loyalty ? S.loyalty.name : null, loyaltyName: S.loyalty ? S.loyalty.name : null,
+      wars, old, ev,
     };
   }
+  const cn = (c) => G.cname(c);
+  const pct = (x) => Math.round(x * 100);
 
   // 回應選項的共用組合
   const R = {
     apologize: (cost) => ({ key: 'apologize', label: '公開道歉並提出補償', hint: `花費約 ${G.money(cost)}，大多能平息爭議`, success: 0.85, ok: { cost, rep: 2.5 }, fail: { cost, rep: 0.5 } }),
     explain: () => ({ key: 'explain', label: '發布官方說明', hint: '不花錢，但可能被認為在卸責', success: 0.6, ok: { rep: 1.2 }, fail: { rep: -1.5 } }),
     rebut: () => ({ key: 'rebut', label: '強硬反駁', hint: '高風險：可能贏得支持，也可能引發更大的反彈', success: 0.35, ok: { rep: 2 }, fail: { rep: -5, stock: -0.03 } }),
-    thank: () => ({ key: 'thank', label: '感謝並轉發', hint: '小幅提升好感與訂位', success: 0.95, ok: { rep: 0.6, demand: 1.03, days: 7 }, fail: { rep: 0 } }),
-    reward: (cost) => ({ key: 'reward', label: '推出回饋優惠', hint: `花費約 ${G.money(cost)}，一週內訂位增加`, success: 0.9, ok: { cost, rep: 0.8, demand: 1.06, days: 7 }, fail: { cost, rep: 0 } }),
-    invite: (cost) => ({ key: 'invite', label: '邀請重新體驗', hint: `招待費約 ${G.money(cost)}，對方可能改寫評價`, success: 0.65, ok: { cost, rep: 1.5, demand: 1.02, days: 7 }, fail: { cost, rep: -1 } }),
-    trend: (good) => ({ key: 'trend', label: '跟上話題發文', hint: '蹭熱度：反應好時增加曝光，反應差時被說消費話題', success: good, ok: { rep: 0.5, demand: 1.04, days: 7 }, fail: { rep: -2 } }),
-    waiver: (cost) => ({ key: 'waiver', label: '宣布免費改票', hint: `預估成本 ${G.money(cost)}，展現誠意`, success: 0.9, ok: { cost, rep: 2, demand: 0.98, days: 7 }, fail: { cost, rep: 0.5 } }),
-    promoJump: () => ({ key: 'promo', label: '順勢推出限時促銷', hint: '一週內訂位大增，但票價收益下降', success: 0.85, ok: { demand: 1.12, yield: 0.94, days: 7, rep: 0.3 }, fail: { demand: 1.04, yield: 0.94, days: 7 } }),
+    thank: () => ({ key: 'thank', label: '感謝並轉發', hint: '小幅提升好感與訂位', success: 0.95, ok: { rep: 0.6, demand: 1.03, days: 14 }, fail: { rep: 0 } }),
+    reward: (cost) => ({ key: 'reward', label: '推出回饋優惠', hint: `花費約 ${G.money(cost)}，兩週內訂位增加`, success: 0.9, ok: { cost, rep: 0.8, demand: 1.06, days: 14 }, fail: { cost, rep: 0 } }),
+    invite: (cost) => ({ key: 'invite', label: '邀請重新體驗', hint: `招待費約 ${G.money(cost)}，對方可能改寫評價`, success: 0.65, ok: { cost, rep: 1.5, demand: 1.02, days: 14 }, fail: { cost, rep: -1 } }),
+    trend: (good) => ({ key: 'trend', label: '跟上話題發文', hint: '蹭熱度：反應好時增加曝光，反應差時被說消費話題', success: good, ok: { rep: 0.5, demand: 1.04, days: 14 }, fail: { rep: -2 } }),
+    waiver: (cost) => ({ key: 'waiver', label: '宣布免費改票', hint: `預估成本 ${G.money(cost)}，展現誠意`, success: 0.9, ok: { cost, rep: 2, demand: 0.98, days: 14 }, fail: { cost, rep: 0.5 } }),
+    promoJump: () => ({ key: 'promo', label: '順勢推出限時促銷', hint: '兩週內訂位大增，但票價收益下降', success: 0.85, ok: { demand: 1.12, yield: 0.94, days: 14, rep: 0.3 }, fail: { demand: 1.04, yield: 0.94, days: 14 } }),
+    upgrade: (cost) => ({ key: 'upgrade', label: '改善產品並公開承諾', hint: `花費約 ${G.money(cost)}，展現改進的決心`, success: 0.8, ok: { cost, rep: 1.8 }, fail: { cost, rep: 0.2 } }),
+    collab: () => ({ key: 'collab', label: '邀請合作推出聯名活動', hint: '兩週內訂位小增，對方帶來新客群', success: 0.75, ok: { rep: 0.8, demand: 1.05, days: 14 }, fail: { rep: 0 } }),
+    staffThanks: () => ({ key: 'staff', label: '轉發並感謝第一線員工', hint: '員工士氣 +3，評價小幅上升', success: 0.95, ok: { rep: 0.6, morale: 3 }, fail: { rep: 0 } }),
   };
   const sizeCost = (base) => base * Math.max(1, G.S.fleet.length / 3);
+  const handle = () => G.S.company.code.toLowerCase() + '_air';
 
   // ---------- 貼文模板 ----------
   // related：與公司有關；sentiment：對公司的好感（−2 到 +2）；virality：擴散力（0–1）
   const T = [
-    // 與公司有關：負面
+    // ===== 與公司有關：負面 =====
     { cat: 'news', when: (c) => c.crashes > 0, make: (c) => ({ text: `【快訊】${c.co}客機失事，民航主管機關已成立專案小組調查，家屬要求公司說明維修紀錄。`, sentiment: -2, virality: 1, opts: [R.apologize(sizeCost(2e6)), R.explain()] }) },
-    { cat: 'news', when: (c) => c.emergencies > 0, make: (c) => ({ text: `${c.co}本週發生 ${c.emergencies} 起機械故障緊急轉降事件，旅客驚魂未定，專家呼籲檢視維修制度。`, sentiment: -1.5, virality: 0.8, opts: [R.apologize(sizeCost(300e3)), R.explain(), R.rebut()] }) },
-    { cat: 'public', when: (c) => c.delays >= 2, make: (c) => ({ text: `又延誤了！搭${c.co}在登機門等了三個小時，地勤只說「機械問題」，到底什麼時候才能飛？ #${c.co}延誤`, sentiment: -1, virality: 0.5, opts: [R.apologize(sizeCost(80e3)), R.explain(), R.rebut()] }) },
+    { cat: 'news', when: (c) => c.emergencies > 0, make: (c) => ({ text: `${c.co}本月發生 ${c.emergencies} 起機械故障緊急轉降事件，旅客驚魂未定，專家呼籲檢視維修制度。`, sentiment: -1.5, virality: 0.8, opts: [R.apologize(sizeCost(300e3)), R.explain(), R.rebut()] }) },
+    { cat: 'public', when: (c) => c.delays >= 4, make: (c) => ({ text: `又延誤了！搭${c.co}在登機門等了三個小時，地勤只說「機械問題」，到底什麼時候才能飛？ #${c.co}延誤`, sentiment: -1, virality: 0.5, opts: [R.apologize(sizeCost(80e3)), R.explain(), R.rebut()] }) },
+    { cat: 'news', when: (c) => c.cancels - c.wx >= 20, make: (c) => ({ text: `${c.co}本月取消 ${c.cancels - c.wx} 個航班，旅客抱怨臨時接到通知、改票大排長龍。`, sentiment: -1.2, virality: 0.6, opts: [R.waiver(sizeCost(200e3)), R.explain()] }) },
+    { cat: 'public', when: (c) => c.wx >= 5, make: (c) => ({ text: `天氣不好航班取消可以理解，但${c.co}客服電話打了一小時都打不進去，改票系統也一直當機…`, sentiment: -0.6, virality: 0.35, opts: [R.waiver(sizeCost(100e3)), R.explain()] }) },
     { cat: 'news', when: (c) => c.strike, make: (c) => ({ text: `${c.co}${G.STAFF[c.strike].name}工會${G.S.hr.unions[c.strike].strike.active ? '罷工進入第 ' + Math.max(1, Math.ceil((G.S.time - G.S.hr.unions[c.strike].strike.start) / DAY)) + ' 天' : '宣布即將罷工'}，大批旅客行程受影響，勞資雙方各說各話。`, sentiment: -1.5, virality: 0.9, opts: [R.waiver(sizeCost(400e3)), R.explain(), R.rebut()] }) },
     { cat: 'public', when: (c) => c.lowMorale, make: (c) => ({ text: `朋友在${c.co}當${G.STAFF[c.lowMorale].name}，說公司薪水低、班表又排很滿，最近一堆人想離職…`, sentiment: -1, virality: 0.4, opts: [R.explain(), R.rebut()] }) },
-    { cat: 'kol', when: (c) => c.budgetMeal && c.routeCount, make: (c) => ({ text: `搭了${c.co}，經濟艙連一杯水都要另外付錢？這價位的服務只能說普普。完整開箱影片在主頁 ✈️`, sentiment: -0.8, virality: 0.6, opts: [R.invite(30e3), R.explain(), R.rebut()] }) },
+    { cat: 'kol', when: (c) => c.budgetMeal && c.routeCount, make: (c) => ({ text: `搭了${c.co}，${cn('Y')}連一杯水都要另外付錢？這價位的服務只能說普普。完整開箱影片在主頁 ✈️`, sentiment: -0.8, virality: 0.6, opts: [R.invite(30e3), R.explain(), R.rebut()] }) },
+    { cat: 'public', when: (c) => c.tightY, make: (c) => ({ text: `${c.co}的${cn('Y')}座位也太窄了吧，膝蓋直接頂到前座，三個小時坐到腰痠背痛 😣`, sentiment: -0.8, virality: 0.45, opts: [R.upgrade(sizeCost(150e3)), R.explain(), R.rebut()] }) },
+    { cat: 'kol', when: (c) => c.poorJ, make: (c) => ({ text: `花大錢買了${c.co}的${cn('J')}，結果座椅跟豪華一點的經濟座差不多，不推。`, sentiment: -0.9, virality: 0.55, opts: [R.invite(40e3), R.upgrade(sizeCost(250e3)), R.explain()] }) },
     { cat: 'public', when: (c) => c.pricey, make: (c) => ({ text: `${c.co}的票價也太貴了吧，同一天別家便宜快兩成，不懂誰會買。`, sentiment: -0.7, virality: 0.35, opts: [R.promoJump(), R.explain()] }) },
-    { cat: 'news', when: (c) => c.avgSat != null && c.avgSat < 0.6, make: (c) => ({ text: `消費者團體公布最新航空服務調查，${c.co}旅客滿意度僅 ${Math.round(c.avgSat * 100)} 分，敬陪末座。`, sentiment: -1.2, virality: 0.6, opts: [R.apologize(sizeCost(150e3)), R.explain(), R.rebut()] }) },
-    // 與公司有關：正面
-    { cat: 'news', when: (c) => c.newRoutes.length > 0, make: (c) => ({ text: `${c.co}宣布開航 ${c.newRoutes.map((r) => `${r.a}–${r.b}`).slice(0, 3).join('、')}，業者看好帶動${G.AP[c.newRoutes[0].b].city.replace(/\s*\(.*\)/, '')}觀光商機。`, sentiment: 1, virality: 0.5, opts: [R.thank(), R.reward(sizeCost(60e3))] }) },
-    { cat: 'biz', when: (c) => c.newRoutes.length > 0, make: (c) => ({ text: `恭喜 @${G.S.company.code.toLowerCase()}_air 新航線開航！本社即日起推出 ${G.AP[c.newRoutes[0].b].city.replace(/\s*\(.*\)/, '')} 機加酒套裝行程，名額有限 🧳`, author: AUTHORS.biz[pick([0, 2, 5])], sentiment: 1, virality: 0.3, opts: [R.thank()] }) },
+    { cat: 'news', when: (c) => c.avgSat != null && c.avgSat < 0.6, make: (c) => ({ text: `消費者團體公布最新航空服務調查，${c.co}旅客滿意度僅 ${pct(c.avgSat)} 分，敬陪末座。`, sentiment: -1.2, virality: 0.6, opts: [R.apologize(sizeCost(150e3)), R.explain(), R.rebut()] }) },
+    { cat: 'kol', when: (c) => c.old >= 3, make: (c) => ({ text: `最近搭${c.co}遇到的飛機都有點舊，椅背螢幕不亮、置物櫃關不緊，讓人有點擔心維修狀況。`, sentiment: -0.9, virality: 0.5, opts: [R.upgrade(sizeCost(200e3)), R.explain(), R.rebut()] }) },
+    { cat: 'news', when: (c) => c.ni < 0 && c.rev > 0 && c.listed, make: (c) => ({ text: `${c.co}上月虧損 ${G.money(-c.ni)}，分析師關注公司擴張速度與成本控管。`, sentiment: -0.8, virality: 0.45, opts: [R.explain(), R.rebut()] }) },
+    { cat: 'news', when: (c) => c.listed && c.priceWas && c.price < c.priceWas * 0.85, make: (c) => ({ text: `${c.co}股價一個月重挫 ${pct(1 - c.price / c.priceWas)}%，投資人要求經營層說明。`, sentiment: -1, virality: 0.5, opts: [R.explain(), R.rebut()] }) },
+    { cat: 'public', when: (c) => c.wars.length > 0, make: (c) => { const r = c.wars[0]; return { text: `${r.a}–${r.b} 最近好幾家在殺價，${c.co}跟對手比來比去，票價一天一個樣，到底什麼時候買最划算？`, sentiment: 0, virality: 0.3, opts: [R.promoJump(), R.trend(0.6)] }; } },
+    // ===== 與公司有關：正面 =====
+    { cat: 'news', when: (c) => c.newRoutes.length > 0, make: (c) => ({ text: `${c.co}宣布開航 ${c.newRoutes.map((r) => `${r.a}–${r.b}`).slice(0, 3).join('、')}${c.newRoutes.length > 3 ? ` 等 ${c.newRoutes.length} 條航線` : ''}，業者看好帶動${cityOf(c.newRoutes[0].b)}觀光商機。`, sentiment: 1, virality: 0.5, opts: [R.thank(), R.reward(sizeCost(60e3))] }) },
+    { cat: 'biz', when: (c) => c.newRoutes.length > 0, make: (c) => ({ text: `恭喜 @${handle()} 新航線開航！本社即日起推出 ${cityOf(c.newRoutes[0].b)} 機加酒套裝行程，名額有限 🧳`, author: AUTHORS.biz[pick([0, 2, 5])], sentiment: 1, virality: 0.3, opts: [R.thank(), R.collab()] }) },
     { cat: 'public', when: (c) => c.avgSat != null && c.avgSat >= 0.8, make: (c) => ({ text: `第一次搭${c.co}，座位舒服、空服員很親切，準時抵達，下次還會再選！`, sentiment: 1, virality: 0.3, opts: [R.thank(), R.reward(sizeCost(40e3))] }) },
-    { cat: 'kol', when: (c) => c.chefMeal, make: (c) => ({ text: `${c.co}商務艙的主廚套餐真的有誠意，牛排火候比很多餐廳還好，這趟值了 🥩`, sentiment: 1.2, virality: 0.6, opts: [R.thank(), R.reward(sizeCost(50e3))] }) },
+    { cat: 'kol', when: (c) => c.chef, make: (c) => ({ text: `${c.co}${cn(c.chef)}的主廚套餐真的有誠意，牛排火候比很多餐廳還好，這趟值了 🥩`, sentiment: 1.2, virality: 0.6, opts: [R.thank(), R.reward(sizeCost(50e3))] }) },
+    { cat: 'kol', when: (c) => c.flatJ, make: (c) => ({ text: `開箱${c.co}${cn('J')}：可以完全躺平的座椅、獨立走道、夠大的置物空間，長程紅眼班睡得很好 😴`, sentiment: 1.1, virality: 0.6, opts: [R.thank(), R.collab()] }) },
+    { cat: 'kol', when: (c) => c.hasF, make: (c) => ({ text: `人生第一次搭${c.co}${cn('F')}！一進機艙就有專屬服務員迎接，餐點可以隨時點，這體驗真的忘不了 ✨`, sentiment: 1.3, virality: 0.7, opts: [R.thank(), R.collab()] }) },
+    { cat: 'public', when: (c) => c.hasW, make: (c) => ({ text: `這次加價升等到${c.co}${cn('W')}，座位寬很多、還有獨立置物空間，長程真的值得。`, sentiment: 0.8, virality: 0.3, opts: [R.thank()] }) },
+    { cat: 'public', when: (c) => c.plushY, make: (c) => ({ text: `${c.co}的${cn('Y')}椅距比別家寬，螢幕也大，同樣價錢我會優先選他們。`, sentiment: 0.9, virality: 0.35, opts: [R.thank(), R.reward(sizeCost(40e3))] }) },
     { cat: 'kol', when: (c) => c.newFleet > 0, make: (c) => ({ text: `在${c.hubIata}拍到${c.co}的新飛機！塗裝很好看，這家最近擴張得很快 📸`, sentiment: 0.8, virality: 0.4, opts: [R.thank()] }) },
-    { cat: 'news', when: (c) => c.listed && c.repUp > 3, make: (c) => ({ text: `${c.co}股價本週走強，法人看好評價回升帶動客源，目前每股 $${c.price.toFixed(2)}。`, sentiment: 1, virality: 0.4, opts: [R.thank()] }) },
+    { cat: 'kol', when: (c) => c.newTypes.length > 0, make: (c) => ({ text: `${c.co}的第一架 ${G.TYPES[c.newTypes[0]].model} 首航！飛機迷們已經在跑道旁卡好位了 🛫`, sentiment: 1, virality: 0.55, opts: [R.thank(), R.collab()] }) },
+    { cat: 'news', when: (c) => c.newHubs.length > 0, make: (c) => ({ text: `${c.co}宣布以${cityOf(c.newHubs[0])}為新的樞紐，預計帶動當地就業與轉機客源。`, sentiment: 1, virality: 0.5, opts: [R.thank()] }) },
+    { cat: 'news', when: (c) => c.listed && c.repUp > 3, make: (c) => ({ text: `${c.co}股價本月走強，法人看好評價回升帶動客源，目前每股 $${c.price.toFixed(2)}。`, sentiment: 1, virality: 0.4, opts: [R.thank()] }) },
+    { cat: 'news', when: (c) => c.ni > 0 && c.rev > 0 && c.ni / c.rev > 0.12, make: (c) => ({ text: `${c.co}上月稅後淨利 ${G.money(c.ni)}，獲利率 ${pct(c.ni / c.rev)}%，表現優於多數同業。`, sentiment: 1, virality: 0.45, opts: [R.thank(), R.staffThanks()] }) },
+    { cat: 'news', when: (c) => c.paxMilestone, make: (c) => ({ text: `${c.co}累計載客突破 ${c.paxMilestone >= 1e8 ? c.paxMilestone / 1e8 + ' 億' : c.paxMilestone / 1e4 + ' 萬'}人次，公司表示感謝旅客一路支持。`, sentiment: 1, virality: 0.5, opts: [R.thank(), R.reward(sizeCost(60e3))] }) },
+    { cat: 'news', when: (c) => c.allyJoined, make: (c) => ({ text: `${c.co}正式加入${c.allyJoined}，旅客可以累積與兌換盟友的里程，轉機也更方便。`, sentiment: 1.1, virality: 0.6, opts: [R.thank()] }) },
+    { cat: 'kol', when: (c) => c.loyaltyNew, make: (c) => ({ text: `${c.co}推出會員方案「${c.loyaltyNew}」，整理了各等級福利，哪一級最划算？看完再決定要不要入會 💳`, sentiment: 0.7, virality: 0.5, opts: [R.thank(), R.collab()] }) },
+    { cat: 'public', when: (c) => c.loyaltyName && Math.random() < 0.5, make: (c) => ({ text: `${c.loyaltyName}的會員升等好難喔，飛了一整年還差一點點才到下一級 😭`, sentiment: -0.2, virality: 0.2, opts: [R.reward(sizeCost(30e3)), R.explain()] }) },
+    { cat: 'news', when: (c) => c.govNew > 0, make: (c) => ({ text: `${c.co}順利完成政府委託任務，主管機關肯定其執行能力。`, sentiment: 0.9, virality: 0.35, opts: [R.thank()] }) },
+    { cat: 'public', when: (c) => c.highMorale, make: (c) => ({ text: `${c.co}的空服員每個都笑得很真誠，看得出來是真的喜歡這份工作，旅途心情也跟著變好。`, sentiment: 0.9, virality: 0.3, opts: [R.staffThanks(), R.thank()] }) },
     { cat: 'public', when: (c) => c.cheap, make: (c) => ({ text: `${c.co}現在的票價好划算！已經跟朋友約好連假出國 🎉`, sentiment: 0.8, virality: 0.3, opts: [R.thank(), R.promoJump()] }) },
-    { cat: 'public', when: (c) => c.someRoute, make: (c) => ({ text: `下個月要飛 ${c.someRoute.a}–${c.someRoute.b}，有人搭過${c.co}嗎？想知道行李額度跟座位寬度。`, sentiment: 0, virality: 0.15, opts: [R.thank()] }) },
-    // 與公司無關：產業與社會話題
-    { cat: 'news', unrelated: true, when: () => true, make: () => ({ text: pick(['國際油價本週上漲 4%，分析師預估航空燃油附加費可能跟著調整。', '國際航空運輸協會預測，今年全球旅客運量可望創新高。', '多家航空公司宣布擴大永續航空燃油採購，減碳成為產業競爭新焦點。', '機場公司公布第三航廈工程進度，預計三年後完工啟用。']), sentiment: 0, virality: 0.4 }) },
-    { cat: 'news', unrelated: true, when: () => Math.random() < 0.35, make: (c) => ({ text: `颱風逼近，氣象單位發布海上警報，${c.hub}多條航線可能受影響，旅客出發前請留意航班動態。`, sentiment: 0, virality: 0.8, opts: [R.waiver(sizeCost(250e3)), R.trend(0.3)] }) },
-    { cat: 'news', unrelated: true, when: () => Math.random() < 0.4, make: () => ({ text: '連假將至，旅行社表示出國團報名人數較去年同期成長三成，熱門航線機位一位難求。', sentiment: 0, virality: 0.6, opts: [R.promoJump(), R.trend(0.75)] }) },
-    { cat: 'kol', unrelated: true, when: () => true, make: () => ({ text: pick(['整理了 10 個轉機也能玩的城市，第 3 個很多人都不知道！', '開箱新款登機箱：超輕、可擴充，這次出國就靠它了', '航空公司的座位怎麼選？窗邊、走道、緊急出口一次比較', '跑道上的編號是什麼意思？飛機迷帶你看懂機場']), sentiment: 0, virality: 0.5, opts: Math.random() < 0.5 ? [R.trend(0.6)] : null }) },
-    { cat: 'biz', unrelated: true, when: () => true, make: () => { const [author, text] = pick([[0, '北辰航空宣布引進 6 架新一代窄體客機，強化區域航網。'], [1, '南星航空會員制度改版，哩程累積門檻降低，老會員權益不變。'], [2, '環宇空廚取得國際食品安全認證，將擴大供應航空公司客戶。'], [3, '星辰飯店集團與多家航空公司合作推出聯名會員方案。'], [4, '雲端訂票網公布年度熱門目的地排行，日本與東南亞包辦前五名。'], [5, '海島旅行社秋冬團體行程開賣，早鳥優惠只到月底。']]); return { text, author: AUTHORS.biz[[3, 4, 1, 2, 5, 0][author]], sentiment: 0, virality: 0.3 }; } },
-    { cat: 'public', unrelated: true, when: () => true, make: () => ({ text: pick(['今天機場好多人，安檢排了快一個小時 😩', '有人知道機上可以帶行動電源嗎？規定好像又改了', '在機場吃到超好吃的牛肉麵，候機時間突然變很短', '第一次自己出國，好緊張但好期待！', '靠窗位置看到的日落真的太美了']), sentiment: 0, virality: 0.2, opts: Math.random() < 0.3 ? [R.trend(0.55)] : null }) },
+    { cat: 'public', when: (c) => c.someRoute, make: (c) => ({ text: `下個月要飛 ${c.someRoute.a}–${c.someRoute.b}，有人搭過${c.co}嗎？想知道行李額度跟${cn('Y')}的座位寬度。`, sentiment: 0, virality: 0.15, opts: [R.thank()] }) },
+    { cat: 'kol', when: (c) => c.longRoute, make: (c) => ({ text: `實測${c.co} ${c.longRoute.a}–${c.longRoute.b} 超長程航班：怎麼睡、吃什麼、怎麼調時差，一篇整理給大家。`, sentiment: 0.5, virality: 0.45, opts: [R.thank(), R.collab()] }) },
+    // ===== 突發事件延燒的討論 =====
+    { cat: 'public', when: (c) => c.ev.some((e) => e.type === 'oil-up'), make: (c) => ({ text: `燃油附加費又漲了！${c.co}一張來回多了快一千塊，還要不要出國啊…`, sentiment: -0.4, virality: 0.4, opts: [R.promoJump(), R.explain()] }) },
+    { cat: 'kol', when: (c) => c.ev.some((e) => e.type === 'oil-down'), make: (c) => ({ text: '油價跌了，燃油附加費也降了，現在是買長程機票的好時機！整理幾條我最推的航線 👇', sentiment: 0.3, virality: 0.5, opts: [R.trend(0.7), R.promoJump()] }) },
+    { cat: 'public', when: (c) => c.ev.some((e) => e.type === 'outbreak'), make: (c) => ({ text: `疫情又升溫，${c.co}的退票規定到底怎麼算？客服說要看票種，好複雜。`, sentiment: -0.6, virality: 0.5, opts: [R.waiver(sizeCost(200e3)), R.explain()] }) },
+    { cat: 'public', when: (c) => c.ev.some((e) => e.type === 'unrest' || e.type === 'diplomacy'), make: (c) => { const e = c.ev.find((x) => x.type === 'unrest' || x.type === 'diplomacy'); return { text: `${e.title}，原本訂好的行程要不要取消？${c.co}有沒有提供退票？`, sentiment: -0.4, virality: 0.4, opts: [R.waiver(sizeCost(150e3)), R.explain()] }; } },
+    { cat: 'kol', when: (c) => c.ev.some((e) => e.type === 'boom' || e.type === 'expo'), make: (c) => { const e = c.ev.find((x) => x.type === 'boom' || x.type === 'expo'); return { text: `${e.title}！整理交通、住宿與機票攻略，${c.co}也有直飛可以參考 ✈️`, sentiment: 0.6, virality: 0.55, opts: [R.collab(), R.thank()] }; } },
+    { cat: 'public', when: (c) => c.ev.some((e) => e.type === 'storm' || e.type === 'volcano' || e.type === 'atc'), make: (c) => ({ text: `被困在機場了…${c.co}說天候因素不負責住宿，只能睡長椅 😮‍💨`, sentiment: -0.7, virality: 0.45, opts: [R.apologize(sizeCost(60e3)), R.explain()] }) },
+    { cat: 'news', when: (c) => c.ev.some((e) => e.type === 'recession'), make: (c) => ({ text: `景氣轉弱，企業砍差旅預算，各航空公司${cn('J')}與頭等座位的訂位都明顯下滑。`, sentiment: 0, virality: 0.4, opts: null }) },
+    // ===== 與公司無關：產業與社會話題 =====
+    { cat: 'news', unrelated: true, when: () => true, make: () => ({ text: pick(['國際航空運輸協會預測，今年全球旅客運量可望創新高。', '多家航空公司宣布擴大永續航空燃油採購，減碳成為產業競爭新焦點。', '機場公司公布第三航廈工程進度，預計三年後完工啟用。', '民航主管機關宣布檢討機上行動電源規定，旅客出發前請留意最新公告。', '研究指出，自助報到與行李託運可為旅客平均節省 15 分鐘。', '飛機製造商表示交機延誤可能持續到明年，航空公司機隊擴張計畫受影響。', '機場捷運延伸線通車，往返市區與機場的時間縮短十分鐘。', '國際機場評比出爐，亞洲機場包辦前五名。']), sentiment: 0, virality: 0.4 }) },
+    { cat: 'news', unrelated: true, when: () => Math.random() < 0.45, make: () => ({ text: pick(['連假將至，旅行社表示出國團報名人數較去年同期成長三成，熱門航線機位一位難求。', '暑假出國旺季開跑，熱門海島航線週末班機幾乎全滿。', '年終旅遊展登場，各家航空公司祭出早鳥優惠搶客。']), sentiment: 0, virality: 0.6, opts: [R.promoJump(), R.trend(0.75)] }) },
+    { cat: 'kol', unrelated: true, when: () => true, make: () => ({ text: pick(['整理了 10 個轉機也能玩的城市，第 3 個很多人都不知道！', '開箱新款登機箱：超輕、可擴充，這次出國就靠它了', '航空公司的座位怎麼選？窗邊、走道、緊急出口一次比較', '跑道上的編號是什麼意思？飛機迷帶你看懂機場', '帶小孩搭長程飛機的 8 個生存技巧，第 5 個救了我', '哩程怎麼換最划算？三種兌換方式實測比較', '為什麼飛機起降時要把遮光板打開？機長來解答', '機上餐盲測：五家航空的經濟艙雞肉飯大比拼', '紅眼班怎麼睡得好？耳塞、眼罩、頸枕實測', '空服員不會告訴你的 7 件事']), sentiment: 0, virality: 0.5, opts: Math.random() < 0.5 ? [R.trend(0.6)] : null }) },
+    { cat: 'biz', unrelated: true, when: () => true, make: () => { const [i, text] = pick([[3, '北辰航空宣布引進 6 架新一代窄體客機，強化區域航網。'], [4, '南星航空會員制度改版，哩程累積門檻降低，老會員權益不變。'], [1, '環宇空廚取得國際食品安全認證，將擴大供應航空公司客戶。'], [2, '星辰飯店集團與多家航空公司合作推出聯名會員方案。'], [5, '雲端訂票網公布年度熱門目的地排行，日本與東南亞包辦前五名。'], [0, '海島旅行社秋冬團體行程開賣，早鳥優惠只到月底。'], [6, '銀翼信用卡推出新卡，海外消費與機票回饋最高 5%。'], [7, '旅安保險提醒：班機延誤險理賠需保留登機證與延誤證明。'], [3, '北辰航空與南星航空宣布在三條國際線上代碼共享。']]); return { text, author: AUTHORS.biz[i], sentiment: 0, virality: 0.3 }; } },
+    { cat: 'biz', unrelated: true, when: () => Math.random() < 0.35, make: () => ({ text: '銀翼信用卡誠徵航空公司夥伴推出聯名卡，刷卡累積哩程、機場貴賓室一次到位。', author: AUTHORS.biz[6], sentiment: 0, virality: 0.25, opts: [R.collab()] }) },
+    { cat: 'public', unrelated: true, when: () => true, make: () => ({ text: pick(['今天機場好多人，安檢排了快一個小時 😩', '有人知道機上可以帶行動電源嗎？規定好像又改了', '在機場吃到超好吃的牛肉麵，候機時間突然變很短', '第一次自己出國，好緊張但好期待！', '靠窗位置看到的日落真的太美了', '轉機只有 50 分鐘，一路狂奔總算趕上 🏃', '行李箱被摔出一個大凹痕，心好痛', '隔壁小朋友整趟都很乖，還分我餅乾 🥹', '降落時全機鼓掌，好久沒遇到了', '終於集滿哩程換到一張免費機票！', '機上 Wi-Fi 慢到連訊息都傳不出去…', '在免稅店買到超便宜的香水，開心']), sentiment: 0, virality: 0.2, opts: Math.random() < 0.25 ? [R.trend(0.55)] : null }) },
+    { cat: 'news', unrelated: true, when: (c) => c.hub && Math.random() < 0.3, make: (c) => ({ text: `${c.hub}機場擴建工程開工，未來尖峰時段起降容量可望增加兩成。`, sentiment: 0, virality: 0.35, opts: [R.trend(0.65)] }) },
   ];
 
   function makePost(S, tpl, c) {
     const p = tpl.make(c);
-    const [name, handle] = p.author || pick(AUTHORS[tpl.cat]);
+    const [name, h] = p.author || pick(AUTHORS[tpl.cat]);
     const size = 1 + S.fleet.length / 6 + S.routes.length / 10;
     const att = G.fmod('attention');
     const base = { news: 2500, kol: 6000, biz: 900, public: 400 }[tpl.cat];
     const reach = Math.round(base * (0.4 + p.virality) * (tpl.unrelated ? 1.5 : size * att) * rnd(0.6, 1.4));
     return {
-      id: S.social.seq++, cat: tpl.cat, name, handle, text: p.text, t: S.time - Math.floor(rnd(0, 6.5) * DAY),
+      id: S.social.seq++, cat: tpl.cat, name, handle: h, text: p.text, t: S.time - Math.floor(rnd(0, 29) * DAY),
       related: !tpl.unrelated, sentiment: p.sentiment, virality: p.virality,
       likes: reach, shares: Math.round(reach * rnd(0.05, 0.2)), comments: Math.round(reach * rnd(0.03, 0.12)),
       opts: p.opts || null, answered: null,
     };
   }
-  function generateWeek(S, first) {
+  function generate(S, first) {
     const c = context(S);
+    const shuffle = (a) => a.map((x) => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map((x) => x[1]);
+    // 嚴重的事情（失事、轉降、罷工）優先；其他與公司有關的話題隨機挑
     const related = T.filter((t) => !t.unrelated && t.when(c));
+    const chosen = [...related.slice(0, 3), ...shuffle(related.slice(3)).slice(0, first ? 3 : 6)];
     const unrelated = T.filter((t) => t.unrelated && t.when(c));
-    const chosen = [...related.slice(0, 6)];
-    // 每週補足 10–12 則，與公司無關的話題約佔一半
+    const want = first ? 10 : 16;
     let tries = 0;
-    while (chosen.length < (first ? 8 : 11) && tries++ < 40) chosen.push(pick(unrelated));
-    const seen = new Set(S.social.posts.slice(0, 30).map((p) => p.text));
+    while (chosen.length < want && tries++ < 60) chosen.push(pick(unrelated));
+    const seen = new Set(S.social.posts.slice(0, 40).map((p) => p.text));
     const posts = [];
     chosen.forEach((t) => { const p = makePost(S, t, c); if (!seen.has(p.text)) { seen.add(p.text); posts.push(p); } });
     posts.sort((a, b) => b.t - a.t);
-    S.social.posts = [...posts, ...S.social.posts.filter((p) => p.own)].slice(0, 40);
+    // 留下自己發的文與這個月的即時新聞
+    const keep = S.social.posts.filter((p) => p.own || (p.breaking && S.time - p.t < MONTH));
+    S.social.posts = [...posts, ...keep].sort((a, b) => b.t - a.t).slice(0, 50);
   }
+  // 突發事件的即時新聞（不等月初刷新）
+  G.socialBreaking = (e, mine) => {
+    const S = G.S;
+    if (!S.social) return;
+    const [name, h] = pick(AUTHORS.news.slice(0, 5));
+    const reach = Math.round(3000 * (mine ? 1.6 : 1) * rnd(0.7, 1.4));
+    S.social.posts.unshift({ id: S.social.seq++, cat: 'news', name, handle: h, text: `【${e.start > S.time ? '預告' : '快訊'}】${e.text}`, t: S.time, related: false, breaking: true, ev: e.id, sentiment: 0, virality: 0.6,
+      likes: reach, shares: Math.round(reach * 0.15), comments: Math.round(reach * 0.08), opts: null, answered: null });
+    S.social.posts = S.social.posts.slice(0, 50);
+  };
 
   // ---------- 玩家操作 ----------
   G.respondPost = (id, key) => {
     const S = G.S, p = S.social.posts.find((x) => x.id === id);
     if (!p || p.answered || !p.opts) return { ok: false };
     const o = p.opts.find((x) => x.key === key);
+    if (o.ok.cost && S.cash < o.ok.cost) return { ok: false, msg: `現金不足，需要 ${G.money(o.ok.cost)}` };
     const bonus = (G.founder().ancillary > 1 ? 0.1 : 0) + (S.rep - 50) / 500; // 旅遊業老手較懂公關
     const ok = Math.random() < clamp(o.success + bonus, 0.05, 0.98);
     const out = ok ? o.ok : o.fail;
@@ -3858,18 +4062,22 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     return { ok: true, success: ok, verdict };
   };
   G.SOCIAL_POST_TYPES = {
-    promo: { name: '限時促銷', desc: '一週內訂位 +12%，票價收益 −8%', effect: { demand: 1.12, yield: 0.92, days: 7, rep: 0.2 } },
-    route: { name: '新航線宣傳', desc: '指定航線兩週內訂位 +15%，費用約 5 萬美元', needRoute: true, effect: { demand: 1.15, days: 14, cost: 50e3 } },
-    csr: { name: '企業公益', desc: '捐助在地公益，社會評價 +2，費用依公司規模', effect: { rep: 2, demand: 1.02, days: 14 }, cost: 300e3 },
+    promo: { name: '限時促銷', desc: '兩週內訂位 +12%，票價收益 −8%', effect: { demand: 1.12, yield: 0.92, days: 14, rep: 0.2 } },
+    route: { name: '新航線宣傳', desc: '指定航線一個月內訂位 +15%，費用約 5 萬美元', needRoute: true, effect: { demand: 1.15, days: 30, cost: 50e3 } },
+    csr: { name: '企業公益', desc: '捐助在地公益，社會評價 +2，費用依公司規模', effect: { rep: 2, demand: 1.02, days: 30 }, cost: 300e3 },
     staff: { name: '感謝員工', desc: '所有員工士氣 +3，社會評價小幅上升', effect: { morale: 3, rep: 0.5 } },
     safety: { name: '飛安宣導', desc: '飛安紀錄良好時加分；一年內有失事會被批評', effect: { rep: 1 } },
+    cabin: { name: '艙等介紹', desc: '介紹自家艙等，一個月內訂位 +4%（評價越高效果越好）', needCabin: true, effect: { demand: 1.04, days: 30, rep: 0.4 } },
     free: { name: '一般動態', desc: '分享公司近況，影響很小', effect: { rep: 0.2 } },
   };
-  G.SOCIAL_WEEKLY_LIMIT = 3;
-  G.publishPost = ({ type, text, routeId }) => {
+  G.SOCIAL_LIMIT = 5; // 每個月最多自行發文幾則
+  G.SOCIAL_WEEKLY_LIMIT = G.SOCIAL_LIMIT; // 舊名稱（相容）
+  G.socialPostsLeft = () => { const so = G.S.social; return Math.max(0, G.SOCIAL_LIMIT - (so.postedThisMonth || 0)); };
+  G.publishPost = ({ type, text, routeId, cls }) => {
     const S = G.S, D = G.SOCIAL_POST_TYPES[type];
     if (!D) return { ok: false };
-    if (S.social.postedThisWeek >= G.SOCIAL_WEEKLY_LIMIT) return { ok: false, msg: `本週已發布 ${G.SOCIAL_WEEKLY_LIMIT} 則，下週再發` };
+    upgrade(S.social, S);
+    if (G.socialPostsLeft() <= 0) return { ok: false, msg: `這個月已發布 ${G.SOCIAL_LIMIT} 則，下個月再發` };
     if (D.needRoute && !routeId) return { ok: false, msg: '請選擇要宣傳的航線' };
     const e = { ...D.effect };
     if (D.cost) e.cost = sizeCost(D.cost);
@@ -3877,46 +4085,459 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     let note = '';
     if (type === 'safety' && S.safety.lastCrash && S.time - S.safety.lastCrash < 365 * DAY) { e.rep = -3; note = '網友批評公司在失事後還高調宣傳飛安'; }
     if (type === 'free' && S.rep < 40 && Math.random() < 0.5) { e.rep = -0.5; note = '留言區湧入負評'; }
+    if (type === 'cabin' && S.rep < 40) { e.demand = 1.01; note = '網友留言：「先把服務做好再說吧」'; }
     if (routeId) e.route = routeId;
     const mul = 0.6 + S.rep / 100; // 評價越高，宣傳效果越好
     if (e.rep > 0) e.rep *= mul;
     applyOutcome(S, e, 'post');
-    S.social.postedThisWeek++;
+    S.social.postedThisMonth = (S.social.postedThisMonth || 0) + 1;
     const r = routeId && S.routes.find((x) => x.id === routeId);
-    const body = (text || '').trim() || defaultText(type, r);
+    const body = (text || '').trim() || defaultText(type, r, cls);
     const reach = Math.round(800 * (1 + S.fleet.length / 5) * G.fmod('attention') * mul * rnd(0.6, 1.5));
-    S.social.posts.unshift({ id: S.social.seq++, cat: 'biz', own: true, name: S.company.name, handle: S.company.code.toLowerCase() + '_air', text: body, t: S.time, related: true, type, likes: reach, shares: Math.round(reach * 0.12), comments: Math.round(reach * 0.06), note });
+    S.social.posts.unshift({ id: S.social.seq++, cat: 'biz', own: true, name: S.company.name, handle: handle(), text: body, t: S.time, related: true, type, likes: reach, shares: Math.round(reach * 0.12), comments: Math.round(reach * 0.06), note });
     G.log(`在社群發布「${D.name}」${note ? '：' + note : ''}`, note ? 'warn' : 'info');
     return { ok: true, note };
   };
-  function defaultText(type, r) {
-    const co = G.S.company.name;
+  // 機隊實際有的艙等（給「艙等介紹」選）
+  G.ownedClasses = () => G.CLASSES.filter((c) => G.S.fleet.some((a) => a.cabin && a.cabin[c] && a.cabin[c].seats > 0));
+  function defaultText(type, r, cls) {
+    const co = G.S.company.name, c = cls || G.ownedClasses()[0] || 'Y';
+    const cabinLine = { F: `${co}${cn('F')}：私人套房、隨點隨上的餐點，給您最頂級的旅程 ✨`, J: `${co}${cn('J')}：平躺座椅、優先登機與貴賓室，一覺醒來就到了。`, W: `${co}${cn('W')}：更寬的座位、更多伸腳空間，只要多一點點預算。`, Y: `${co}${cn('Y')}：舒適座椅與貼心服務，划算的價格也能飛得開心。` }[c];
     return {
-      promo: `${co}限時促銷開跑！本週訂位全航線享優惠，手刀搶購 ✈️`,
-      route: r ? `${co}全新航線 ${r.a}–${r.b} 熱賣中，帶你輕鬆飛往${G.AP[r.b].city.replace(/\s*\(.*\)/, '')}！` : `${co}新航線熱賣中！`,
+      promo: `${co}限時促銷開跑！兩週內訂位全航線享優惠，手刀搶購 ✈️`,
+      route: r ? `${co}全新航線 ${r.a}–${r.b} 熱賣中，帶你輕鬆飛往${cityOf(r.b)}！` : `${co}新航線熱賣中！`,
       csr: `${co}今年持續投入在地公益，與社區一起成長 💚`,
       staff: `謝謝每一位${co}夥伴，因為有你們，每一趟飛行都更安心。`,
       safety: `${co}堅持每一架飛機按時檢查，安全是我們最重要的承諾。`,
+      cabin: cabinLine,
       free: `${co}感謝大家的支持，我們會繼續努力！`,
     }[type];
   }
 
-  // ---------- 每日：到期影響、每週刷新 ----------
+  // ---------- 每日：到期影響、每月刷新 ----------
   G.socialDaily = () => {
     const S = G.S;
     if (!S.social) G.initSocial(S);
     const so = S.social;
+    upgrade(so, S);
     so.effects = so.effects.filter((e) => S.time < e.until);
     if (S.time < so.nextAt) return;
-    // 上週沒有回應的負面話題：擴散力越高，傷害越大
-    so.posts.filter((p) => p.related && !p.own && p.opts && !p.answered && p.sentiment < 0).forEach((p) => G.repDelta(-p.virality * 1.5));
-    const ignored = so.posts.filter((p) => p.related && !p.own && p.opts && !p.answered && p.sentiment < 0).length;
-    if (ignored) G.log(`上週有 ${ignored} 則負面話題沒有回應，社會評價下滑`, 'warn');
-    generateWeek(S, false);
+    // 上個月沒有回應的負面話題：擴散力越高，傷害越大
+    const ignoredPosts = so.posts.filter((p) => p.related && !p.own && p.opts && !p.answered && p.sentiment < 0);
+    ignoredPosts.forEach((p) => G.repDelta(-p.virality * 1.5));
+    if (ignoredPosts.length) G.log(`上個月有 ${ignoredPosts.length} 則負面話題沒有回應，社會評價下滑`, 'warn');
+    generate(S, false);
     so.snap = snapshot(S);
-    so.week++; so.nextAt = S.time + WEEK; so.postedThisWeek = 0; so.repGain = 0;
-    const mine = so.posts.filter((p) => p.related && !p.own && !p.answered && p.t > S.time - WEEK).length;
+    so.month = (so.month || 0) + 1; so.nextAt = nextMonth(S.time); so.postedThisMonth = 0; so.repGain = 0;
+    const mine = so.posts.filter((p) => p.related && !p.own && !p.answered && p.t > S.time - MONTH).length;
     G._emit('event', { kind: 'social', count: so.posts.length, mine });
+  };
+})();
+
+</script>
+<script>
+// v1.0.0-rc2 突發事件：油價、政局動盪、外交風波、疫情、天災、航管罷工、景氣循環、大型活動、規費與供應鏈……
+// 事件是「世界」的一部分：單人時由自己產生；多人連線時只有房主產生，再同步給所有人。
+// 每個事件有影響範圍（全球、地區、國家、兩國之間、城市、機場）與效果：
+//   L／B：觀光客／商務客需求倍率（作用在航線市場大小）
+//   fuel：油價倍率；fare：票價（燃油附加費）倍率
+//   closed：機場關閉；cancel：航班取消機率
+//   cost：{ airport, maint, insurance } 成本倍率
+// 效果在事件最後 30% 的期間逐步恢復；大型活動可以提前預告。
+(function () {
+  const G = window.G;
+  const DAY = 86400000;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const wpick = (list) => { const tot = list.reduce((s, x) => s + x[1], 0); let r = Math.random() * tot; for (const x of list) { r -= x[1]; if (r <= 0) return x[0]; } return list[list.length - 1][0]; };
+  const cz = (cc) => G.countryZh(cc);
+  const city = (ap) => ap.city.replace(/\s*\(.*\)/, '');
+  const cityT = (ap) => { const c = city(ap); return /^[\x00-\x7f]/.test(c) ? ` ${c} ` : c; }; // 英文城市名前後留空白
+
+  // ---------- 地區 ----------
+  G.REGIONS = { EA: '東亞', SEA: '東南亞', SA: '南亞與中亞', ME: '中東', EU: '歐洲', AF: '非洲', NA: '北美', LA: '中南美洲', OC: '大洋洲' };
+  const RG_CC = {
+    EA: 'CN HK MO TW JP KR KP MN', SEA: 'VN TH MY SG ID PH KH LA MM BN TL', SA: 'IN PK BD LK NP BT MV AF KZ UZ TM KG TJ',
+    ME: 'AE SA QA KW BH OM YE IQ IR IL JO LB SY PS', NA: 'US CA GL BM PM',
+    OC: 'AU NZ FJ PG NC PF GU MP WS TO VU SB PW FM MH KI NR TV CK NU AS NF', EU: 'RU TR UA BY GE AM AZ IS CY',
+  };
+  const CC_RG = {};
+  Object.entries(RG_CC).forEach(([rg, s]) => s.split(' ').forEach((cc) => (CC_RG[cc] = rg)));
+  G.regionOf = (ap) => {
+    if (CC_RG[ap.cc]) return CC_RG[ap.cc];
+    if (ap.lon < -30) return 'LA';
+    if (ap.lon > 110 && ap.lat < -10) return 'OC';
+    if (ap.lat < 37 && ap.lon > -20 && ap.lon < 52) return 'AF';
+    if (ap.lon < 60) return 'EU';
+    if (ap.lon < 90) return 'SA';
+    return ap.lat >= 20 ? 'EA' : 'SEA';
+  };
+
+  // ---------- 狀態 ----------
+  const blank = (S) => ({ seq: 1, events: [], past: [], nextMajor: S.time + rnd(120, 180) * DAY, nextStorm: S.time + rnd(45, 75) * DAY, hedge: null, mit: {} });
+  G.initWorld = (S) => { if (!S.world) S.world = blank(S); return S.world; };
+  const W = () => G.initWorld(G.S);
+  const client = () => !!(G.net && G.net.role === 'client');
+
+  // 事件目前的強度：0 = 沒作用，1 = 全力；最後 30% 期間逐步恢復
+  function strength(e, t) {
+    if (t < e.start || t >= e.end) return 0;
+    if (e.flat) return 1;
+    const len = e.end - e.start, k = (t - e.start) / len;
+    return k < 0.7 ? 1 : Math.max(0, (1 - k) / 0.3);
+  }
+  const lerp = (m, s) => 1 + (m - 1) * s;
+  G.activeEvents = () => { const S = G.S; return S && S.world ? S.world.events.filter((e) => S.time >= e.start && S.time < e.end) : []; };
+  G.upcomingEvents = () => { const S = G.S; return S && S.world ? S.world.events.filter((e) => S.time < e.start) : []; };
+
+  // 範圍是否涵蓋這條航線（A、B 兩端）
+  function covers(sc, A, B) {
+    switch (sc.k) {
+      case 'global': return true;
+      case 'region': return G.regionOf(A) === sc.rg || G.regionOf(B) === sc.rg;
+      case 'cc': return A.cc === sc.cc || B.cc === sc.cc;
+      case 'pair': return (A.cc === sc.a && B.cc === sc.b) || (A.cc === sc.b && B.cc === sc.a);
+      case 'out': return (A.cc === sc.cc) !== (B.cc === sc.cc); // 一端在本國、一端在國外
+      case 'city': return (A._ck || (A._ck = G.cityKey(A))) === sc.key || (B._ck || (B._ck = G.cityKey(B))) === sc.key;
+      case 'aps': return sc.list.includes(A.iata) || sc.list.includes(B.iata);
+      default: return false;
+    }
+  }
+  const coversAp = (sc, ap) => covers(sc, ap, ap);
+
+  // ---------- 給模擬用的倍率 ----------
+  // 每條航線的需求倍率（觀光 L／商務 B）；玩家的防疫或宣傳措施會減輕或放大
+  let dmSig = '', dmCache = new Map();
+  G.evDemand = (A, B, seg) => {
+    const S = G.S;
+    if (!S || !S.world || !S.world.events.length) return 1;
+    // 每天、每條航線只算一次（事件清單或玩家的應對改變時重算）
+    const sig = Math.floor(S.time / DAY) + '|' + S.world.seq + '|' + S.world.events.length + '|' + (S.world.mitVer || 0);
+    if (sig !== dmSig) { dmSig = sig; dmCache = new Map(); }
+    const key = A.iata + B.iata + seg, hit = dmCache.get(key);
+    if (hit !== undefined) return hit;
+    const v = demandNow(S, A, B, seg);
+    dmCache.set(key, v);
+    return v;
+  };
+  function demandNow(S, A, B, seg) {
+    let m = 1;
+    for (const e of S.world.events) {
+      const v = e.fx[seg];
+      if (v == null || v === 1) continue;
+      const s = strength(e, S.time);
+      if (!s || !covers(e.sc, A, B)) continue;
+      let k = lerp(v, s);
+      const mt = S.world.mit[e.id];
+      if (mt && mt.damp && k < 1) k = 1 - (1 - k) * (1 - mt.damp); // 減輕衝擊
+      if (mt && mt.boost && k > 1) k = 1 + (k - 1) * (1 + mt.boost); // 搶到更多商機
+      m *= k;
+    }
+    return clamp(m, 0.2, 2.2);
+  }
+  // 油價：避險合約在有效期間把油價鎖在約定價格
+  G.fuelMul = () => {
+    const S = G.S;
+    if (!S || !S.world) return 1;
+    let m = 1;
+    S.world.events.forEach((e) => { if (e.fx.fuel) { const s = strength(e, S.time); if (s) m *= lerp(e.fx.fuel, s); } });
+    const h = S.world.hedge;
+    if (h && S.time < h.until) m = h.lock;
+    return m;
+  };
+  G.marketFuelMul = () => {
+    const S = G.S;
+    if (!S || !S.world) return 1;
+    return S.world.events.reduce((m, e) => (e.fx.fuel && strength(e, S.time) ? m * lerp(e.fx.fuel, strength(e, S.time)) : m), 1);
+  };
+  G.fuelPrice = () => G.FUEL_PRICE * G.fuelMul();
+  // 燃油附加費：大家都會跟著漲票價，所以收入也會小幅增加
+  G.evFare = () => {
+    const S = G.S;
+    if (!S || !S.world) return 1;
+    return S.world.events.reduce((m, e) => (e.fx.fare && strength(e, S.time) ? m * lerp(e.fx.fare, strength(e, S.time)) : m), 1);
+  };
+  G.evCost = (cat, A, B) => {
+    const S = G.S;
+    if (!S || !S.world) return 1;
+    let m = 1;
+    S.world.events.forEach((e) => {
+      const v = e.fx.cost && e.fx.cost[cat];
+      if (!v) return;
+      const s = strength(e, S.time);
+      if (!s) return;
+      if (A && !covers(e.sc, A, B || A)) return;
+      m *= lerp(v, s);
+    });
+    return m;
+  };
+  // 機場關閉（颱風、火山灰）
+  G.evClosed = (iata) => {
+    const S = G.S;
+    if (!S || !S.world) return null;
+    return S.world.events.find((e) => e.fx.closed && S.time >= e.start && S.time < e.end && e.sc.k === 'aps' && e.sc.list.includes(iata)) || null;
+  };
+  // 航班取消機率（航管罷工）
+  G.evCancel = (A, B) => {
+    const S = G.S;
+    if (!S || !S.world) return 0;
+    let p = 0;
+    S.world.events.forEach((e) => { if (e.fx.cancel && S.time >= e.start && S.time < e.end && covers(e.sc, A, B)) p = 1 - (1 - p) * (1 - e.fx.cancel); });
+    return p;
+  };
+
+  // ---------- 玩家的航網 ----------
+  function network(S) {
+    const aps = {}, ccs = {}, rgs = {};
+    S.routes.forEach((r) => {
+      const n = Math.max(0.5, G.routeFreq(r));
+      [r.a, r.b].forEach((x) => { const ap = G.AP[x]; aps[x] = (aps[x] || 0) + n; ccs[ap.cc] = (ccs[ap.cc] || 0) + n; const rg = G.regionOf(ap); rgs[rg] = (rgs[rg] || 0) + n; });
+    });
+    Object.keys(S.hubs).forEach((h) => { aps[h] = (aps[h] || 0) + 5; const ap = G.AP[h]; ccs[ap.cc] = (ccs[ap.cc] || 0) + 5; const rg = G.regionOf(ap); rgs[rg] = (rgs[rg] || 0) + 5; });
+    return { aps, ccs, rgs, home: G.homeCC() };
+  }
+  const topKeys = (o, n) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n).map((x) => x[0]);
+  // 從玩家的航網挑國家（七成），或從主要國家隨機挑
+  const BIG_CC = 'US CN JP KR TH VN SG MY ID PH IN AE GB FR DE IT ES TR AU CA MX BR HK TW'.split(' ');
+  function pickCC(N, notHome) {
+    const mine = Object.keys(N.ccs).filter((c) => !(notHome && c === N.home));
+    if (mine.length && Math.random() < 0.75) return wpick(mine.map((c) => [c, Math.sqrt(N.ccs[c])]));
+    const pool = BIG_CC.filter((c) => !(notHome && c === N.home));
+    return pick(pool);
+  }
+  // 活火山附近的機場（火山爆發只會發生在這些地方）
+  const VOLC = 'KOJ KMJ CTS HKD DPS JOG SOC MNL LGP KEF CTA NAP UIO MEX PBC GUA ANC ITO KOA SJO ROT TUO PMC ZAL GOM'.split(' ');
+  // 會舉辦國際大型活動的城市
+  const BIG_CITY = 'HND KIX ICN PEK PVG CAN HKG TPE SIN BKK KUL CGK MNL DEL BOM DXB DOH IST LHR CDG FRA AMS MAD BCN FCO MUC VIE JFK LAX ORD SFO YYZ YVR MEX GRU EZE SYD MEL AKL JNB CAI SGN HAN FUK CTS'.split(' ');
+  const ATC = 'FR IT ES DE BE GR PT NL GB'.split(' ');
+
+  // ---------- 事件種類 ----------
+  // w：基本權重；make(S, N) 回傳事件內容（或 null 表示這次不適用）
+  const TYPES = {
+    'oil-up': { name: '油價飆升', icon: 'oil', w: 9, make: () => { const f = rnd(1.2, 1.45); return { sc: { k: 'global' }, days: rnd(75, 150), fx: { fuel: f, fare: 1 + (f - 1) * 0.2 }, sector: -0.05, sev: 'bad',
+      title: '國際油價飆升', text: pick(['產油國宣布減產，國際原油價格一週內大漲', '中東產油區情勢緊張，國際油價急漲', '煉油廠接連停工，航空燃油供應吃緊']) + `，航空燃油價格上漲約 ${Math.round((f - 1) * 100)}%。各航空公司陸續調高燃油附加費。` }; } },
+    'oil-down': { name: '油價下跌', icon: 'oil', w: 6, make: () => { const f = rnd(0.72, 0.86); return { sc: { k: 'global' }, days: rnd(90, 150), fx: { fuel: f, fare: 1 - (1 - f) * 0.1 }, sector: 0.03, sev: 'good',
+      title: '國際油價走跌', text: `全球需求放緩、產油國增產，航空燃油價格下跌約 ${Math.round((1 - f) * 100)}%，燃油附加費跟著調降。` }; } },
+    unrest: { name: '政局動盪', icon: 'flag', w: 8, make: (S, N) => { const cc = pickCC(N, true); return { sc: { k: 'cc', cc }, days: rnd(30, 90), fx: { L: rnd(0.5, 0.7), B: rnd(0.7, 0.85) }, sev: 'bad',
+      title: `${cz(cc)}政局動盪`, text: `${cz(cc)}${pick(['爆發大規模示威，多國發布旅遊警示', '執政聯盟瓦解、政局不穩，各地出現抗議活動', '選後爭議延燒，首都出現大規模集會'])}。往返${cz(cc)}的觀光客大減，商務出差也延後。` }; } },
+    diplomacy: { name: '外交風波', icon: 'flag', w: 5, make: (S, N) => {
+      const others = Object.keys(N.ccs).filter((c) => c !== N.home);
+      if (!others.length) return null;
+      const cc = wpick(others.map((c) => [c, Math.sqrt(N.ccs[c])]));
+      const cs = ['TW', 'CN', 'HK', 'MO'], strait = cs.includes(N.home) && cs.includes(cc) && (N.home === 'TW') !== (cc === 'TW');
+      const title = strait ? '兩岸關係緊張' : `${cz(N.home)}與${cz(cc)}外交關係緊張`;
+      const text = strait ? `兩岸關係升溫緊張，雙方${pick(['暫停部分觀光團往來', '互相發布旅遊提醒', '收緊人員往來審查'])}，往返兩地的旅遊與商務需求明顯降溫。`
+        : `${cz(N.home)}與${cz(cc)}${pick(['因貿易爭端互相加徵關稅', '因外交人員事件互召大使', '互相發布旅遊警示'])}，兩地之間的旅遊與商務往來明顯降溫。`;
+      return { sc: { k: 'pair', a: N.home, b: cc }, days: rnd(90, 240), fx: { L: rnd(0.5, 0.7), B: rnd(0.75, 0.9) }, sev: 'bad', title, text }; } },
+    outbreak: { name: '傳染病疫情', icon: 'virus', w: 3, make: (S, N) => {
+      const rg = Object.keys(N.rgs).length && Math.random() < 0.8 ? wpick(Object.entries(N.rgs).map(([k, v]) => [k, Math.sqrt(v)])) : pick(Object.keys(G.REGIONS));
+      return { sc: { k: 'region', rg }, days: rnd(60, 150), fx: { L: rnd(0.5, 0.7), B: rnd(0.65, 0.85) }, sector: -0.04, sev: 'bad',
+        title: `${G.REGIONS[rg]}爆發傳染病疫情`, text: `${G.REGIONS[rg]}出現新型呼吸道傳染病群聚，多國提高防疫等級。旅客取消行程，進出${G.REGIONS[rg]}的航班訂位大幅下滑。` }; } },
+    recession: { name: '經濟衰退', icon: 'chart', w: 4, make: (S, N) => {
+      const glob = Math.random() < 0.3;
+      const rg = glob ? null : (Object.keys(N.rgs).length ? wpick(Object.entries(N.rgs).map(([k, v]) => [k, Math.sqrt(v)])) : pick(Object.keys(G.REGIONS)));
+      return { sc: glob ? { k: 'global' } : { k: 'region', rg }, days: rnd(150, 300), fx: { L: rnd(0.88, 0.96), B: rnd(0.75, 0.88) }, sector: -0.06, bear: true, sev: 'bad',
+        title: glob ? '全球經濟衰退' : `${G.REGIONS[rg]}經濟衰退`, text: `${glob ? '全球' : G.REGIONS[rg]}景氣急凍，企業縮減差旅預算，商務客明顯減少，觀光客也更精打細算。` }; } },
+    boom: { name: '旅遊熱潮', icon: 'sun', w: 7, make: (S, N) => { const cc = pickCC(N, true); return { sc: { k: 'cc', cc }, days: rnd(60, 150), fx: { L: rnd(1.2, 1.4) }, sev: 'good',
+      title: `${cz(cc)}掀起旅遊熱潮`, text: `${cz(cc)}${pick(['貨幣大幅貶值，出國旅客把它列為首選', '熱門影集在當地取景，帶動朝聖人潮', '宣布放寬觀光簽證', '推出大規模觀光補助'])}，前往${cz(cc)}的觀光客明顯增加。` }; } },
+    expo: { name: '國際大型活動', icon: 'star', w: 5, make: (S, N) => {
+      const big = BIG_CITY.map((x) => G.AP[x]).filter(Boolean);
+      const pool = big.filter((a) => N.aps[a.iata]);
+      const ap = pool.length && Math.random() < 0.8 ? pick(pool) : pick(big);
+      const what = pick(['世界博覽會', '國際運動賽事', '世界巡迴演唱會', '國際影展與藝術節', '大型國際會議']);
+      return { sc: { k: 'city', key: G.cityKey(ap) }, lead: rnd(20, 45), days: rnd(10, 30), flat: true, fx: { L: rnd(1.4, 1.8), B: rnd(1.1, 1.3) }, sev: 'good', where: ap.iata,
+        title: `${cityT(ap)}舉辦${what}`, text: `${cityT(ap)}將舉辦${what}，預計吸引大批旅客湧入，活動期間往返${cityT(ap)}（${ap.iata}）的機位一位難求。` }; } },
+    currency: { name: '匯率變動', icon: 'chart', w: 4, make: (S, N) => { const up = Math.random() < 0.55; return { sc: { k: 'out', cc: N.home }, days: rnd(90, 180), fx: { L: up ? rnd(1.1, 1.2) : rnd(0.86, 0.93) }, sev: up ? 'good' : 'bad',
+      title: up ? `${cz(N.home)}貨幣升值` : `${cz(N.home)}貨幣貶值`, text: up ? `${cz(N.home)}貨幣走強，出國旅遊變便宜，國際線觀光需求升溫。` : `${cz(N.home)}貨幣走弱，出國旅遊變貴，國際線觀光需求轉弱。` }; } },
+    election: { name: '大選', icon: 'flag', w: 3, make: (S, N) => ({ sc: { k: 'cc', cc: N.home }, days: rnd(30, 50), fx: { B: rnd(0.88, 0.95) }, sev: 'bad',
+      title: `${cz(N.home)}舉行大選`, text: `${cz(N.home)}大選前後，企業觀望、延後投資與出差，商務旅客小幅減少。` }) },
+    fees: { name: '機場規費調漲', icon: 'coin', w: 4, make: (S, N) => { const cc = Math.random() < 0.5 ? N.home : pickCC(N, false); const m = rnd(1.12, 1.3); return { sc: { k: 'cc', cc }, days: 365, flat: true, fx: { cost: { airport: m } }, sev: 'bad',
+      title: `${cz(cc)}調漲機場與航路規費`, text: `${cz(cc)}民航主管機關宣布，起降費、旅客服務費與航路費調漲約 ${Math.round((m - 1) * 100)}%，為期一年。` }; } },
+    parts: { name: '零件短缺', icon: 'gear', w: 3, make: () => { const m = rnd(1.2, 1.35); return { sc: { k: 'global' }, days: rnd(120, 240), fx: { cost: { maint: m } }, sev: 'bad',
+      title: '飛機零件供應短缺', text: `引擎與航材供應鏈吃緊，航材價格上漲約 ${Math.round((m - 1) * 100)}%，航線維修成本跟著提高。` }; } },
+    insurance: { name: '保險費率上調', icon: 'shield', w: 3, make: () => { const m = rnd(1.2, 1.45); return { sc: { k: 'global' }, days: rnd(180, 365), fx: { cost: { insurance: m } }, sev: 'bad',
+      title: '航空保險費率上調', text: `國際再保險市場緊縮，機身險與責任險費率上調約 ${Math.round((m - 1) * 100)}%。` }; } },
+    atc: { name: '航管罷工', icon: 'tower', w: 4, make: (S, N) => {
+      const mine = ATC.filter((c) => N.ccs[c]);
+      const cc = mine.length && Math.random() < 0.7 ? pick(mine) : Math.random() < 0.5 ? pick(ATC) : pickCC(N, false);
+      return { sc: { k: 'cc', cc }, days: rnd(2, 5), flat: true, fx: { cancel: rnd(0.35, 0.6) }, sev: 'bad',
+        title: `${cz(cc)}航管人員罷工`, text: `${cz(cc)}航管人員發動罷工，進出${cz(cc)}的航班大量取消或延誤，預計持續數天。` }; } },
+    volcano: { name: '火山爆發', icon: 'volcano', w: 2, make: (S, N) => {
+      const vs = VOLC.map((x) => G.AP[x]).filter(Boolean);
+      const near = vs.filter((v) => Object.keys(N.aps).some((x) => G.dist(G.AP[x], v) < 400));
+      const base = near.length && Math.random() < 0.7 ? pick(near) : pick(vs);
+      if (!base) return null;
+      const list = G.AIRPORTS.filter((a) => G.dist(a, base) < 160).sort((a, b) => G.dist(a, base) - G.dist(b, base)).map((a) => a.iata).slice(0, 12);
+      return { sc: { k: 'aps', list }, days: rnd(3, 6), flat: true, fx: { closed: true }, sev: 'bad', where: base.iata,
+        title: `${cityT(base)}附近火山爆發`, text: `${cityT(base)}附近火山噴發，火山灰籠罩空域，周邊 ${list.length} 座機場暫停起降，航空公司紛紛取消航班。` }; } },
+  };
+  // 颱風、暴風雪、濃霧等天氣事件：只發生在玩家航網的機場，關閉 1–3 天
+  function makeStorm(S, N) {
+    const keys = Object.keys(N.aps);
+    if (!keys.length) return null;
+    const ap = G.AP[wpick(keys.map((k) => [k, Math.sqrt(N.aps[k])]))];
+    const mon = new Date(S.time).getUTCMonth() + 1;
+    const lat = Math.abs(ap.lat), north = ap.lat >= 0;
+    const summer = north ? mon >= 6 && mon <= 10 : mon >= 12 || mon <= 4;
+    const winter = north ? mon === 12 || mon <= 2 : mon >= 6 && mon <= 8;
+    let kind;
+    if (summer && lat >= 10 && lat <= 35 && (ap.lon > 95 || ap.lon < -60)) kind = ap.lon > 95 ? '颱風' : '颶風';
+    else if (winter && lat >= 38) kind = '暴風雪';
+    else if (lat < 30 && ap.lon > 30 && ap.lon < 60) kind = '沙塵暴';
+    else kind = pick(['強烈雷雨', '濃霧', '強風']);
+    const radius = kind === '颱風' || kind === '颶風' ? 300 : kind === '暴風雪' ? 150 : 40;
+    const list = G.AIRPORTS.filter((a) => G.dist(a, ap) < radius && (a.size <= 1 || a.iata === ap.iata)).map((a) => a.iata).slice(0, 25);
+    const days = kind === '颱風' || kind === '颶風' ? rnd(1, 2.5) : kind === '暴風雪' ? rnd(1, 2) : rnd(0.4, 1);
+    return { type: 'storm', name: '天候', icon: 'storm', sc: { k: 'aps', list }, days, flat: true, fx: { closed: true }, sev: 'bad', where: ap.iata,
+      title: `${kind}襲擊${cityT(ap)}`, text: `${kind}影響${cityT(ap)}一帶，${list.length > 1 ? `${ap.iata} 等 ${list.length} 座機場` : `${ap.iata}`}暫停起降約 ${Math.max(1, Math.round(days * 24))} 小時，航空公司紛紛取消航班。` };
+  }
+
+  // ---------- 玩家可以採取的應對 ----------
+  const sizeCost = (base) => base * Math.max(1, G.S.fleet.length / 3);
+  const fuelPerDay = () => { const d = G.S.days.slice(-30); return d.length ? d.reduce((s, x) => s + ((x.cost && x.cost.fuel) || 0), 0) / d.length : 0; };
+  G.eventOptions = (e) => {
+    const S = G.S, mine = G.eventHitsMe(e);
+    const o = [];
+    if (e.type === 'oil-up' && !(S.world.hedge && S.time < S.world.hedge.until)) {
+      const cost = fuelPerDay() * 90 * (e.fx.fuel - 1) * 0.55;
+      if (cost > 0) o.push({ key: 'hedge', label: '買進燃油避險合約', hint: `花費約 ${G.money(cost)}，未來 90 天油價鎖在比漲價前高 5% 的水準`, cost, hedge: { lock: 1.05, days: 90 } });
+    }
+    if (e.type === 'oil-down' && !(S.world.hedge && S.time < S.world.hedge.until)) {
+      const cost = fuelPerDay() * 180 * 0.03;
+      if (cost > 0) o.push({ key: 'hedge', label: '趁低價簽下避險合約', hint: `花費約 ${G.money(cost)}，未來 180 天油價鎖在目前的低價（之後就算油價回升也不怕）`, cost, hedge: { lock: e.fx.fuel, days: 180 } });
+    }
+    if (!mine) return o;
+    if (e.type === 'outbreak') o.push({ key: 'sanitize', label: '加強機艙消毒並提供彈性退票', hint: `花費約 ${G.money(sizeCost(400e3))}，旅客比較敢搭你的航班：需求衰退減輕 35%，社會評價小幅上升`, cost: sizeCost(400e3), mit: { damp: 0.35 }, rep: 1.5 });
+    if (e.type === 'storm' || e.type === 'volcano' || e.type === 'atc') o.push({ key: 'waiver', label: '宣布受影響旅客免費改票退票', hint: `花費約 ${G.money(sizeCost(e.type === 'storm' ? 120e3 : 250e3))}，社會評價上升`, cost: sizeCost(e.type === 'storm' ? 120e3 : 250e3), rep: 1.5 });
+    if (e.type === 'unrest' || e.type === 'diplomacy') o.push({ key: 'refund', label: '開放受影響航線免費退票', hint: `花費約 ${G.money(sizeCost(150e3))}，旅客信任度提升：需求衰退減輕 15%`, cost: sizeCost(150e3), mit: { damp: 0.15 }, rep: 1 });
+    if (e.type === 'boom' || e.type === 'expo') o.push({ key: 'promo', label: '推出相關旅遊套裝與廣告', hint: `花費約 ${G.money(sizeCost(e.type === 'expo' ? 120e3 : 200e3))}，你搶到的商機多 40%`, cost: sizeCost(e.type === 'expo' ? 120e3 : 200e3), mit: { boost: 0.4 } });
+    if (e.type === 'recession') o.push({ key: 'promo', label: `推出${G.cname('Y')}優惠票`, hint: '兩個月內訂位 +8%，但票價收益 −5%', social: { demand: 1.08, yield: 0.95, days: 60 } });
+    return o;
+  };
+  G.eventRespond = (id, key) => {
+    const S = G.S, w = W(), e = w.events.find((x) => x.id === id);
+    if (!e) return { ok: false, msg: '事件已經結束' };
+    w.answered = w.answered || {};
+    if (w.answered[id]) return { ok: false, msg: '已經回應過了' };
+    if (key === 'none') { w.answered[id] = 'none'; return { ok: true }; }
+    const o = G.eventOptions(e).find((x) => x.key === key);
+    if (!o) return { ok: false, msg: '這個選項已經不能用了' };
+    if (o.cost && S.cash < o.cost) return { ok: false, msg: `現金不足，需要 ${G.money(o.cost)}` };
+    if (o.cost) G._spend(o.cost, o.hedge ? 'fuel' : 'marketing');
+    if (o.hedge) w.hedge = { lock: o.hedge.lock, until: S.time + o.hedge.days * DAY, since: S.time };
+    if (o.mit) { w.mit[id] = { ...(w.mit[id] || {}), ...o.mit }; w.mitVer = (w.mitVer || 0) + 1; }
+    if (o.rep) G.repDelta(o.rep);
+    if (o.social && G.socialEffect) G.socialEffect(o.social);
+    w.answered[id] = key;
+    if (o.hedge) S.stats && (S.stats.hedges = (S.stats.hedges || 0) + 1);
+    G.log(`回應「${e.title}」：${o.label}${o.cost ? `（${G.money(o.cost)}）` : ''}`);
+    return { ok: true, label: o.label };
+  };
+  // 這個事件有沒有打到玩家的航網
+  G.eventHitsMe = (e) => {
+    const S = G.S;
+    if (e.sc.k === 'global') return true;
+    if (e.sc.k === 'aps') return e.sc.list.some((x) => S.hubs[x] || S.routes.some((r) => r.a === x || r.b === x));
+    return S.routes.some((r) => covers(e.sc, G.AP[r.a], G.AP[r.b]));
+  };
+  // 效果的文字說明（給介面用）
+  G.eventEffects = (e) => {
+    const f = e.fx, out = [];
+    const p = (m) => `${m >= 1 ? '+' : '−'}${Math.round(Math.abs(m - 1) * 100)}%`;
+    if (f.fuel) out.push([`油價 ${p(f.fuel)}`, f.fuel > 1 ? 'bad' : 'good']);
+    if (f.fare) out.push([`票價附加費 ${p(f.fare)}`, f.fare > 1 ? 'good' : 'bad']);
+    if (f.L) out.push([`觀光需求 ${p(f.L)}`, f.L > 1 ? 'good' : 'bad']);
+    if (f.B) out.push([`商務需求 ${p(f.B)}`, f.B > 1 ? 'good' : 'bad']);
+    if (f.closed) out.push([`${e.sc.list.length} 座機場關閉`, 'bad']);
+    if (f.cancel) out.push([`約 ${Math.round(f.cancel * 100)}% 航班取消`, 'bad']);
+    if (f.cost && f.cost.airport) out.push([`機場規費 ${p(f.cost.airport)}`, 'bad']);
+    if (f.cost && f.cost.maint) out.push([`航線維修成本 ${p(f.cost.maint)}`, 'bad']);
+    if (f.cost && f.cost.insurance) out.push([`保險費 ${p(f.cost.insurance)}`, 'bad']);
+    return out;
+  };
+  G.eventScopeText = (e) => {
+    const sc = e.sc;
+    return { global: '全球', region: G.REGIONS[sc.rg], cc: cz(sc.cc), pair: `${cz(sc.a)} ⇄ ${cz(sc.b)}`, out: `${cz(sc.cc)}的國際線`, city: e.where ? city(G.AP[e.where]) : '', aps: sc.list ? sc.list.slice(0, 6).join('、') + (sc.list.length > 6 ? ` 等 ${sc.list.length} 座` : '') : '' }[sc.k] || '';
+  };
+
+  // ---------- 產生事件 ----------
+  function startEvent(S, type, body) {
+    const w = W();
+    const lead = (body.lead || 0) * DAY;
+    const tidy = (x) => x.trim().replace(/ +([，。、（）])/g, '$1').replace(/([，。、（）]) +/g, '$1');
+    const e = { id: w.seq++, type, name: body.name || TYPES[type].name, icon: body.icon || TYPES[type].icon, title: tidy(body.title), text: tidy(body.text), sc: body.sc, fx: body.fx, sev: body.sev, flat: !!body.flat, where: body.where || null,
+      announced: S.time, start: S.time + lead, end: S.time + lead + body.days * DAY };
+    w.events.push(e);
+    // 股市：航空類股受到消息影響
+    if (body.sector && S.mkt) { S.mkt.sector += body.sector; if (body.bear) S.mkt.regime = 'bear'; if (G.marketNews) G.marketNews(`${e.title}，航空類股${body.sector < 0 ? '應聲下跌' : '走揚'}`, null, body.sector); }
+    announce(S, e);
+    return e;
+  }
+  function announce(S, e) {
+    const mine = G.eventHitsMe(e);
+    G.log(`【${e.name}】${e.title}${e.start > S.time ? `（${Math.round((e.start - S.time) / DAY)} 天後開始）` : ''}`, e.sev === 'bad' && mine ? 'warn' : 'info');
+    if (mine && e.type !== 'storm' && G.addTimeline) G.addTimeline('world', e.title);
+    if (G.socialBreaking) G.socialBreaking(e, mine);
+    G._emit('event', { kind: 'world', ev: e, mine });
+  }
+  G.worldDaily = () => {
+    const S = G.S, w = W();
+    // 結束的事件移到歷史
+    const done = w.events.filter((e) => S.time >= e.end);
+    if (done.length) {
+      w.events = w.events.filter((e) => S.time < e.end);
+      done.forEach((e) => { w.past.unshift({ id: e.id, type: e.type, name: e.name, title: e.title, start: e.start, end: e.end, sev: e.sev }); delete w.mit[e.id]; if (w.answered) delete w.answered[e.id]; if (e.type !== 'storm' && G.eventHitsMe(e)) G.log(`${e.title}的影響已經結束`); });
+      w.past = w.past.slice(0, 30);
+      G._emit('event', { kind: 'world-end', n: done.length });
+    }
+    if (w.hedge && S.time >= w.hedge.until) { G.log('燃油避險合約到期'); w.hedge = null; }
+    // 成就「逆風高飛」：疫情或衰退打到你的航網時，月結仍然獲利
+    if (new Date(S.time).getUTCDate() === 2 && S.stats && S.fin && S.fin.statements.length) {
+      const crisis = w.events.some((e) => (e.type === 'outbreak' || e.type === 'recession') && S.time - e.start > 20 * DAY && G.eventHitsMe(e));
+      if (crisis && S.fin.statements[S.fin.statements.length - 1].ni > 0) S.stats.crisisProfit = (S.stats.crisisProfit || 0) + 1;
+    }
+    if (client()) return; // 多人連線：事件由房主產生
+    if (!S.routes.length && !S.fleet.length) { w.nextMajor = Math.max(w.nextMajor, S.time + 30 * DAY); return; }
+    const N = network(S);
+    if (S.time >= w.nextStorm) {
+      w.nextStorm = S.time + rnd(18, 45) * DAY;
+      const busy = w.events.filter((e) => e.type === 'storm').length;
+      if (busy < 2) { const b = makeStorm(S, N); if (b) startEvent(S, 'storm', b); }
+    }
+    if (S.time >= w.nextMajor) {
+      w.nextMajor = S.time + rnd(50, 100) * DAY;
+      const live = w.events.filter((e) => e.type !== 'storm');
+      if (live.length >= 3) return;
+      const busy = new Set(live.map((e) => e.type));
+      // 油價漲跌互斥；疫情與衰退不同時發生太多
+      if (busy.has('oil-up')) busy.add('oil-down');
+      if (busy.has('oil-down')) busy.add('oil-up');
+      const cand = Object.entries(TYPES).filter(([k]) => !busy.has(k) && !(k === 'outbreak' && w.past.some((p) => p.type === 'outbreak' && S.time - p.end < 2 * 365 * DAY)));
+      for (let tries = 0; tries < 4; tries++) {
+        const k = wpick(cand.map(([key, T]) => [key, T.w]));
+        const body = TYPES[k].make(S, N);
+        if (body) { startEvent(S, k, body); break; }
+      }
+    }
+  };
+  // 測試與除錯用：立刻產生指定事件
+  G.forceEvent = (type) => {
+    const S = G.S, N = network(S);
+    const body = type === 'storm' ? makeStorm(S, N) : TYPES[type] && TYPES[type].make(S, N);
+    return body ? startEvent(S, type, body) : null;
+  };
+  G.EVENT_TYPES = TYPES;
+
+  // ---------- 多人連線：房主把事件同步給大家 ----------
+  G.worldPublic = () => { const S = G.S; return S && S.world ? { seq: S.world.seq, events: S.world.events } : null; };
+  G.worldApply = (pub) => {
+    const S = G.S;
+    if (!S || !pub) return;
+    const w = W(), had = new Set(w.events.map((e) => e.id));
+    w.events = pub.events.map((e) => ({ ...e }));
+    w.seq = Math.max(w.seq, pub.seq);
+    w.events.filter((e) => !had.has(e.id) && S.time - e.announced < 5 * DAY).forEach((e) => announce(S, e));
   };
 })();
 
@@ -4042,7 +4663,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   // 不含任何副作用的單班成本估算（與 sim.js 的 flightCosts 同一套公式）
   G.estFlightCost = (t, d, pax, h) => {
     const seats = pax;
-    const fuel = t.fuel * h * G.FUEL_PRICE;
+    const fuel = t.fuel * h * (G.fuelPrice ? G.fuelPrice() : G.FUEL_PRICE);
     const crew = h * (2 * 40 + Math.max(1, Math.ceil(seats / 45)) * 12);
     const maint = t.price * 1e6 * (t.used ? 1.4 : 1) * 3.5e-6 * h * G.fmod('mx');
     const airport = 7 * t.units + pax * 12 + 0.45 * d + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500);
@@ -4706,7 +5327,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     const flightsMonth = weekly * 2 * 4.33;
     const budget = Math.round((flightsMonth * (2500 + 7 * d) * rnd(0.8, 1.25)) / 1000) * 1000;
     return { kind: 'pso', cc, a, b: B.iata, dist: d, weekly, fareCapY: pick([0.8, 0.9, 1.0]), months: 24, budget, title: `${A.city} ⇄ ${B.city} 偏遠航線補貼`,
-      desc: `每週至少 ${weekly} 個往返班次，經濟艙票價不得高於參考票價的 ${'{CAP}'}，為期 24 個月；每月依實際執飛比例撥付補貼。` };
+      desc: `每週至少 ${weekly} 個往返班次，${G.cname('Y')}票價不得高於參考票價的 ${'{CAP}'}，為期 24 個月；每月依實際執飛比例撥付補貼。` };
   }
   function makeCharter(cc) {
     const hubs = hubsIn(cc);
@@ -4937,7 +5558,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
         const done = st ? st.flights : 0;
         ratio = clamp(done / need, 0, 1);
         note = `執飛 ${done}/${Math.round(need)} 班`;
-        if (r && r.fare.Y > c.fareCapY + 1e-9) { ratio *= 0.5; note += '，經濟艙票價超過上限'; }
+        if (r && r.fare.Y > c.fareCapY + 1e-9) { ratio *= 0.5; note += `，${G.cname('Y')}票價超過上限`; }
       } else {
         const rs = G.routesFrom(c.a);
         let fl = 0, dl = 0;
@@ -7027,7 +7648,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
             <button class="btn sm" data-act="fno-save" data-id="${r.id}">更新</button></div>
           <div class="fare-head"><h4>票價（相對參考票價）</h4>
             <label class="switch sm"><input type="checkbox" id="af-${r.id}" data-act="auto-fare" data-id="${r.id}" ${r.autoFare ? 'checked' : ''}><span></span>自動最佳定價</label></div>
-          <p class="note">${r.autoFare ? '依每架飛機的艙等座位數與座椅等級，每天自動調整到期望營收最高的票價；手動拖曳任一票價就會改回手動。' : '手動定價中。開啟「自動最佳定價」，或按下方按鈕套用一次建議票價。'}${r.fareCap && r.fareCap.Y != null ? ` 補貼合約規定經濟艙不得高於 ${Math.round(r.fareCap.Y * 100)}%。` : ''}</p>
+          <p class="note">${r.autoFare ? '依每架飛機的艙等座位數與座椅等級，每天自動調整到期望營收最高的票價；手動拖曳任一票價就會改回手動。' : '手動定價中。開啟「自動最佳定價」，或按下方按鈕套用一次建議票價。'}${r.fareCap && r.fareCap.Y != null ? ` 補貼合約規定${esc(cname('Y'))}不得高於 ${Math.round(r.fareCap.Y * 100)}%。` : ''}</p>
           ${G.CLASSES.map((c) => `<label class="slider"><span>${esc(cname(c))}<small>${G.money(G.refFare(d, c) * r.fare[c])}</small></span>
             <input type="range" id="fare-${r.id}-${c}" min="0.6" max="${r.fareCap && r.fareCap[c] != null ? r.fareCap[c] : 1.6}" step="0.02" value="${r.fare[c]}" data-act="fare" data-id="${r.id}" data-c="${c}"><output>${Math.round(r.fare[c] * 100)}%</output></label>`).join('')}
           ${!r.autoFare && acs.length ? `<div class="row-btns"><button class="btn sm" data-act="fare-opt" data-id="${r.id}">套用建議票價</button></div>` : ''}
@@ -7122,8 +7743,8 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
         <thead><tr><th>機型</th><th>最多座位</th><th>航程</th><th>跑道需求</th><th>油耗/時</th><th>價格</th><th>月租</th><th></th></tr></thead>
         <tbody>${Object.entries(groups).map(([mfr, ts]) => `<tr class="grp"><td colspan="8">${G.ZH(mfr)}</td></tr>` + ts.map((t) => `<tr>
           <td><b>${esc(t.model)}</b>${t.used ? '<span class="chip">二手</span>' : ''}${G.restrictionTags(t).map((x) => `<span class="chip warn">${x}</span>`).join('')}<small>${t.wide ? '寬體 · 4 艙等' : '3 艙等'}</small></td>
-          <td>${t.maxSeats}</td><td>${G.num(t.range)} km</td><td>${G.num(t.rwy)} m</td><td>${G.num(t.fuel)} kg</td>
-          <td>${G.money(t.price * 1e6)}</td><td>${G.money(G.leaseMonthly(t))}</td>
+          <td data-l="最多座位">${t.maxSeats}</td><td data-l="航程">${G.num(t.range)} km</td><td data-l="跑道需求">${G.num(t.rwy)} m</td><td data-l="油耗/時">${G.num(t.fuel)} kg</td>
+          <td data-l="價格">${G.money(t.price * 1e6)}</td><td data-l="月租">${G.money(G.leaseMonthly(t))}</td>
           <td class="btns"><button class="btn sm primary" data-act="acquire" data-t="${t.id}" data-mode="buy" ${S.cash < t.price * 1e6 ? 'disabled' : ''}>購買</button><button class="btn sm" data-act="acquire" data-t="${t.id}" data-mode="lease">租賃</button></td>
         </tr>`).join('')).join('')}</tbody></table></div>`, 'wide');
   };
@@ -7481,8 +8102,8 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       const ex = (h) => G.mealExpect(c, h);
       const costFor = (h) => G.catering(c, h, '', 1).cost;
       return `<tr><td>${esc(cname(c))}</td><td><select id="meal-${c}" data-act="meal" data-c="${c}" aria-label="${esc(cname(c))}餐點">${G.MEAL_ORDER.map((k) => `<option value="${k}" ${C.meals[c] === k ? 'selected' : ''}>${G.MEALS[k].name}</option>`).join('')}</select></td>
-        <td>${[1, 3, 10].map((h) => G.money(costFor(h))).join(' / ')}</td>
-        <td>${[1, 3, 10].map((h) => { const m = G.catering(c, h, '', 1).mult; return `<span class="${m < 0.97 ? 'neg' : m > 1.03 ? 'pos' : ''}">${m >= 1 ? '+' : ''}${Math.round((m - 1) * 100)}%</span>`; }).join(' / ')}</td></tr>`;
+        <td data-l="每人成本（1／3／10 小時）">${[1, 3, 10].map((h) => G.money(costFor(h))).join(' / ')}</td>
+        <td data-l="滿意度影響">${[1, 3, 10].map((h) => { const m = G.catering(c, h, '', 1).mult; return `<span class="${m < 0.97 ? 'neg' : m > 1.03 ? 'pos' : ''}">${m >= 1 ? '+' : ''}${Math.round((m - 1) * 100)}%</span>`; }).join(' / ')}</td></tr>`;
     }).join('');
     return `<section class="kpis">
         <div><span>近 7 日乘客滿意度</span><b>${sat != null ? pct(sat) : '—'}</b><em>座椅、餐飲、空服、準點、客艙狀況的綜合</em></div>
@@ -7812,7 +8433,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
 
 </script>
 <script>
-// v0.4.2 介面：社群媒體分頁（每週刷新的動態、回應話題、公司自行發文）與分頁提醒徽章。
+// v0.4.2 介面：社群媒體分頁（每月刷新的動態、回應話題、公司自行發文）與分頁提醒徽章。
 (function () {
   const G = window.G, U = G.ui;
   const $ = (s) => document.querySelector(s);
@@ -7850,14 +8471,15 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
 
   function composer(S) {
     const D = U.postDraft, T = G.SOCIAL_POST_TYPES[D.type];
-    const left = G.SOCIAL_WEEKLY_LIMIT - S.social.postedThisWeek;
-    if (!U.composeOpen) return `<button class="btn compose-open" data-act="post-compose"><b>＋ 發布貼文</b><span class="meta">本週還能發 ${left} 則</span></button>`;
+    const left = G.socialPostsLeft();
+    if (!U.composeOpen) return `<button class="btn compose-open" data-act="post-compose"><b>＋ 發布貼文</b><span class="meta">本月還能發 ${left} 則</span></button>`;
     const routes = S.routes.map((r) => `<option value="${r.id}" ${+D.route === r.id ? 'selected' : ''}>${r.a}–${r.b}</option>`).join('');
     return `<div class="composer">
-      <header><b>發布貼文</b><span class="meta">本週還能發 ${left} 則</span><button class="btn link" data-act="post-compose">收起</button></header>
+      <header><b>發布貼文</b><span class="meta">本月還能發 ${left} 則</span><button class="btn link" data-act="post-compose">收起</button></header>
       <div class="seg" role="group" aria-label="貼文類型">${Object.entries(G.SOCIAL_POST_TYPES).map(([k, t]) => `<button data-act="post-type" data-k="${k}" aria-pressed="${D.type === k}">${t.name}</button>`).join('')}</div>
       <p class="note">${esc(T.desc)}</p>
       ${T.needRoute ? `<label class="field">要宣傳的航線<select data-act="post-route"><option value="">選擇航線</option>${routes}</select></label>` : ''}
+      ${T.needCabin ? (() => { const own = G.ownedClasses(); if (!own.includes(D.cls)) D.cls = own[0]; return own.length ? `<label class="field">要介紹的艙等<select data-act="post-cls">${own.map((c) => `<option value="${c}" ${D.cls === c ? 'selected' : ''}>${esc(G.cname(c))}</option>`).join('')}</select></label>` : '<p class="note">機隊還沒有任何艙等可以介紹。</p>'; })() : ''}
       <textarea data-act="post-text" rows="3" maxlength="140" placeholder="想說什麼？留白會使用預設文案">${esc(D.text)}</textarea>
       <div class="row-btns"><span class="spacer"></span><button class="btn primary" data-act="post-publish" ${left <= 0 ? 'disabled' : ''}>發布</button></div>
     </div>`;
@@ -7870,7 +8492,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     let foot = '';
     if (p.opts && p.related && !p.own) {
       if (p.answered) foot = `<p class="reply ${p.answered.ok ? 'ok' : 'bad'}">已回應：${esc(p.answered.label)} · ${p.answered.ok ? '效果良好' : '效果不如預期'}</p>`;
-      else foot = `<div class="replies"><p class="meta">${p.sentiment < 0 ? '這則話題對公司不利，一週內沒有回應會損害社會評價。' : '要回應這則貼文嗎？'}</p>${p.opts.map((o) => `<button class="reply-opt" data-act="post-reply" data-id="${p.id}" data-k="${o.key}"><b>${esc(o.label)}</b><span>${esc(o.hint)}</span></button>`).join('')}</div>`;
+      else foot = `<div class="replies"><p class="meta">${p.sentiment < 0 ? '這則話題對公司不利，月底前沒有回應會損害社會評價。' : '要回應這則貼文嗎？'}</p>${p.opts.map((o) => `<button class="reply-opt" data-act="post-reply" data-id="${p.id}" data-k="${o.key}"><b>${esc(o.label)}</b><span>${esc(o.hint)}</span></button>`).join('')}</div>`;
     } else if (p.opts && !p.related && !p.answered) {
       foot = `<div class="replies">${p.opts.map((o) => `<button class="reply-opt" data-act="post-reply" data-id="${p.id}" data-k="${o.key}"><b>${esc(o.label)}</b><span>${esc(o.hint)}</span></button>`).join('')}</div>`;
     } else if (p.answered) foot = `<p class="reply ${p.answered.ok ? 'ok' : 'bad'}">已回應：${esc(p.answered.label)} · ${p.answered.ok ? '效果良好' : '效果不如預期'}</p>`;
@@ -7895,8 +8517,8 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     const days = Math.max(1, Math.ceil((so.nextAt - S.time) / DAY));
     const n = pending();
     const filters = [['all', '全部'], ['mine', '與公司有關'], ['news', '新聞'], ['kol', '自媒體'], ['biz', '企業'], ['public', '民眾'], ['own', '我的貼文']];
-    return `<div class="sec-head"><h3>社群動態</h3><span class="meta">第 ${so.week + 1} 週 · ${days} 天後刷新</span></div>
-      ${n ? `<div class="callout warn"><b>${n} 則與公司有關的話題等待回應</b><p>回應方式會影響社會評價、訂位與股價；負面話題放著不管，下週刷新時會扣社會評價。</p></div>` : ''}
+    return `<div class="sec-head"><h3>社群動態</h3><span class="meta">每月刷新 · ${days} 天後更新</span></div>
+      ${n ? `<div class="callout warn"><b>${n} 則與公司有關的話題等待回應</b><p>回應方式會影響社會評價、訂位與股價；負面話題放著不管，下個月刷新時會扣社會評價。</p></div>` : ''}
       ${composer(S)}
       ${effectsSummary(S)}
       <div class="seg filter" role="group" aria-label="篩選">${filters.map(([k, nm]) => `<button data-act="social-filter" data-k="${k}" aria-pressed="${F === k}">${nm}</button>`).join('')}</div>
@@ -7923,12 +8545,12 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     if (a === 'post-type') { U.postDraft.type = d.k; U.render(); }
     if (a === 'post-reply') {
       const r = G.respondPost(+d.id, d.k);
-      if (r.ok) U.toast(r.verdict, !r.success);
+      if (r.ok) U.toast(r.verdict, !r.success); else if (r.msg) U.toast(r.msg, true);
       U.render(); U.updateTop(); U.socialBadge();
     }
     if (a === 'post-publish') {
       const D = U.postDraft;
-      const r = G.publishPost({ type: D.type, text: D.text, routeId: D.route ? +D.route : null });
+      const r = G.publishPost({ type: D.type, text: D.text, routeId: D.route ? +D.route : null, cls: D.cls });
       if (r.ok) { U.toast(r.note ? '已發布，但' + r.note : '已發布'); D.text = ''; U.socialFilter = 'all'; U.composeOpen = false; } else U.toast(r.msg, true);
       U.render(); U.updateTop();
     }
@@ -7937,6 +8559,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   U.change3 = (el, a) => {
     if (ch0 && ch0(el, a)) return true;
     if (a === 'post-route') { U.postDraft.route = el.value; return true; }
+    if (a === 'post-cls') { U.postDraft.cls = el.value; return true; }
     return false;
   };
   document.addEventListener('input', (e) => { if (e.target.dataset.act === 'post-text') U.postDraft.text = e.target.value; });
@@ -8058,7 +8681,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       const dIn = new Date(S.time).getUTCDate(), need = c.weekly * 2 * (dIn / 7);
       const done = r ? r.stats.flights : 0, n = r ? G.routeAircraft(r).length : 0;
       body = `<dl class="facts"><dt>本月執飛</dt><dd>${done} 班（到今天應有約 ${Math.round(need)} 班）</dd><dt>執飛飛機</dt><dd>${n ? n + ' 架' : '<span class="neg">尚未指派，到「機隊」指派飛機</span>'}</dd>
-        <dt>每月補貼</dt><dd>${M(c.price)}</dd><dt>經濟艙票價上限</dt><dd>${pct(c.fareCapY)}</dd><dt>累計撥款</dt><dd>${M(c.paid)}</dd><dt>合約到期</dt><dd>${date(c.end)}</dd>${c.strikes ? `<dt>未達標</dt><dd class="neg">連續 ${c.strikes}/${G.GOV.strikes} 個月</dd>` : ''}</dl>
+        <dt>每月補貼</dt><dd>${M(c.price)}</dd><dt>${esc(G.cname('Y'))}票價上限</dt><dd>${pct(c.fareCapY)}</dd><dt>累計撥款</dt><dd>${M(c.paid)}</dd><dt>合約到期</dt><dd>${date(c.end)}</dd>${c.strikes ? `<dt>未達標</dt><dd class="neg">連續 ${c.strikes}/${G.GOV.strikes} 個月</dd>` : ''}</dl>
         ${r ? `<div class="row-btns"><button class="btn sm" data-act="route-open" data-id="${r.id}">查看航線</button></div>` : ''}`;
     } else if (c.kind === 'travel') {
       const rs = G.routesFrom(c.a);
@@ -8185,8 +8808,8 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       <thead><tr><th>機型</th><th>最多座位</th><th>航程</th><th>跑道需求</th><th>油耗/時</th><th>價格</th><th>月租</th><th></th></tr></thead>
       <tbody>${Object.entries(groups).map(([mfr, ts]) => `<tr class="grp"><td colspan="8">${G.ZH(mfr)}</td></tr>` + ts.map((t) => `<tr>
         <td><b>${esc(t.model)}</b>${G.restrictionTags(t).map((x) => `<span class="chip warn">${x}</span>`).join('')}<small>${t.wide ? '寬體 · 4 艙等' : '3 艙等'}${G.presetsFor(t.id).length ? ` · ${G.presetsFor(t.id).length} 個艙位設定` : ''}</small></td>
-        <td>${t.maxSeats}</td><td>${G.num(t.range)} km</td><td>${G.num(t.rwy)} m</td><td>${G.num(t.fuel)} kg</td>
-        <td>${M(t.price * 1e6)}</td><td>${M(G.leaseMonthly(t))}</td>
+        <td data-l="最多座位">${t.maxSeats}</td><td data-l="航程">${G.num(t.range)} km</td><td data-l="跑道需求">${G.num(t.rwy)} m</td><td data-l="油耗/時">${G.num(t.fuel)} kg</td>
+        <td data-l="價格">${M(t.price * 1e6)}</td><td data-l="月租">${M(G.leaseMonthly(t))}</td>
         <td class="btns"><button class="btn sm primary" data-act="order" data-t="${t.id}" data-mode="buy">購買</button><button class="btn sm" data-act="order" data-t="${t.id}" data-mode="lease">租賃</button></td>
       </tr>`).join('')).join('')}</tbody></table></div>`;
   }
@@ -8608,7 +9231,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       <div class="row-btns"><button class="btn sm ${on ? 'primary' : ''}" data-act="rv-map" data-code="${c.code}">${on ? '隱藏地圖航網' : '在地圖顯示航網'}</button>
         ${G.allyState && G.allyState().kind === 'own' && !G.isPartner(c.code) ? `<button class="btn sm" data-act="ally-inv-ai" data-code="${c.code}">邀請加入${esc(G.allyState().name)}</button>` : ''}
         ${G.STOCK_OF && G.STOCK_OF[c.code] ? `<button class="btn sm" data-act="stk-goto" data-k="${G.STOCK_OF[c.code]}">買賣股票</button>` : ''}</div>
-      ${ov.length ? `<h4>與你重疊的航線</h4>${ov.map((r) => { const x = G.rivalsOn(r.a, r.b).find((y) => y.code === c.code); return `<p class="rv-line"><b>${r.a}–${r.b}</b> 每日約 ${x.f.toFixed(1)} 班 · 票價 ${x.war ? `<b class="neg">${pct(x.p)}</b>（降價中）` : pct(x.p)} · 你的經濟艙 ${pct(r.fare.Y || 1)}</p>`; }).join('')}` : ''}
+      ${ov.length ? `<h4>與你重疊的航線</h4>${ov.map((r) => { const x = G.rivalsOn(r.a, r.b).find((y) => y.code === c.code); return `<p class="rv-line"><b>${r.a}–${r.b}</b> 每日約 ${x.f.toFixed(1)} 班 · 票價 ${x.war ? `<b class="neg">${pct(x.p)}</b>（降價中）` : pct(x.p)} · 你的${esc(G.cname('Y'))} ${pct(r.fare.Y || 1)}</p>`; }).join('')}` : ''}
       <h4>班次最多的航線（估計）</h4>
       ${top.map((x) => `<p class="rv-line">${x.a}–${x.b} · 每日約 ${x.r.f.toFixed(1)} 班</p>`).join('')}
     </div>`;
@@ -8799,7 +9422,9 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       <label class="fsel"><span>排序</span><select id="fl-sort" data-act="fl-sort" aria-label="排序">${SORTS.map(([v, n]) => opt(v, n, FF.sort)).join('')}</select></label>
     </div>
     <p class="note fcount">${any ? `符合 ${list.length}／${fleet.length} 架${list.length ? '' : '，請放寬條件'} <button class="linkish" data-act="fl-clear">清除篩選</button>` : `共 ${fleet.length} 架`}</p>`;
-    return bar + list.map(rowOf).join('');
+    // v1.0.0-rc2 一次只畫 40 架，避免大機隊在手機上卡頓
+    const lim = U.pageLimit('fl', JSON.stringify(FF));
+    return bar + list.slice(0, lim).map(rowOf).join('') + U.moreBtn('fl', list.length - lim, '架');
   };
 
   // ---------- 航線 ----------
@@ -8843,15 +9468,19 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     <div class="cc-chips">${ccs.slice(0, 12).map(([c, n]) => `<button class="chip linkish ${RF.cc === c ? 'on' : ''}" data-act="rt-ccchip" data-cc="${c}">${esc(G.countryZh(c))} ${n}</button>`).join('')}</div>
     <p class="note fcount">${any ? `符合 ${list.length}／${routes.length} 條 <button class="linkish" data-act="rt-clear">清除篩選</button>` : `共 ${routes.length} 條航線、${ccs.length} 個國家或地區`}</p>`;
     if (!list.length) return bar + '<p class="empty">沒有符合的航線。</p>';
-    if (!RF.group) return bar + list.map(rowOf).join('');
+    const lim = U.pageLimit('rt', JSON.stringify(RF)), rest = list.length - lim;
+    const tot = {}; // 分組標題用完整清單的條數與損益
+    list.forEach((r) => { const c = destOf(r).cc, t = (tot[c] = tot[c] || { n: 0, p: 0 }); t.n++; t.p += r.stats.flights ? r.stats.rev - r.stats.cost : 0; });
+    list = list.slice(0, lim);
+    if (!RF.group) return bar + list.map(rowOf).join('') + U.moreBtn('rt', rest, '條');
     // 分組：保持排序後各國第一次出現的順序
     const groups = [];
     const idx = {};
     list.forEach((r) => { const c = destOf(r).cc; if (idx[c] == null) { idx[c] = groups.length; groups.push({ c, rs: [] }); } groups[idx[c]].rs.push(r); });
     return bar + groups.map((g) => {
-      const p = g.rs.reduce((s, r) => s + (r.stats.flights ? r.stats.rev - r.stats.cost : 0), 0);
-      return `<h4 class="cc-head"><span>${esc(G.countryZh(g.c))}</span><small>${g.rs.length} 條 · 本月 <b class="${p < 0 ? 'neg' : 'pos'}">${G.money(p)}</b></small></h4>${g.rs.map(rowOf).join('')}`;
-    }).join('');
+      const p = tot[g.c].p;
+      return `<h4 class="cc-head"><span>${esc(G.countryZh(g.c))}</span><small>${tot[g.c].n} 條 · 本月 <b class="${p < 0 ? 'neg' : 'pos'}">${G.money(p)}</b></small></h4>${g.rs.map(rowOf).join('')}`;
+    }).join('') + U.moreBtn('rt', rest, '條');
   };
 
   // ---------- 開航：已開發標示 ----------
@@ -9438,6 +10067,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     G.ui.updateTop();
   }
   const hostUsed = (N) => N.conns.forEach((c) => c.send({ t: 'used', mkt: G.S.usedMkt }));
+  const hostWorld = (N) => { const pub = G.worldPublic ? G.worldPublic() : null; if (pub) N.conns.forEach((c) => c.send({ t: 'world', pub })); }; // v1.0.0-rc2 突發事件
   G.netHost = async (kind) => {
     if (G.net) return { ok: false, msg: '已經在房間裡了' };
     const S = G.S, transport = G.NET_TRANSPORTS[kind || 'peer'];
@@ -9483,7 +10113,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       if (why) { conn.send({ t: 'reject', reason: why }); setTimeout(() => conn.close(), 300); return; }
       N.conns.set(conn.id, conn);
       setSummary(N, conn.id, m.summary, dayOf(m.time));
-      conn.send({ t: 'welcome', id: conn.id, code: N.code, worldId: S.net.worldId, time: S.time, speed: G.speed, used: S.usedMkt });
+      conn.send({ t: 'welcome', id: conn.id, code: N.code, worldId: S.net.worldId, time: S.time, speed: G.speed, used: S.usedMkt, world: G.worldPublic ? G.worldPublic() : null });
       G.log(`${m.summary.name}（${m.summary.code}）${m.rejoin ? '重新連線' : '加入了房間'}`);
       G._emit('event', { kind: 'net', text: `${m.summary.name} ${m.rejoin ? '重新連線' : '加入了房間'}` });
       hostBroadcast(N);
@@ -9529,6 +10159,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
           N.myId = m.id;
           S.net = { role: 'client', worldId: m.worldId, code: m.code };
           if (m.used) S.usedMkt = m.used;
+          if (m.world && G.worldApply) G.worldApply(m.world);
           // 存檔比房間早：先快轉到房間的日期
           if (S.time < m.time - 60000) await catchUp(m.time);
           N.limit = Math.max(S.time, m.time);
@@ -9549,6 +10180,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
           G.ui.updateTop();
           if (G.map) G.map.invalidate();
         } else if (m.t === 'used') S.usedMkt = m.mkt;
+        else if (m.t === 'world' && G.worldApply) G.worldApply(m.pub);
         else if (m.t === 'relay') deliver(m.from, m.msg);
         else if (m.t === 'usedReply' && pending.has(m.req)) { pending.get(m.req)(m); pending.delete(m.req); }
       });
@@ -9608,6 +10240,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       } else hostBroadcast(N);
     }
     if (what === 'event' && data && data.kind === 'used-refresh' && N.role === 'host') hostUsed(N);
+    if (what === 'event' && data && data.kind === 'world' && N.role === 'host') hostWorld(N);
   });
   // 房主買二手飛機時通知大家
   const buyUsed0 = G.buyUsed;
@@ -9914,9 +10547,20 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     ['service', '服務：餐飲與會員方案', '公司', `
       <p><b>餐飲</b>：每個艙等可以選餐點等級與空廚供應商；樞紐的自建空廚可以降低成本。付費餐點會帶來額外收入。</p>
       <p><b>會員方案</b>：等級數（1–5）、名稱、年費與福利都由你決定。10 種福利各有 3 級：貴賓室、優先登機、保證座位、升等券較吸引商務客；票價折扣、行李、選位、生日禮較吸引觀光客。年費是固定收入，會員也會優先搭你的班機，但每次搭機會用掉福利成本。</p>`],
+    ['events', '突發事件', '公司', `
+      <p>世界局勢會不時變化，影響所有航空公司。事件發生時會跳出通知（快訊也會出現在「社群」），目前進行中的事件列在「總覽」的「世界局勢」。</p>
+      <ul>
+        <li><b>油價飆升／下跌</b>：燃油成本跟著變動，票價也會加減一點燃油附加費。發生時可以買<b>燃油避險合約</b>，把油價鎖住一段時間。</li>
+        <li><b>政局動盪、外交風波、大選</b>：某國或兩國之間的觀光與商務需求下滑。</li>
+        <li><b>傳染病疫情、經濟衰退</b>：整個地區（或全球）需求下滑，商務客受衰退影響最大。可以加強防疫減輕衝擊。</li>
+        <li><b>旅遊熱潮、國際大型活動、本國貨幣升值</b>：需求增加；大型活動會提前一個月左右預告，可以先加班或加大飛機。</li>
+        <li><b>颱風、暴風雪、火山爆發</b>：機場關閉一到數天，航班全部停飛；<b>航管罷工</b>則讓進出該國的航班大量取消。</li>
+        <li><b>機場規費調漲、零件短缺、保險費率上調</b>：相關成本變高。</li>
+      </ul>
+      <p>事件的效果在最後一段期間會慢慢恢復。多人連線時，所有玩家遇到同一套事件。</p>`],
     ['social', '社群與社會評價', '公司', `
       <p><b>社會評價</b>（0–100）主要由乘客滿意度決定，也受事故、罷工、社群話題、聯盟等事件影響。評價越高，攬客力越強，商務客更明顯。</p>
-      <p><b>社群</b>：新聞、自媒體、企業與民眾的貼文每週刷新。可以回應和你有關的話題或自己發文，影響評價、訂位、士氣與股價。</p>`],
+      <p><b>社群</b>：新聞、自媒體、企業與民眾的貼文每個遊戲月刷新一次；突發事件會立刻出現快訊。提到艙等時會用你自訂的艙等名稱。可以回應和你有關的話題或自己發文，影響評價、訂位、士氣與股價。</p>`],
     ['gov', '政府合約', '公司', `
       <p>政府會開出偏遠航線補貼、包機、撤僑與公務運輸標案。投標評分是價格 50%＋品質 50%，品質看社會評價、飛安、準點、信用與員工士氣。得標後要依約派機與履約，表現不佳會被扣款或解約。撤僑任務要在 48 小時內回覆。</p>`],
     ['alliance', '航空聯盟', '公司', `
@@ -10135,7 +10779,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   const M = (v) => G.money(v);
   const gdate = (t) => new Date(t).toISOString().slice(0, 10).replace(/-/g, '/');
   const YEAR = 365 * 86400000;
-  const KIND_DOT = { found: 'acc', ach: 'gold', crash: 'neg', bankrupt: 'neg', dismissed: 'neg', repossess: 'neg', strike: 'warn', ipo: 'pos', ally: 'acc', hub: 'acc', bond: 'acc', gov: 'pos' };
+  const KIND_DOT = { found: 'acc', ach: 'gold', crash: 'neg', bankrupt: 'neg', dismissed: 'neg', repossess: 'neg', strike: 'warn', ipo: 'pos', ally: 'acc', hub: 'acc', bond: 'acc', gov: 'pos', world: 'warn' };
 
   // 月度稅後淨利長條圖
   function niChart(S, n) {
@@ -10215,6 +10859,164 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       case 'm-ach': U.achDialog(); return;
       case 'ach-tab': U.achDialog(d.k); return;
       case 'gameover-title': case 'gameover-restart': G.setSpeed(0); if (G.net) G.netLeave(); U.closeModal(); G.S = null; G.showIntro(); return;
+    }
+    if (act0) act0(a, d, el);
+  };
+})();
+
+</script>
+<script>
+// v1.0.0-rc2 介面：手機版排版（底部分頁「更多」、鎖住雙擊放大、長清單分頁）、世界局勢（突發事件）卡片與對話框。
+(function () {
+  const G = window.G, U = G.ui;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const DAY = 86400000;
+  const date = (t) => new Date(t).toISOString().slice(0, 10).replace(/-/g, '/');
+
+  // ---------- 鎖住雙擊放大與頁面縮放 ----------
+  // CSS 的 touch-action: manipulation 會關掉雙擊放大；iOS 的兩指縮放頁面另外擋掉（地圖自己處理兩指縮放）
+  ['gesturestart', 'gesturechange'].forEach((ev) => document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
+  document.addEventListener('dblclick', (e) => { if (!e.target.closest('input, textarea, #mapwrap')) e.preventDefault(); }, { passive: false });
+
+  // ---------- 長清單分頁 ----------
+  const PAGE = 40, lims = {}, sigs = {};
+  U.pageLimit = (k, sig) => { if (sigs[k] !== sig) { sigs[k] = sig; lims[k] = PAGE; } return lims[k] || PAGE; };
+  U.moreBtn = (k, rest, unit) => (rest > 0 ? `<button class="btn more-btn" data-act="list-more" data-k="${k}">顯示更多（還有 ${rest} ${unit}）</button>` : '');
+
+  // ---------- 手機版底部分頁：常用 5 個 + 更多 ----------
+  const SECONDARY = () => [...document.querySelectorAll('#tabs .tab2')];
+  function moreState() {
+    const btn = $('#tabs .tab-more');
+    if (!btn) return;
+    const cur = SECONDARY().find((b) => b.dataset.tab === U.tab);
+    btn.setAttribute('aria-selected', String(!!cur));
+    btn.querySelector('span').textContent = cur ? cur.textContent.trim() : '更多';
+    const badge = SECONDARY().reduce((s, b) => s + (+b.dataset.badge || 0), 0);
+    if (badge) btn.dataset.badge = badge; else delete btn.dataset.badge;
+  }
+  function closeMore() {
+    const sh = $('#tab-more-sheet'), btn = $('#tabs .tab-more');
+    if (sh) sh.hidden = true;
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+  function openMore() {
+    const sh = $('#tab-more-sheet'), btn = $('#tabs .tab-more'), bar = $('#tabs');
+    if (!sh || !bar) return;
+    sh.innerHTML = SECONDARY().map((b) => `<button role="menuitem" data-act="tab" data-tab="${b.dataset.tab}" aria-current="${b.dataset.tab === U.tab}" ${b.dataset.badge ? `data-badge="${b.dataset.badge}"` : ''}>${b.innerHTML}</button>`).join('');
+    sh.style.bottom = `${Math.round(window.innerHeight - bar.getBoundingClientRect().top + 8)}px`;
+    sh.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+  }
+  document.addEventListener('click', (e) => {
+    const sh = $('#tab-more-sheet');
+    if (sh && !sh.hidden && !e.target.closest('#tab-more-sheet, #tabs .tab-more')) closeMore();
+    if (sh && !sh.hidden && e.target.closest('#tab-more-sheet [data-tab]')) setTimeout(closeMore, 0);
+  }, true);
+  const render0 = U.render;
+  U.render = (...a) => { const r = render0(...a); moreState(); return r; };
+  const badge0 = U.socialBadge;
+  if (badge0) U.socialBadge = (...a) => { badge0(...a); moreState(); };
+
+  // ---------- 世界局勢 ----------
+  const ICON = {
+    oil: '<path d="M12 3s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z"/>',
+    flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+    virus: '<circle cx="12" cy="12" r="5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>',
+    chart: '<path d="M3 5l6 7 4-3 8 10M3 21h18"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    star: '<path d="M12 3l2.8 5.9 6.2.8-4.6 4.3 1.2 6.2L12 17.1 6.4 20.2l1.2-6.2L3 9.7l6.2-.8z"/>',
+    coin: '<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.2c-.6-.8-1.5-1.2-2.5-1.2-1.4 0-2.5.8-2.5 1.9 0 2.6 5 1.4 5 4.1 0 1.1-1.1 2-2.5 2-1.1 0-2-.4-2.6-1.2M12 6.5v1.5M12 16v1.5"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+    shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/>',
+    tower: '<path d="M9 21l1-10h4l1 10M8 11h8M10 11V7h4v4M12 7V3"/>',
+    volcano: '<path d="M3 20l6-9h6l6 9zM10 11l2-4 2 4M11 4l1-2 1 2"/>',
+    storm: '<path d="M7 16a4 4 0 01-.5-8 5.5 5.5 0 0110.7 1.5A3.5 3.5 0 0117 16"/><path d="M12 13l-2 4h3l-2 4"/>',
+  };
+  const icon = (k) => `<svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${ICON[k] || ICON.flag}</svg>`;
+  const left = (e) => { const S = G.S; return S.time < e.start ? `${Math.max(1, Math.ceil((e.start - S.time) / DAY))} 天後開始` : `還有 ${Math.max(1, Math.ceil((e.end - S.time) / DAY))} 天`; };
+  const fxChips = (e) => G.eventEffects(e).map(([t, k]) => `<span class="chip fx-${k}">${esc(t)}</span>`).join('');
+  const canAnswer = (e) => { const w = G.S.world; return !(w.answered && w.answered[e.id]) && G.eventOptions(e).length > 0 && G.S.time < e.end; };
+
+  U.worldCard = () => {
+    const S = G.S;
+    if (!S.world) return '';
+    const evs = [...G.activeEvents(), ...G.upcomingEvents()].sort((a, b) => (G.eventHitsMe(b) - G.eventHitsMe(a)) || a.start - b.start);
+    const fm = G.marketFuelMul(), mine = G.fuelMul(), h = S.world.hedge;
+    const fuelLine = `<p class="world-fuel"><span>航空燃油</span><b class="${fm > 1.05 ? 'neg' : fm < 0.95 ? 'pos' : ''}">$${(G.FUEL_PRICE * fm).toFixed(2)}／公斤</b>${Math.abs(fm - 1) >= 0.01 ? `<em>${fm > 1 ? '+' : '−'}${Math.round(Math.abs(fm - 1) * 100)}%</em>` : ''}${h && S.time < h.until ? `<em class="hedge">避險中：你的價格 $${(G.FUEL_PRICE * mine).toFixed(2)}，到 ${date(h.until)}</em>` : ''}</p>`;
+    const rows = evs.map((e) => {
+      const hit = G.eventHitsMe(e);
+      return `<button class="ev-row ${e.sev}${hit ? ' hit' : ''}" data-act="ev-open" data-id="${e.id}">
+        <i class="ev-ic">${icon(e.icon)}</i>
+        <span class="ev-main"><b>${esc(e.title)}</b><small>${esc(G.eventScopeText(e))} · ${left(e)}${hit ? ' · 影響你的航網' : ''}</small><span class="ev-fx">${fxChips(e)}</span></span>
+        ${hit && canAnswer(e) ? '<em class="ev-act">可應對</em>' : ''}
+      </button>`;
+    }).join('');
+    return `<section class="world">
+      <div class="sec-head"><h3>世界局勢</h3><button class="btn link" data-act="help-topic" data-k="events">說明</button></div>
+      ${fuelLine}
+      ${rows || '<p class="note">目前國際情勢平穩。</p>'}
+    </section>`;
+  };
+  const v3 = U.overviewV3;
+  U.overviewV3 = () => (U.worldCard ? U.worldCard() : '') + (v3 ? v3() : '');
+
+  U.eventDialog2 = (id) => {
+    const S = G.S, e = S.world.events.find((x) => x.id === id) || null;
+    if (!e) { U.toast('這個事件已經結束了'); return; }
+    const hit = G.eventHitsMe(e), ans = S.world.answered && S.world.answered[e.id];
+    const opts = canAnswer(e) ? G.eventOptions(e) : [];
+    U.modal(`<div class="ev-dlg ${e.sev}">
+      <header><i class="ev-ic">${icon(e.icon)}</i><div><small>${esc(e.name)} · ${esc(G.eventScopeText(e))}</small><h2>${esc(e.title)}</h2></div></header>
+      <p>${esc(e.text)}</p>
+      <dl class="ev-meta"><dt>期間</dt><dd>${date(e.start)} – ${date(e.end)}（${left(e)}）</dd><dt>影響</dt><dd class="ev-fx">${fxChips(e)}</dd><dt>你的航網</dt><dd>${hit ? '<b class="neg">受到影響</b>' : '沒有直接影響'}</dd></dl>
+      ${opts.length ? `<h3>你要怎麼應對？</h3><div class="replies">${opts.map((o) => `<button class="reply-opt" data-act="ev-answer" data-id="${e.id}" data-k="${o.key}"><b>${esc(o.label)}</b><span>${esc(o.hint)}</span></button>`).join('')}<button class="reply-opt" data-act="ev-answer" data-id="${e.id}" data-k="none"><b>暫不處理</b><span>維持現狀，之後還能從「總覽 › 世界局勢」再打開</span></button></div>` : ans && ans !== 'none' ? `<p class="reply ok">已採取應對措施。</p>` : ''}
+      <div class="row-btns"><span class="spacer"></span><button class="btn" data-act="modal-close">關閉</button></div>
+    </div>`);
+  };
+
+  // 事件發生時的通知
+  G.on((w, d) => {
+    if (w !== 'event' || !d) return;
+    if (d.kind === 'world') {
+      const e = d.ev, S = G.S;
+      const opts = d.mine || e.sc.k === 'global' ? G.eventOptions(e) : [];
+      const modalOpen = !$('#modal').hidden;
+      const solo = !G.net;
+      if (opts.length && e.type !== 'storm' && solo && !modalOpen && !document.body.classList.contains('intro')) {
+        G.setSpeed(0);
+        U.eventDialog2(e.id);
+      } else if (d.mine || e.sc.k === 'global') U.toast(`${e.start > S.time ? '預告：' : ''}${e.title}`, e.sev === 'bad');
+      if (U.tab === 'overview' || U.tab === 'social') U.render();
+    }
+    if (d.kind === 'world-end' && U.tab === 'overview') U.render();
+  });
+
+  // ---------- 成就 ----------
+  if (G.ACHIEVEMENTS && !G.ACHIEVEMENTS.some((a) => a[0] === 'hedge')) {
+    G.ACHIEVEMENTS.push(
+      ['hedge', '避險高手', '面對油價變動，簽下燃油避險合約', (S) => (S.stats && S.stats.hedges) > 0],
+      ['crisis', '逆風高飛', '疫情或經濟衰退衝擊你的航網時，單月仍然獲利', (S) => (S.stats && S.stats.crisisProfit) > 0],
+    );
+  }
+
+  // ---------- 操作 ----------
+  const act0 = U.act3;
+  U.act3 = (a, d, el) => {
+    switch (a) {
+      case 'list-more': lims[d.k] = (lims[d.k] || PAGE) + PAGE; U.render(); return;
+      case 'tab-more': { const sh = $('#tab-more-sheet'); if (sh && sh.hidden) openMore(); else closeMore(); return; }
+      case 'ev-open': U.eventDialog2(+d.id); return;
+      case 'ev-answer': {
+        const r = G.eventRespond(+d.id, d.k);
+        if (!r.ok) { U.toast(r.msg, true); return; }
+        U.closeModal();
+        if (d.k !== 'none') U.toast(`已採取措施：${r.label}`);
+        U.render(); U.updateTop();
+        return;
+      }
+      case 'help-topic': if (U.helpDialog) { U.helpDialog(d.k); return; } break;
+      default: break;
     }
     if (act0) act0(a, d, el);
   };

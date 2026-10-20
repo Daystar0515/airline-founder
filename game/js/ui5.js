@@ -1,4 +1,4 @@
-// v0.4.2 介面：社群媒體分頁（每週刷新的動態、回應話題、公司自行發文）與分頁提醒徽章。
+// v0.4.2 介面：社群媒體分頁（每月刷新的動態、回應話題、公司自行發文）與分頁提醒徽章。
 (function () {
   const G = window.G, U = G.ui;
   const $ = (s) => document.querySelector(s);
@@ -36,14 +36,15 @@
 
   function composer(S) {
     const D = U.postDraft, T = G.SOCIAL_POST_TYPES[D.type];
-    const left = G.SOCIAL_WEEKLY_LIMIT - S.social.postedThisWeek;
-    if (!U.composeOpen) return `<button class="btn compose-open" data-act="post-compose"><b>＋ 發布貼文</b><span class="meta">本週還能發 ${left} 則</span></button>`;
+    const left = G.socialPostsLeft();
+    if (!U.composeOpen) return `<button class="btn compose-open" data-act="post-compose"><b>＋ 發布貼文</b><span class="meta">本月還能發 ${left} 則</span></button>`;
     const routes = S.routes.map((r) => `<option value="${r.id}" ${+D.route === r.id ? 'selected' : ''}>${r.a}–${r.b}</option>`).join('');
     return `<div class="composer">
-      <header><b>發布貼文</b><span class="meta">本週還能發 ${left} 則</span><button class="btn link" data-act="post-compose">收起</button></header>
+      <header><b>發布貼文</b><span class="meta">本月還能發 ${left} 則</span><button class="btn link" data-act="post-compose">收起</button></header>
       <div class="seg" role="group" aria-label="貼文類型">${Object.entries(G.SOCIAL_POST_TYPES).map(([k, t]) => `<button data-act="post-type" data-k="${k}" aria-pressed="${D.type === k}">${t.name}</button>`).join('')}</div>
       <p class="note">${esc(T.desc)}</p>
       ${T.needRoute ? `<label class="field">要宣傳的航線<select data-act="post-route"><option value="">選擇航線</option>${routes}</select></label>` : ''}
+      ${T.needCabin ? (() => { const own = G.ownedClasses(); if (!own.includes(D.cls)) D.cls = own[0]; return own.length ? `<label class="field">要介紹的艙等<select data-act="post-cls">${own.map((c) => `<option value="${c}" ${D.cls === c ? 'selected' : ''}>${esc(G.cname(c))}</option>`).join('')}</select></label>` : '<p class="note">機隊還沒有任何艙等可以介紹。</p>'; })() : ''}
       <textarea data-act="post-text" rows="3" maxlength="140" placeholder="想說什麼？留白會使用預設文案">${esc(D.text)}</textarea>
       <div class="row-btns"><span class="spacer"></span><button class="btn primary" data-act="post-publish" ${left <= 0 ? 'disabled' : ''}>發布</button></div>
     </div>`;
@@ -56,7 +57,7 @@
     let foot = '';
     if (p.opts && p.related && !p.own) {
       if (p.answered) foot = `<p class="reply ${p.answered.ok ? 'ok' : 'bad'}">已回應：${esc(p.answered.label)} · ${p.answered.ok ? '效果良好' : '效果不如預期'}</p>`;
-      else foot = `<div class="replies"><p class="meta">${p.sentiment < 0 ? '這則話題對公司不利，一週內沒有回應會損害社會評價。' : '要回應這則貼文嗎？'}</p>${p.opts.map((o) => `<button class="reply-opt" data-act="post-reply" data-id="${p.id}" data-k="${o.key}"><b>${esc(o.label)}</b><span>${esc(o.hint)}</span></button>`).join('')}</div>`;
+      else foot = `<div class="replies"><p class="meta">${p.sentiment < 0 ? '這則話題對公司不利，月底前沒有回應會損害社會評價。' : '要回應這則貼文嗎？'}</p>${p.opts.map((o) => `<button class="reply-opt" data-act="post-reply" data-id="${p.id}" data-k="${o.key}"><b>${esc(o.label)}</b><span>${esc(o.hint)}</span></button>`).join('')}</div>`;
     } else if (p.opts && !p.related && !p.answered) {
       foot = `<div class="replies">${p.opts.map((o) => `<button class="reply-opt" data-act="post-reply" data-id="${p.id}" data-k="${o.key}"><b>${esc(o.label)}</b><span>${esc(o.hint)}</span></button>`).join('')}</div>`;
     } else if (p.answered) foot = `<p class="reply ${p.answered.ok ? 'ok' : 'bad'}">已回應：${esc(p.answered.label)} · ${p.answered.ok ? '效果良好' : '效果不如預期'}</p>`;
@@ -81,8 +82,8 @@
     const days = Math.max(1, Math.ceil((so.nextAt - S.time) / DAY));
     const n = pending();
     const filters = [['all', '全部'], ['mine', '與公司有關'], ['news', '新聞'], ['kol', '自媒體'], ['biz', '企業'], ['public', '民眾'], ['own', '我的貼文']];
-    return `<div class="sec-head"><h3>社群動態</h3><span class="meta">第 ${so.week + 1} 週 · ${days} 天後刷新</span></div>
-      ${n ? `<div class="callout warn"><b>${n} 則與公司有關的話題等待回應</b><p>回應方式會影響社會評價、訂位與股價；負面話題放著不管，下週刷新時會扣社會評價。</p></div>` : ''}
+    return `<div class="sec-head"><h3>社群動態</h3><span class="meta">每月刷新 · ${days} 天後更新</span></div>
+      ${n ? `<div class="callout warn"><b>${n} 則與公司有關的話題等待回應</b><p>回應方式會影響社會評價、訂位與股價；負面話題放著不管，下個月刷新時會扣社會評價。</p></div>` : ''}
       ${composer(S)}
       ${effectsSummary(S)}
       <div class="seg filter" role="group" aria-label="篩選">${filters.map(([k, nm]) => `<button data-act="social-filter" data-k="${k}" aria-pressed="${F === k}">${nm}</button>`).join('')}</div>
@@ -109,12 +110,12 @@
     if (a === 'post-type') { U.postDraft.type = d.k; U.render(); }
     if (a === 'post-reply') {
       const r = G.respondPost(+d.id, d.k);
-      if (r.ok) U.toast(r.verdict, !r.success);
+      if (r.ok) U.toast(r.verdict, !r.success); else if (r.msg) U.toast(r.msg, true);
       U.render(); U.updateTop(); U.socialBadge();
     }
     if (a === 'post-publish') {
       const D = U.postDraft;
-      const r = G.publishPost({ type: D.type, text: D.text, routeId: D.route ? +D.route : null });
+      const r = G.publishPost({ type: D.type, text: D.text, routeId: D.route ? +D.route : null, cls: D.cls });
       if (r.ok) { U.toast(r.note ? '已發布，但' + r.note : '已發布'); D.text = ''; U.socialFilter = 'all'; U.composeOpen = false; } else U.toast(r.msg, true);
       U.render(); U.updateTop();
     }
@@ -123,6 +124,7 @@
   U.change3 = (el, a) => {
     if (ch0 && ch0(el, a)) return true;
     if (a === 'post-route') { U.postDraft.route = el.value; return true; }
+    if (a === 'post-cls') { U.postDraft.cls = el.value; return true; }
     return false;
   };
   document.addEventListener('input', (e) => { if (e.target.dataset.act === 'post-text') U.postDraft.text = e.target.value; });

@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <!--BUNDLE:HEAD-->
 <title>航空公司創始人</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -28,18 +28,20 @@
     <button id="sheet-handle" type="button" aria-label="展開面板"><i></i></button>
     <nav id="tabs" role="tablist">
       <button data-act="tab" data-tab="overview" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg>總覽</button>
-      <button data-act="tab" data-tab="airport" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z"/></svg>機場</button>
+      <button class="tab2" data-act="tab" data-tab="airport" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z"/></svg>機場</button>
       <button data-act="tab" data-tab="fleet" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 13l8-2 4-7h2l-2 7 6 1v2l-6 1 2 7h-2l-4-7-8-2z"/></svg>機隊</button>
       <button data-act="tab" data-tab="routes" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><path d="M7 17c6-1 4-9 10-10"/></svg>航線</button>
-      <button data-act="tab" data-tab="hubs" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"/></svg>樞紐</button>
-      <button data-act="tab" data-tab="staff" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 20c0-2.5 1.5-4.5 4-4.5"/></svg>人事</button>
-      <button data-act="tab" data-tab="service" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15h16M6 15a6 6 0 0112 0M12 7V5M3 19h18"/></svg>服務</button>
+      <button class="tab2" data-act="tab" data-tab="hubs" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"/></svg>樞紐</button>
+      <button class="tab2" data-act="tab" data-tab="staff" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 20c0-2.5 1.5-4.5 4-4.5"/></svg>人事</button>
+      <button class="tab2" data-act="tab" data-tab="service" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15h16M6 15a6 6 0 0112 0M12 7V5M3 19h18"/></svg>服務</button>
       <button data-act="tab" data-tab="social" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>社群</button>
-      <button data-act="tab" data-tab="rivals" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l6-6M14 10l6-6M15 4h5v5M9 20H4v-5"/><path d="M4 4l16 16"/></svg>競爭</button>
-      <button data-act="tab" data-tab="alliance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.3 3.8 8.5s-1.2 6.1-3.8 8.5M12 3.5C9.4 5.9 8.2 8.8 8.2 12s1.2 6.1 3.8 8.5"/></svg>聯盟</button>
-      <button data-act="tab" data-tab="gov" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-5 9 5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg>合約</button>
+      <button class="tab2" data-act="tab" data-tab="rivals" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l6-6M14 10l6-6M15 4h5v5M9 20H4v-5"/><path d="M4 4l16 16"/></svg>競爭</button>
+      <button class="tab2" data-act="tab" data-tab="alliance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.3 3.8 8.5s-1.2 6.1-3.8 8.5M12 3.5C9.4 5.9 8.2 8.8 8.2 12s1.2 6.1 3.8 8.5"/></svg>聯盟</button>
+      <button class="tab2" data-act="tab" data-tab="gov" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-5 9 5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg>合約</button>
       <button data-act="tab" data-tab="finance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>財務</button>
+      <button class="tab-more" data-act="tab-more" aria-haspopup="true" aria-expanded="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>更多</span></button>
     </nav>
+    <div id="tab-more-sheet" role="menu" aria-label="更多分頁" hidden></div>
     <div id="panel-body"></div>
   </aside>
   <header id="topbar">
@@ -126,6 +128,7 @@
 <script src="js/hr.js"></script>
 <script src="js/finance.js"></script>
 <script src="js/social.js"></script>
+<script src="js/events.js"></script>
 <script src="js/ops6.js"></script>
 <script src="js/fleet62.js"></script>
 <script src="js/advice.js"></script>
@@ -156,6 +159,7 @@
 <script src="js/helpdata.js"></script>
 <script src="js/uihelp.js"></script>
 <script src="js/uiach.js"></script>
+<script src="js/ui100.js"></script>
 <script src="js/main.js"></script>
 <script src="js/guard.js"></script>
 <script src="js/pwa.js"></script>

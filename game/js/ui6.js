@@ -112,7 +112,7 @@
       const dIn = new Date(S.time).getUTCDate(), need = c.weekly * 2 * (dIn / 7);
       const done = r ? r.stats.flights : 0, n = r ? G.routeAircraft(r).length : 0;
       body = `<dl class="facts"><dt>本月執飛</dt><dd>${done} 班（到今天應有約 ${Math.round(need)} 班）</dd><dt>執飛飛機</dt><dd>${n ? n + ' 架' : '<span class="neg">尚未指派，到「機隊」指派飛機</span>'}</dd>
-        <dt>每月補貼</dt><dd>${M(c.price)}</dd><dt>經濟艙票價上限</dt><dd>${pct(c.fareCapY)}</dd><dt>累計撥款</dt><dd>${M(c.paid)}</dd><dt>合約到期</dt><dd>${date(c.end)}</dd>${c.strikes ? `<dt>未達標</dt><dd class="neg">連續 ${c.strikes}/${G.GOV.strikes} 個月</dd>` : ''}</dl>
+        <dt>每月補貼</dt><dd>${M(c.price)}</dd><dt>${esc(G.cname('Y'))}票價上限</dt><dd>${pct(c.fareCapY)}</dd><dt>累計撥款</dt><dd>${M(c.paid)}</dd><dt>合約到期</dt><dd>${date(c.end)}</dd>${c.strikes ? `<dt>未達標</dt><dd class="neg">連續 ${c.strikes}/${G.GOV.strikes} 個月</dd>` : ''}</dl>
         ${r ? `<div class="row-btns"><button class="btn sm" data-act="route-open" data-id="${r.id}">查看航線</button></div>` : ''}`;
     } else if (c.kind === 'travel') {
       const rs = G.routesFrom(c.a);

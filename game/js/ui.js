@@ -259,7 +259,7 @@
             <button class="btn sm" data-act="fno-save" data-id="${r.id}">更新</button></div>
           <div class="fare-head"><h4>票價（相對參考票價）</h4>
             <label class="switch sm"><input type="checkbox" id="af-${r.id}" data-act="auto-fare" data-id="${r.id}" ${r.autoFare ? 'checked' : ''}><span></span>自動最佳定價</label></div>
-          <p class="note">${r.autoFare ? '依每架飛機的艙等座位數與座椅等級，每天自動調整到期望營收最高的票價；手動拖曳任一票價就會改回手動。' : '手動定價中。開啟「自動最佳定價」，或按下方按鈕套用一次建議票價。'}${r.fareCap && r.fareCap.Y != null ? ` 補貼合約規定經濟艙不得高於 ${Math.round(r.fareCap.Y * 100)}%。` : ''}</p>
+          <p class="note">${r.autoFare ? '依每架飛機的艙等座位數與座椅等級，每天自動調整到期望營收最高的票價；手動拖曳任一票價就會改回手動。' : '手動定價中。開啟「自動最佳定價」，或按下方按鈕套用一次建議票價。'}${r.fareCap && r.fareCap.Y != null ? ` 補貼合約規定${esc(cname('Y'))}不得高於 ${Math.round(r.fareCap.Y * 100)}%。` : ''}</p>
           ${G.CLASSES.map((c) => `<label class="slider"><span>${esc(cname(c))}<small>${G.money(G.refFare(d, c) * r.fare[c])}</small></span>
             <input type="range" id="fare-${r.id}-${c}" min="0.6" max="${r.fareCap && r.fareCap[c] != null ? r.fareCap[c] : 1.6}" step="0.02" value="${r.fare[c]}" data-act="fare" data-id="${r.id}" data-c="${c}"><output>${Math.round(r.fare[c] * 100)}%</output></label>`).join('')}
           ${!r.autoFare && acs.length ? `<div class="row-btns"><button class="btn sm" data-act="fare-opt" data-id="${r.id}">套用建議票價</button></div>` : ''}
@@ -354,8 +354,8 @@
         <thead><tr><th>機型</th><th>最多座位</th><th>航程</th><th>跑道需求</th><th>油耗/時</th><th>價格</th><th>月租</th><th></th></tr></thead>
         <tbody>${Object.entries(groups).map(([mfr, ts]) => `<tr class="grp"><td colspan="8">${G.ZH(mfr)}</td></tr>` + ts.map((t) => `<tr>
           <td><b>${esc(t.model)}</b>${t.used ? '<span class="chip">二手</span>' : ''}${G.restrictionTags(t).map((x) => `<span class="chip warn">${x}</span>`).join('')}<small>${t.wide ? '寬體 · 4 艙等' : '3 艙等'}</small></td>
-          <td>${t.maxSeats}</td><td>${G.num(t.range)} km</td><td>${G.num(t.rwy)} m</td><td>${G.num(t.fuel)} kg</td>
-          <td>${G.money(t.price * 1e6)}</td><td>${G.money(G.leaseMonthly(t))}</td>
+          <td data-l="最多座位">${t.maxSeats}</td><td data-l="航程">${G.num(t.range)} km</td><td data-l="跑道需求">${G.num(t.rwy)} m</td><td data-l="油耗/時">${G.num(t.fuel)} kg</td>
+          <td data-l="價格">${G.money(t.price * 1e6)}</td><td data-l="月租">${G.money(G.leaseMonthly(t))}</td>
           <td class="btns"><button class="btn sm primary" data-act="acquire" data-t="${t.id}" data-mode="buy" ${S.cash < t.price * 1e6 ? 'disabled' : ''}>購買</button><button class="btn sm" data-act="acquire" data-t="${t.id}" data-mode="lease">租賃</button></td>
         </tr>`).join('')).join('')}</tbody></table></div>`, 'wide');
   };

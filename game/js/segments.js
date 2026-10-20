@@ -78,8 +78,10 @@
   };
   // 每班期望旅客數（尚未乘時段係數）與其中觀光客的比例
   G.expectPax = (r, cls, tier, freq, pen) => {
-    const sg = G.routeSegments(G.AP[r.a], G.AP[r.b]), m = sg.cls[cls];
-    const l = m.L * G.segShare(r, 'L', cls, tier, freq, pen), b = m.B * G.segShare(r, 'B', cls, tier, freq, pen);
+    const A = G.AP[r.a], B = G.AP[r.b], sg = G.routeSegments(A, B), m = sg.cls[cls];
+    // v1.0.0-rc2 突發事件改變市場大小（疫情、政局、旅遊熱潮……）
+    const eL = G.evDemand ? G.evDemand(A, B, 'L') : 1, eB = G.evDemand ? G.evDemand(A, B, 'B') : 1;
+    const l = m.L * eL * G.segShare(r, 'L', cls, tier, freq, pen), b = m.B * eB * G.segShare(r, 'B', cls, tier, freq, pen);
     const n = Math.max(freq, 0.5);
     return { pax: (l + b) / n, leisure: l + b > 0 ? l / (l + b) : 1 };
   };

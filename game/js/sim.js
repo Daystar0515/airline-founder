@@ -21,7 +21,7 @@
     const start = Date.UTC(2027, 0, 1, 0, 0);
     const F = G.FOUNDERS[opts.founder || 'classic'];
     G.S = {
-      v: 8, time: start, start, seq: 1, regSeq: 1, cabinPresets: [], rivals: { pairs: {}, ver: 1, news: [] },
+      v: 9, time: start, start, seq: 1, regSeq: 1, cabinPresets: [], rivals: { pairs: {}, ver: 1, news: [] },
       company: { name: opts.name, code: opts.code, color: opts.color, logo: opts.logo || null, logoAuto: opts.logoAuto || null, cabinNames: { ...G.CLASS_DEFAULT_NAME } },
       founder: { type: opts.founder || 'classic', equity: F.equity },
       cash: G.START_CASH * F.cash,
@@ -37,6 +37,7 @@
     G.S.hubs[ap.iata] = { type: 'primary', since: start, upgrades: newUpgrades() };
     if (G.initV4) G.initV4(G.S);
     if (G.initV9) G.initV9(G.S); // v0.9.0：航空聯盟、股市、公司債
+    if (G.initWorld) G.initWorld(G.S); // v1.0.0-rc2：突發事件
     spend(G.hubFee(ap, 'primary'), 'facility');
     log(`${opts.name} 成立，主要樞紐設於 ${ap.city}（${ap.iata}）；創始人背景：${F.name}`);
     G.initV3(G.S);
@@ -66,6 +67,7 @@
     if (S.v < 6) { if (G.migrateV62) G.migrateV62(S); S.v = 6; } // v0.6.2：機況、二手市場、艙位設定
     if (S.v < 7) { if (G.initRivals) G.initRivals(S); S.v = 7; } // v0.7.0：真實航空公司競爭
     if (S.v < 8) { if (G.initV9) G.initV9(S); S.v = 8; } // v0.9.0：航空聯盟、股市、公司債
+    if (S.v < 9) { if (G.initWorld) G.initWorld(S); S.v = 9; } // v1.0.0-rc2：突發事件
     if (G.repairSave) G.repairSave(S);
     return S;
   }
@@ -440,8 +442,19 @@
       log(`${ac.reg} 在 ${from.iata} → ${to.iata} 找不到避開宵禁的起降時段`, 'warn');
       return;
     }
-    // 人力不足或罷工：取消營收航班，兩小時後再試
-    if (!ferry && Math.random() < G.cancelProb()) {
+    // v1.0.0-rc2 機場關閉（颱風、火山灰）：所有航班停飛，等機場重新開放
+    const shut = G.evClosed && (G.evClosed(from.iata) || G.evClosed(to.iata));
+    if (shut) {
+      ac.st = 'turn'; ac.leg = null; ac.readyAt = Math.max(G.S.time, earliest, Math.min(shut.end, G.S.time + 6 * HOUR));
+      if (!ferry) {
+        G.S.day.cancels = (G.S.day.cancels || 0) + 1; G.S.day.wxCancels = (G.S.day.wxCancels || 0) + 1;
+        const rr = G.S.routes.find((x) => x.id === ac.route);
+        if (rr) rr.stats.cancels = (rr.stats.cancels || 0) + 1;
+      }
+      return;
+    }
+    // 人力不足、罷工或航管罷工：取消營收航班，兩小時後再試
+    if (!ferry && Math.random() < 1 - (1 - G.cancelProb()) * (1 - (G.evCancel ? G.evCancel(from, to) : 0))) {
       ac.st = 'turn'; ac.leg = null; ac.readyAt = Math.max(G.S.time, earliest) + 2 * HOUR;
       G.S.day.cancels = (G.S.day.cancels || 0) + 1;
       const rr = G.S.routes.find((x) => x.id === ac.route);
@@ -474,7 +487,7 @@
     if (L.ferry || !r) { L.booked = null; return; }
     const freq = G.routeFreq(r);
     const b = { pax: {}, rev: 0, sat: 0, meal: 0, anc: 0 };
-    const h = L.block / 60, svcK = G.cabinServiceFactor();
+    const h = L.block / 60, svcK = G.cabinServiceFactor(), evFare = G.evFare ? G.evFare() : 1;
     let paxAll = 0;
     G.classesFor(t).forEach((c) => {
       const k = ac.cabin[c];
@@ -484,7 +497,7 @@
       const expect = ex.pax * G.timeOfDay(G.localMinutes(G.AP[L.from], L.dep));
       const pax = Math.min(k.seats, Math.max(0, Math.round(expect * (0.85 + Math.random() * 0.3))));
       b.pax[c] = pax; paxAll += pax; b.paxB = (b.paxB || 0) + pax * (1 - ex.leisure);
-      b.rev += pax * G.refFare(L.dist, c) * r.fare[c] * (G.socialYield ? G.socialYield() : 1);
+      b.rev += pax * G.refFare(L.dist, c) * r.fare[c] * (G.socialYield ? G.socialYield() : 1) * evFare;
       // 單一艙等的滿意度（0–1）
       const cat = G.catering(c, h, L.from, pax);
       b.meal += cat.cost; b.anc += cat.anc;
@@ -506,12 +519,12 @@
   }
   function flightCosts(ac, h, dist, from, to, pax, svc) {
     const t = G.TYPES[ac.type], seats = G.cabinSeats(ac.cabin);
-    const fuel = t.fuel * h * G.FUEL_PRICE;
+    const fuel = t.fuel * h * (G.fuelPrice ? G.fuelPrice() : G.FUEL_PRICE); // v1.0.0-rc2 油價事件與避險
     // v0.3 起機組薪資改為每月人事費用，這裡只剩飛行津貼與外站住宿
     const crew = h * (2 * 40 + Math.max(1, Math.ceil(seats / 45)) * 12);
-    const maint = t.price * 1e6 * (t.used ? 1.4 : 1) * (1 + 1.2 * (1 - (ac.cond != null ? ac.cond : 1))) * 3.5e-6 * h * G.fmod('mx'); // 航線維修與零件（定期檢查另計）
+    const maint = t.price * 1e6 * (t.used ? 1.4 : 1) * (1 + 1.2 * (1 - (ac.cond != null ? ac.cond : 1))) * 3.5e-6 * h * G.fmod('mx') * (G.evCost ? G.evCost('maint') : 1); // 航線維修與零件（定期檢查另計）
     // 起降費、旅客服務費、航路費、地勤代理費（v0.4 依真實費率上調）
-    const airport = 7 * t.units + pax * (from.cc === to.cc ? 9 : 14) + 0.45 * dist + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500);
+    const airport = (7 * t.units + pax * (from.cc === to.cc ? 9 : 14) + 0.45 * dist + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500)) * (G.evCost ? G.evCost('airport', from, to) : 1);
     spend(fuel, 'fuel'); spend(crew, 'crew'); spend(maint, 'maint'); spend(airport, 'airport'); if (svc) spend(svc, 'service');
     ac.hours += h; ac.cycles += 1;
     G.CHECK_LEVELS.forEach((lv) => (ac.mx[lv] += h));
@@ -669,7 +682,8 @@
     S.fleet.forEach((ac) => { if (ac.mode === 'lease') spend(ac.lease / 30, 'lease'); spend(G.overheadDaily * G.fmod('overhead'), 'overhead'); });
     G.dailyV3(); // 人事薪資、招募離職、士氣、工會、董事會
     G.dailyV4(); // 保險費、股價
-    if (G.socialDaily) G.socialDaily(); // 社群媒體：每週刷新
+    if (G.worldDaily) G.worldDaily(); // v1.0.0-rc2 突發事件：油價、政局、疫情、天災……
+    if (G.socialDaily) G.socialDaily(); // 社群媒體：每月刷新
     if (G.govDaily) G.govDaily(); // 政府合約：新標案、開標、包機期限
     if (G.usedDaily) G.usedDaily(); // 二手飛機市場：每季刷新
     if (G.loyaltyDaily) G.loyaltyDaily(); // v0.6.4 會員方案：年費、福利成本、會員人數

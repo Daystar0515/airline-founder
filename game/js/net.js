@@ -181,6 +181,7 @@
     G.ui.updateTop();
   }
   const hostUsed = (N) => N.conns.forEach((c) => c.send({ t: 'used', mkt: G.S.usedMkt }));
+  const hostWorld = (N) => { const pub = G.worldPublic ? G.worldPublic() : null; if (pub) N.conns.forEach((c) => c.send({ t: 'world', pub })); }; // v1.0.0-rc2 突發事件
   G.netHost = async (kind) => {
     if (G.net) return { ok: false, msg: '已經在房間裡了' };
     const S = G.S, transport = G.NET_TRANSPORTS[kind || 'peer'];
@@ -226,7 +227,7 @@
       if (why) { conn.send({ t: 'reject', reason: why }); setTimeout(() => conn.close(), 300); return; }
       N.conns.set(conn.id, conn);
       setSummary(N, conn.id, m.summary, dayOf(m.time));
-      conn.send({ t: 'welcome', id: conn.id, code: N.code, worldId: S.net.worldId, time: S.time, speed: G.speed, used: S.usedMkt });
+      conn.send({ t: 'welcome', id: conn.id, code: N.code, worldId: S.net.worldId, time: S.time, speed: G.speed, used: S.usedMkt, world: G.worldPublic ? G.worldPublic() : null });
       G.log(`${m.summary.name}（${m.summary.code}）${m.rejoin ? '重新連線' : '加入了房間'}`);
       G._emit('event', { kind: 'net', text: `${m.summary.name} ${m.rejoin ? '重新連線' : '加入了房間'}` });
       hostBroadcast(N);
@@ -272,6 +273,7 @@
           N.myId = m.id;
           S.net = { role: 'client', worldId: m.worldId, code: m.code };
           if (m.used) S.usedMkt = m.used;
+          if (m.world && G.worldApply) G.worldApply(m.world);
           // 存檔比房間早：先快轉到房間的日期
           if (S.time < m.time - 60000) await catchUp(m.time);
           N.limit = Math.max(S.time, m.time);
@@ -292,6 +294,7 @@
           G.ui.updateTop();
           if (G.map) G.map.invalidate();
         } else if (m.t === 'used') S.usedMkt = m.mkt;
+        else if (m.t === 'world' && G.worldApply) G.worldApply(m.pub);
         else if (m.t === 'relay') deliver(m.from, m.msg);
         else if (m.t === 'usedReply' && pending.has(m.req)) { pending.get(m.req)(m); pending.delete(m.req); }
       });
@@ -351,6 +354,7 @@
       } else hostBroadcast(N);
     }
     if (what === 'event' && data && data.kind === 'used-refresh' && N.role === 'host') hostUsed(N);
+    if (what === 'event' && data && data.kind === 'world' && N.role === 'host') hostWorld(N);
   });
   // 房主買二手飛機時通知大家
   const buyUsed0 = G.buyUsed;

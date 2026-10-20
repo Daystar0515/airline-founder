@@ -79,8 +79,8 @@
       const ex = (h) => G.mealExpect(c, h);
       const costFor = (h) => G.catering(c, h, '', 1).cost;
       return `<tr><td>${esc(cname(c))}</td><td><select id="meal-${c}" data-act="meal" data-c="${c}" aria-label="${esc(cname(c))}餐點">${G.MEAL_ORDER.map((k) => `<option value="${k}" ${C.meals[c] === k ? 'selected' : ''}>${G.MEALS[k].name}</option>`).join('')}</select></td>
-        <td>${[1, 3, 10].map((h) => G.money(costFor(h))).join(' / ')}</td>
-        <td>${[1, 3, 10].map((h) => { const m = G.catering(c, h, '', 1).mult; return `<span class="${m < 0.97 ? 'neg' : m > 1.03 ? 'pos' : ''}">${m >= 1 ? '+' : ''}${Math.round((m - 1) * 100)}%</span>`; }).join(' / ')}</td></tr>`;
+        <td data-l="每人成本（1／3／10 小時）">${[1, 3, 10].map((h) => G.money(costFor(h))).join(' / ')}</td>
+        <td data-l="滿意度影響">${[1, 3, 10].map((h) => { const m = G.catering(c, h, '', 1).mult; return `<span class="${m < 0.97 ? 'neg' : m > 1.03 ? 'pos' : ''}">${m >= 1 ? '+' : ''}${Math.round((m - 1) * 100)}%</span>`; }).join(' / ')}</td></tr>`;
     }).join('');
     return `<section class="kpis">
         <div><span>近 7 日乘客滿意度</span><b>${sat != null ? pct(sat) : '—'}</b><em>座椅、餐飲、空服、準點、客艙狀況的綜合</em></div>

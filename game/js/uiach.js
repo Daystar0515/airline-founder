@@ -5,7 +5,7 @@
   const M = (v) => G.money(v);
   const gdate = (t) => new Date(t).toISOString().slice(0, 10).replace(/-/g, '/');
   const YEAR = 365 * 86400000;
-  const KIND_DOT = { found: 'acc', ach: 'gold', crash: 'neg', bankrupt: 'neg', dismissed: 'neg', repossess: 'neg', strike: 'warn', ipo: 'pos', ally: 'acc', hub: 'acc', bond: 'acc', gov: 'pos' };
+  const KIND_DOT = { found: 'acc', ach: 'gold', crash: 'neg', bankrupt: 'neg', dismissed: 'neg', repossess: 'neg', strike: 'warn', ipo: 'pos', ally: 'acc', hub: 'acc', bond: 'acc', gov: 'pos', world: 'warn' };
 
   // 月度稅後淨利長條圖
   function niChart(S, n) {
