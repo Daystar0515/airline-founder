@@ -56,16 +56,16 @@
   function bs() {
     const st = G.S.fin.statements.slice(-1)[0];
     if (!st) return empty;
-    const b = st.bs, liab = b.loans + (b.bonds || 0), ok = Math.abs(b.assets - (liab + b.equity)) < 1;
+    const b = st.bs, liab = b.loans + (b.bonds || 0) + (b.owner || 0), ok = Math.abs(b.assets - (liab + b.equity)) < 1;
     const line = (l, v, cls) => `<tr class="${cls || ''}"><td>${l}</td><td class="${neg(v)}">${M(v)}</td></tr>`;
     return `<p class="sub">${st.y} 年 ${st.m} 月底</p>
       <div class="bs-grid">
         <div class="table-wrap"><table class="fs"><thead><tr><th>資產</th><th></th></tr></thead><tbody>
-          ${line('現金', b.cash)}${line('飛機（帳面價值）', b.aircraft)}${line('樞紐與設施', b.facilities)}${line('租機保證金', b.deposits)}${b.invest ? line('股票投資（成本）', b.invest) : ''}${line('資產總計', b.assets, 'strong total')}
+          ${line('現金', b.cash)}${line('飛機（帳面價值）', b.aircraft)}${line('樞紐與設施', b.facilities)}${line('租機保證金', b.deposits)}${b.invest ? line('股票投資（成本）', b.invest) : ''}${b.subs ? line('子公司投資（權益法）', b.subs) : ''}${b.prepay ? line('預付購機款', b.prepay) : ''}${b.slots ? line('時刻帶', b.slots) : ''}${b.goodwill ? line('商譽', b.goodwill) : ''}${line('資產總計', b.assets, 'strong total')}
         </tbody></table></div>
         <div class="table-wrap"><table class="fs"><thead><tr><th>負債與權益</th><th></th></tr></thead><tbody>
-          ${line('銀行借款', b.loans)}${b.bonds ? line('應付公司債', b.bonds) : ''}${line('負債總計', liab, 'sub')}
-          ${line('股本（創業投入）', b.capital)}${line('上市與增資股本', b.ipo)}${line('保留盈餘', b.retained)}${line('權益總計', b.equity, 'sub')}
+          ${line('銀行借款', b.loans)}${b.bonds ? line('應付公司債', b.bonds) : ''}${b.owner ? line('股東借款（向創辦人借）', b.owner) : ''}${line('負債總計', liab, 'sub')}
+          ${line('股本（創業投入）', b.capital)}${line('上市與增資股本', b.ipo)}${line('保留盈餘', b.retained)}${b.treasury ? line('減：庫藏股', -b.treasury) : ''}${line('權益總計', b.equity, 'sub')}
           ${line('負債與權益總計', liab + b.equity, 'strong total')}
         </tbody></table></div>
       </div>
@@ -142,7 +142,7 @@
     const ni = S.fin.statements.slice(-12).reduce((s, x) => s + x.ni, 0);
     return `<dl class="facts"><dt>股價</dt><dd>$${st.price.toFixed(2)} <span class="${neg(chg)}">（較承銷價 ${chg >= 0 ? '+' : ''}${pct(chg)}）</span></dd>
         <dt>市值</dt><dd>${M(st.price * st.shares)}</dd><dt>本益比</dt><dd>${ni > 0 ? (st.price * st.shares / ni).toFixed(1) + ' 倍' : '虧損中'}</dd>
-        <dt>總股數</dt><dd>${(st.shares / 1e6).toFixed(1)} 百萬股</dd><dt>你的持股</dt><dd>${S.founder.equity}%${S.founder.equity >= 50 ? '（過半，經營權穩固）' : ''}</dd>
+        <dt>流通股數</dt><dd>${(st.shares / 1e6).toFixed(1)} 百萬股${st.treasury >= 1 ? `（另有庫藏股 ${(st.treasury / 1e6).toFixed(2)} 百萬股）` : ''}</dd><dt>你的持股</dt><dd>${S.founder.equity}%${S.founder.equity >= 50 ? '（過半，經營權穩固）' : ''}</dd>
         <dt>上次股東會支持度</dt><dd>${st.lastApproval != null ? st.lastApproval.toFixed(0) + '%' : '尚未召開'}</dd></dl>
       ${U.ownStockExtra ? U.ownStockExtra() : spark}
       <label class="slider"><span>股利發放率<small>年度稅後淨利</small></span><input type="range" id="payout" min="0" max="0.8" step="0.05" value="${st.payout}" data-act="payout"><output>${Math.round(st.payout * 100)}%</output></label>

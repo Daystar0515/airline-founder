@@ -6,7 +6,7 @@
 
   G.S = null; // 目前遊戲狀態
   // 不計入營業成本的支出：資本支出、保證金、還本、股利，以及營業外的利息與稅
-  G.ONE_OFF = ['capex', 'setup', 'facility', 'deposit', 'principal', 'dividend', 'interest', 'tax', 'invest', 'bondfee'];
+  G.ONE_OFF = ['capex', 'setup', 'facility', 'deposit', 'principal', 'dividend', 'interest', 'tax', 'invest', 'bondfee', 'buyback'];
   const listeners = [];
   G.on = (fn) => listeners.push(fn);
   const emit = (what, data) => listeners.forEach((fn) => fn(what, data));
@@ -21,10 +21,10 @@
     const start = Date.UTC(2027, 0, 1, 0, 0);
     const F = G.FOUNDERS[opts.founder || 'classic'];
     G.S = {
-      v: 9, time: start, start, seq: 1, regSeq: 1, cabinPresets: [], rivals: { pairs: {}, ver: 1, news: [] },
+      v: 11, time: start, diff: opts.diff || 'normal', start, seq: 1, regSeq: 1, cabinPresets: [], rivals: { pairs: {}, ver: 1, news: [] },
       company: { name: opts.name, code: opts.code, color: opts.color, logo: opts.logo || null, logoAuto: opts.logoAuto || null, cabinNames: { ...G.CLASS_DEFAULT_NAME } },
       founder: { type: opts.founder || 'classic', equity: F.equity },
-      cash: G.START_CASH * F.cash,
+      cash: G.START_CASH * F.cash * (G.DIFF ? (G.DIFF[opts.diff || 'normal'] || G.DIFF.normal).cash : 1),
       rep: F.rep,
       safety: { delays: 0, emergencies: 0, crashes: 0, deaths: 0, lastCrash: null },
       maintPolicy: G.defaultMaintPolicy(),
@@ -38,6 +38,8 @@
     if (G.initV4) G.initV4(G.S);
     if (G.initV9) G.initV9(G.S); // v0.9.0：航空聯盟、股市、公司債
     if (G.initWorld) G.initWorld(G.S); // v1.0.0-rc2：突發事件
+    if (G.initMe) G.initMe(G.S); // v1.0.0-rc3：創辦人個人帳戶
+    if (G.initV10) G.initV10(G.S); // v1.0.0：難度、時刻帶、訂單
     spend(G.hubFee(ap, 'primary'), 'facility');
     log(`${opts.name} 成立，主要樞紐設於 ${ap.city}（${ap.iata}）；創始人背景：${F.name}`);
     G.initV3(G.S);
@@ -68,6 +70,9 @@
     if (S.v < 7) { if (G.initRivals) G.initRivals(S); S.v = 7; } // v0.7.0：真實航空公司競爭
     if (S.v < 8) { if (G.initV9) G.initV9(S); S.v = 8; } // v0.9.0：航空聯盟、股市、公司債
     if (S.v < 9) { if (G.initWorld) G.initWorld(S); S.v = 9; } // v1.0.0-rc2：突發事件
+    if (S.v < 10) { if (G.initMe) G.initMe(S); S.v = 10; } // v1.0.0-rc3：創辦人個人帳戶
+    if (S.v < 11) { if (G.initV10) G.initV10(S, true); S.v = 11; } // v1.0.0：難度、時刻帶（依現有班次保留）、訂單
+    if (G.fixV10) G.fixV10(S); // v1.0.0：子航空公司清單（開發中的單一子品牌轉成清單）
     if (G.repairSave) G.repairSave(S);
     return S;
   }
@@ -386,6 +391,7 @@
     return G.routeAircraft(r).reduce((s, ac) => {
       if (ac.st === 'maint' || ac.st === 'aog' || ac.st === 'refit' || ac.st === 'refurb' || ac.grounded) return s;
       const t = G.TYPES[ac.type];
+      if (t.freighter) return s; // v1.0.0 全貨機不載客
       return s + 1440 / (2 * (G.blockMinutes(t, d) + G.turnMinutes(t)));
     }, 0);
   };
@@ -488,6 +494,7 @@
     const freq = G.routeFreq(r);
     const b = { pax: {}, rev: 0, sat: 0, meal: 0, anc: 0 };
     const h = L.block / 60, svcK = G.cabinServiceFactor(), evFare = G.evFare ? G.evFare() : 1;
+    const lcc = G.isLcc && G.isLcc(r), fareK = G.brandK ? G.brandK(r, 'fare') : 1; // v1.0.0 子航空公司（低成本、區域、併購品牌）
     let paxAll = 0;
     G.classesFor(t).forEach((c) => {
       const k = ac.cabin[c];
@@ -497,9 +504,10 @@
       const expect = ex.pax * G.timeOfDay(G.localMinutes(G.AP[L.from], L.dep));
       const pax = Math.min(k.seats, Math.max(0, Math.round(expect * (0.85 + Math.random() * 0.3))));
       b.pax[c] = pax; paxAll += pax; b.paxB = (b.paxB || 0) + pax * (1 - ex.leisure);
-      b.rev += pax * G.refFare(L.dist, c) * r.fare[c] * (G.socialYield ? G.socialYield() : 1) * evFare;
+      b.rev += pax * G.refFare(L.dist, c) * r.fare[c] * (G.socialYield ? G.socialYield() : 1) * evFare * fareK * (1 - (ex.xfer || 0) * (G.XFER ? G.XFER.fareDisc : 0)); // 轉機旅客以分攤後的聯程票價計
+      if (ex.xfer) b.xfer = (b.xfer || 0) + pax * ex.xfer;
       // 單一艙等的滿意度（0–1）
-      const cat = G.catering(c, h, L.from, pax);
+      const cat = lcc ? G.cateringLcc(c, h, pax) : G.catering(c, h, L.from, pax);
       b.meal += cat.cost; b.anc += cat.anc;
       // 物有所值：票價高於參考價，滿意度略降；便宜則略升
       // 觀光客在意物有所值，商務客在意延誤與服務
@@ -510,6 +518,9 @@
       b.sat += Math.min(1, s) * pax;
     });
     b.paxAll = paxAll;
+    // v1.0.0 貨運：機腹貨艙或全貨機
+    if (G.cargoBook) { const seatsAll = G.cabinSeats(ac.cabin), cg = G.cargoBook(ac, r, seatsAll ? paxAll / seatsAll : 0); if (cg && cg.tons > 0.01) { b.tons = cg.tons; b.cargoRev = cg.rev; } }
+    b.lcc = lcc; b.svcK = G.brandK ? G.brandK(r, 'service') : 1; b.repW = G.brandK ? G.brandK(r, 'repW') : 1;
     L.booked = b;
     if (L.delayed >= 120 && paxAll) {
       spend(paxAll * G.COMP.delayPerPax, 'incident');
@@ -521,10 +532,11 @@
     const t = G.TYPES[ac.type], seats = G.cabinSeats(ac.cabin);
     const fuel = t.fuel * h * (G.fuelPrice ? G.fuelPrice() : G.FUEL_PRICE); // v1.0.0-rc2 油價事件與避險
     // v0.3 起機組薪資改為每月人事費用，這裡只剩飛行津貼與外站住宿
-    const crew = h * (2 * 40 + Math.max(1, Math.ceil(seats / 45)) * 12);
+    const rr = ac.route && G.S.routes.find((x) => x.id === ac.route), bk = (k) => (G.brandK ? G.brandK(rr, k) : 1);
+    const crew = h * (2 * 40 + Math.max(1, Math.ceil(seats / 45)) * 12) * bk('crew');
     const maint = t.price * 1e6 * (t.used ? 1.4 : 1) * (1 + 1.2 * (1 - (ac.cond != null ? ac.cond : 1))) * 3.5e-6 * h * G.fmod('mx') * (G.evCost ? G.evCost('maint') : 1); // 航線維修與零件（定期檢查另計）
     // 起降費、旅客服務費、航路費、地勤代理費（v0.4 依真實費率上調）
-    const airport = (7 * t.units + pax * (from.cc === to.cc ? 9 : 14) + 0.45 * dist + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500)) * (G.evCost ? G.evCost('airport', from, to) : 1);
+    const airport = (7 * t.units + pax * (from.cc === to.cc ? 9 : 14) + 0.45 * dist + (t.wide ? 4000 : t.body === 'turboprop' ? 700 : 1500)) * (G.evCost ? G.evCost('airport', from, to) : 1) * bk('airport');
     spend(fuel, 'fuel'); spend(crew, 'crew'); spend(maint, 'maint'); spend(airport, 'airport'); if (svc) spend(svc, 'service');
     ac.hours += h; ac.cycles += 1;
     G.CHECK_LEVELS.forEach((lv) => (ac.mx[lv] += h));
@@ -539,10 +551,16 @@
       G.classesFor(t).forEach((c) => {
         const p = L.booked.pax[c] || 0;
         pax += p;
-        if (p) svc += p * G.SERVICE_COST[c][ac.cabin[c].tier] * (0.5 + 0.3 * h);
+        if (p) svc += p * G.SERVICE_COST[c][ac.cabin[c].tier] * (0.5 + 0.3 * h) * (L.booked.svcK || 1);
       });
     }
-    const cost = flightCosts(ac, h, L.dist, from, to, pax, svc);
+    let cost = flightCosts(ac, h, L.dist, from, to, pax, svc);
+    // v1.0.0 貨運：裝卸、銷售與倉儲（約營收兩成）、多載的重量要多燒油；轉機旅客的轉機作業費
+    if (L.booked && L.booked.tons) {
+      const hc = L.booked.tons * G.CARGO_HANDLING + L.booked.cargoRev * G.CARGO_OPS, fc = L.booked.tons * h * G.CARGO_FUEL * (G.fuelPrice ? G.fuelPrice() : G.FUEL_PRICE);
+      spend(hc, 'airport'); spend(fc, 'fuel'); cost += hc + fc;
+    }
+    if (L.booked && L.booked.xfer) { const xc = L.booked.xfer * G.XFER.handling; spend(xc, 'airport'); cost += xc; }
     const r = S.routes.find((x) => x.id === ac.route);
     if (L.emergency) {
       // 緊急轉降：退票、補償、臨時停飛修理
@@ -555,16 +573,22 @@
     }
     if (L.booked) {
       if (L.booked.meal) spend(L.booked.meal, 'catering');
-      earn(L.booked.rev + L.booked.anc);
+      earn(L.booked.rev + L.booked.anc + (L.booked.cargoRev || 0));
       S.day.anc = (S.day.anc || 0) + L.booked.anc;
+      if (L.booked.cargoRev) { S.day.cargo = (S.day.cargo || 0) + L.booked.cargoRev; S.day.tons = (S.day.tons || 0) + L.booked.tons; }
+      if (L.booked.xfer) S.day.xfer = (S.day.xfer || 0) + L.booked.xfer;
       S.day.pax += pax; S.day.flights += 1; S.day.paxB = (S.day.paxB || 0) + (L.booked.paxB || 0); S.day.tix = (S.day.tix || 0) + L.booked.rev;
-      S.day.satSum += L.booked.sat; S.day.satPax += pax;
+      { const w = L.booked.repW || 1; S.day.satSum += L.booked.sat * w; S.day.satPax += pax * w; } // 子品牌的滿意度對母公司評價只算一半
       if (r) {
         const st = r.stats;
-        st.pax += pax; st.seats += G.cabinSeats(ac.cabin); st.rev += L.booked.rev; st.cost += cost; st.flights += 1;
+        st.pax += pax; st.seats += G.cabinSeats(ac.cabin); st.rev += L.booked.rev + (L.booked.cargoRev || 0); st.cost += cost; st.flights += 1;
+        if (L.booked.tons) { st.tons = (st.tons || 0) + L.booked.tons; st.cargoRev = (st.cargoRev || 0) + L.booked.cargoRev; }
+        if (L.booked.xfer) st.xfer = (st.xfer || 0) + L.booked.xfer;
         st.satSum += L.booked.sat || 0; if (L.delayed >= 60) st.delays = (st.delays || 0) + 1;
       }
-      ac.lastLeg = { pax, seats: G.cabinSeats(ac.cabin), rev: L.booked.rev, cost, from: L.from, to: L.to };
+      ac.lastLeg = { pax, seats: G.cabinSeats(ac.cabin), rev: L.booked.rev, cost, from: L.from, to: L.to, tons: L.booked.tons || 0, cargoRev: L.booked.cargoRev || 0 };
+      const acc = ac.acc || (ac.acc = { rev: 0, cost: 0, legs: 0, tons: 0 });
+      acc.rev += L.booked.rev + (L.booked.cargoRev || 0); acc.cost += cost; acc.legs++; acc.tons += L.booked.tons || 0;
     }
     ac.loc = L.to; ac.leg = null; ac.st = 'turn';
     const hub = S.hubs[ac.loc];
@@ -679,9 +703,11 @@
   // ---------- 每日與每月結算 ----------
   function endOfDay() {
     const S = G.S;
-    S.fleet.forEach((ac) => { if (ac.mode === 'lease') spend(ac.lease / 30, 'lease'); spend(G.overheadDaily * G.fmod('overhead'), 'overhead'); });
+    const ovK = new Map(); if (S.brands && S.brands.length) S.routes.forEach((r) => { if (r.brand) ovK.set(r.id, G.brandK(r, 'overhead')); });
+    S.fleet.forEach((ac) => { if (ac.mode === 'lease') spend(ac.lease / 30, 'lease'); spend(G.overheadDaily * G.fmod('overhead') * (ovK.get(ac.route) || 1), 'overhead'); });
     G.dailyV3(); // 人事薪資、招募離職、士氣、工會、董事會
     G.dailyV4(); // 保險費、股價
+    if (G.ops10Daily) G.ops10Daily(); // v1.0.0 時刻帶、新機交機
     if (G.worldDaily) G.worldDaily(); // v1.0.0-rc2 突發事件：油價、政局、疫情、天災……
     if (G.socialDaily) G.socialDaily(); // 社群媒體：每月刷新
     if (G.govDaily) G.govDaily(); // 政府合約：新標案、開標、包機期限
@@ -691,6 +717,7 @@
     if (G.adviceDaily) G.adviceDaily(); // v0.8.0 每週檢查航線機型大小
     if (G.allianceDaily) G.allianceDaily(); // v0.9.0 航空聯盟：會費、申請審查、AI 的邀請回覆與入盟申請
     if (G.stockDaily) G.stockDaily(); // v0.9.0 股市：大盤、各航空公司股價、持股、股利
+    if (G.personalDaily) G.personalDaily(); // v1.0.0-rc3 個人帳戶、庫藏股買回
     if (G.autoFaresDaily) G.autoFaresDaily(); // 自動定價的航線每天重新計算
     Object.entries(S.hubs).forEach(([k, h]) => {
       let up = G.hubUpkeepMonthly(G.AP[k], h.type);
@@ -703,7 +730,7 @@
     if (sat != null) S.rep = Math.max(0, Math.min(100, S.rep + (15 + 70 * sat - S.rep) * 0.015 * G.fmod('attention')));
     const costTotal = Object.entries(d.cost).filter(([k]) => !G.ONE_OFF.includes(k)).reduce((s, [, v]) => s + v, 0);
     const dayStart = (S.lastDay - 1) * DAY; // 剛結束的那一天（UTC）
-    S.days.push({ t: dayStart + DAY / 2, rev: d.rev, gov: d.gov || 0, member: d.member || 0, paxB: d.paxB || 0, other: d.other, inflow: { ...d.inflow }, gain: d.gain || 0, anc: d.anc || 0, cancels: d.cancels || 0, cost: { ...d.cost }, costOp: costTotal, pax: d.pax, flights: d.flights, cash: S.cash, sat, rep: S.rep });
+    S.days.push({ t: dayStart + DAY / 2, cargo: d.cargo || 0, tons: d.tons || 0, xfer: d.xfer || 0, rev: d.rev, gov: d.gov || 0, member: d.member || 0, paxB: d.paxB || 0, other: d.other, inflow: { ...d.inflow }, gain: d.gain || 0, anc: d.anc || 0, cancels: d.cancels || 0, cost: { ...d.cost }, costOp: costTotal, pax: d.pax, flights: d.flights, cash: S.cash, sat, rep: S.rep });
     G.boardDaily(d.rev - costTotal); // 董事會追蹤營業利益
     if (S.days.length > 400) S.days.shift();
     const dt = new Date(dayStart), nt = new Date(S.lastDay * DAY);

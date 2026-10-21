@@ -1,5 +1,5 @@
 // 航空公司創始人：離線快取。網頁本體「網路優先」（有新版就用新版），地圖圖磚與圖示「快取優先」，字型與連線元件「先用快取、背景更新」。
-const VERSION = '1.0.0-rc2';
+const VERSION = '1.0.0';
 const CACHE = 'af-' + VERSION;
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 self.addEventListener('install', (e) => {

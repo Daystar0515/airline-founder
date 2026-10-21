@@ -70,12 +70,13 @@
     const S = G.S, F = S.fin;
     const aircraft = S.fleet.reduce((s, ac) => s + (ac.mode === 'buy' ? ac.book || 0 : 0), 0);
     const invest = F.invest || 0; // v0.9.0 持有其他航空公司的股票（以成本入帳）
-    const total = S.cash + aircraft + F.facBook + F.deposits + invest;
-    return { cash: S.cash, aircraft, facilities: F.facBook, deposits: F.deposits, invest, total };
+    const prepay = F.prepay || 0, slots = F.slotBook || 0, subs = F.subsBook || 0, goodwill = F.goodwill || 0; // v1.0.0 預付購機款、時刻帶、子公司投資、商譽（整合子公司）
+    const total = S.cash + aircraft + F.facBook + F.deposits + invest + prepay + slots + subs + goodwill;
+    return { cash: S.cash, aircraft, facilities: F.facBook, deposits: F.deposits, invest, prepay, slots, subs, goodwill, total };
   };
   G.bondDebt = () => (G.S.fin.bonds || []).reduce((s, b) => s + b.amount, 0);
   G.debt = () => G.S.fin.loans.reduce((s, l) => s + l.balance, 0) + G.bondDebt();
-  G.equityBook = () => { const F = G.S.fin; return F.capital + F.ipoCapital + F.retained; };
+  G.equityBook = () => { const F = G.S.fin; return F.capital + F.ipoCapital + F.retained - (F.treasuryCost || 0); }; // v1.0.0-rc3 庫藏股為權益減項
   G.marketValueFleet = (owned) => G.S.fleet.filter((a) => !owned || a.mode === 'buy').reduce((s, a) => s + G.aircraftValue(a), 0);
 
   // ---------- 信用評等 ----------
@@ -372,7 +373,7 @@
     if (rec.m === 12 && F.stock.listed) {
       const yearNi = F.statements.slice(-11).reduce((s, x) => s + x.ni, 0) + ni;
       dividend = Math.max(0, Math.min(S.cash * 0.5, yearNi * F.stock.payout));
-      if (dividend > 0) { S.cash -= dividend; F.retained -= dividend; F.stock.lastDps = dividend / F.stock.shares; F.stock.lastDpsT = S.time; F.stock.price = Math.max(0.05, F.stock.price - F.stock.lastDps); log(`發放年度現金股利 ${G.money(dividend)}（每股 $${(dividend / F.stock.shares).toFixed(2)}）`); }
+      if (dividend > 0) { S.cash -= dividend; F.retained -= dividend; F.stock.lastDps = dividend / F.stock.shares; F.stock.lastDpsT = S.time; F.stock.price = Math.max(0.05, F.stock.price - F.stock.lastDps); log(`發放年度現金股利 ${G.money(dividend)}（每股 $${(dividend / F.stock.shares).toFixed(2)}）`); if (G.onCompanyDividend) G.onCompanyDividend(dividend); }
       shareholderMeeting(dividend);
     }
     // 現金流量表
@@ -380,12 +381,13 @@
     const sumCats = (cats) => cats.reduce((s, k) => s + (c[k] || 0), 0);
     const cfOp = rec.rev - opex - interestPaid - tax;
     const cfInv = -sumCats(['capex', 'facility', 'deposit', 'setup', 'invest']) + (inf.sale || 0) + (inf.hullIns || 0) + (inf.depRefund || 0) + (inf.investSale || 0) + (inf.divIn || 0);
-    const cfFin = (inf.loan || 0) + (inf.bond || 0) + (inf.equity || 0) - sumCats(['principal']) - principal - dividend;
+    const divAll = dividend + (c.dividend || 0); // v1.0.0-rc3 未上市公司的盈餘分配
+    const cfFin = (inf.loan || 0) + (inf.bond || 0) + (inf.equity || 0) - sumCats(['principal', 'buyback', 'dividend']) - principal - dividend;
     const a = G.assets(), debt = G.debt();
     const fs = {
-      y: rec.y, m: rec.m, rev: rec.rev, gov: rec.gov || 0, member: rec.member || 0, anc: rec.anc, opex, opCats: Object.fromEntries(opCats.map((k) => [k, c[k]])), ebitda, dep, ebit, gain, interest, pretax, tax, ni, dividend,
+      y: rec.y, m: rec.m, rev: rec.rev, gov: rec.gov || 0, member: rec.member || 0, anc: rec.anc, opex, opCats: Object.fromEntries(opCats.map((k) => [k, c[k]])), ebitda, dep, ebit, gain, interest, pretax, tax, ni, dividend: divAll,
       cf: { op: cfOp, inv: cfInv, fin: cfFin, net: cfOp + cfInv + cfFin, start: F.monthCashStart, end: S.cash },
-      bs: { cash: S.cash, aircraft: a.aircraft, facilities: a.facilities, deposits: a.deposits, invest: a.invest, assets: a.total, loans: debt - G.bondDebt(), bonds: G.bondDebt(), capital: F.capital, ipo: F.ipoCapital, retained: F.retained, equity: G.equityBook() },
+      bs: { cash: S.cash, aircraft: a.aircraft, facilities: a.facilities, deposits: a.deposits, invest: a.invest, prepay: a.prepay, slots: a.slots, subs: a.subs, goodwill: a.goodwill, assets: a.total, loans: debt - G.bondDebt() - (G.ownerLoan ? G.ownerLoan() : 0), bonds: G.bondDebt(), owner: G.ownerLoan ? G.ownerLoan() : 0, capital: F.capital, ipo: F.ipoCapital, retained: F.retained, treasury: F.treasuryCost || 0, equity: G.equityBook() },
     };
     F.statements.push(fs);
     if (F.statements.length > 60) F.statements.shift();
@@ -395,7 +397,8 @@
   function shareholderMeeting(dividend) {
     const S = G.S, st = S.fin.stock;
     const tsr = st.yearStartPrice ? (st.price - st.yearStartPrice) / st.yearStartPrice : 0;
-    const yieldPct = dividend / (st.price * st.shares);
+    const yieldPct = (dividend + (S.fin.bbYear || 0)) / (st.price * st.shares); // v1.0.0-rc3 庫藏股買回也算回饋股東
+    S.fin.bbYear = 0;
     let approval = clamp(50 + tsr * 80 + yieldPct * 300 + (S.rep - 50) * 0.3, 0, 100);
     // v0.9.0 盟友等友好股東的持股一律支持經營團隊
     const floatShares = st.shares * (1 - S.founder.equity / 100), friendly = G.friendlyStake ? G.friendlyStake() : 0;
@@ -458,7 +461,7 @@
       const open = S.days.filter((d) => { const x = new Date(d.t); return x.getUTCFullYear() === y && x.getUTCMonth() === m; })
         .reduce((s, d) => s + (d.rev || 0) - (d.costOp || 0) + (d.gain || 0), 0) + (S.day.rev || 0) + (S.day.gain || 0)
         - Object.entries(S.day.cost || {}).filter(([k]) => !G.ONE_OFF.includes(k)).reduce((s, [, v]) => s + v, 0);
-      S.fin.retained = a - debt - S.fin.capital - S.fin.ipoCapital - open;
+      S.fin.retained = a - debt - S.fin.capital - S.fin.ipoCapital + (S.fin.treasuryCost || 0) - open;
       fixed++;
       if (bad(S.fin.monthCashStart)) S.fin.monthCashStart = S.cash;
       G.S = prev;
