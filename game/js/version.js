@@ -1,7 +1,7 @@
 // 版本、更新紀錄、遊戲標誌。
 (function () {
   const G = (window.G = window.G || {});
-  G.VERSION = '1.0.0';
+  G.VERSION = '1.1.0';
   G.REPORT_URL = 'https://github.com/Daystar0515/airline-founder/issues/new'; // 錯誤畫面與「關於」的回報按鈕
   const LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="航空公司創始人標誌"><defs><linearGradient id="afbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123a7a"/><stop offset="1" stop-color="#1f6feb"/></linearGradient><clipPath id="afr"><rect width="512" height="512" rx="112"/></clipPath></defs><g clip-path="url(#afr)"><rect width="512" height="512" fill="url(#afbg)"/><circle cx="256" cy="700" r="420" fill="#fff" opacity="0.10"/><circle cx="256" cy="700" r="330" fill="#fff" opacity="0.07"/><path d="M120 372 C 165 262, 250 204, 318 186" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-dasharray="1 31" opacity="0.95"/><circle cx="120" cy="372" r="30" fill="#fff"/><circle cx="120" cy="372" r="17" fill="#f2a93b"/><g transform="translate(386 168) rotate(-18) scale(9.2)"><polygon points="11,0 9,-1.9 3.2,-2 -1.6,-11.5 -4.2,-11.5 -2.2,-2 -7.6,-1.7 -10,-5.4 -11.8,-5.4 -10.8,-1.2 -11.4,0 -10.8,1.2 -11.8,5.4 -10,5.4 -7.6,1.7 -2.2,2 -4.2,11.5 -1.6,11.5 3.2,2 9,1.9" fill="#fff"/></g></g></svg>`;
   // 每次產生不同的 id，避免同一頁出現好幾個標誌時漸層與裁切互相干擾
@@ -9,6 +9,7 @@
   G.logoSvg = () => { const k = 'af' + (++seq); return LOGO.replace(/afbg/g, k + 'bg').replace(/afr/g, k + 'r'); };
   Object.defineProperty(G, 'LOGO_SVG', { get: () => G.logoSvg() });
   G.CHANGELOG = [
+    ['1.1.0', '修正：收購上市航空集團後，它的股票改為下市、不能再買賣（收購審查期間也不能加碼；賣掉子公司時重新掛牌，舊存檔自動修正）。整合子公司改為只把飛機納入你的機隊（依對方航網估算機型，停在主要樞紐等你指派航線），對方原本的航線不保留、從市場上消失。版面：競爭頁的航線對手標籤不再超出畫面、手機版航線名稱不再斷行、目前經營品牌的按鈕改為清楚的選取狀態。'],
     ['1.0.0', '正式版。經營更深一層：轉機旅客、機腹貨運與全貨機、自創子航空公司（低成本、區域航空，依機隊規模最多 6 家）、管制機場時刻帶、向原廠訂購排隊交機（批量折扣）、淡旺季與節日、併購 AI 航空公司（可維持獨立子公司、整合但保留品牌，或完全併入主品牌）。目標與結構：四種難度、排行榜（含全世界機隊排名）、新成就。看得見的東西：塗裝（地圖飛機圖示的機身、機尾、發動機顏色）、晝夜線與天候範圍、航線每月走勢圖、季節圖。多人連線：房間聊天、玩家之間買賣飛機、聯營航線、限時比賽。'],
     ['1.0.0-rc3', '公司與個人資產分開：新增「個人」分頁（個人現金、自家持股、房產與收藏、身價走勢）、董事長薪酬、股利與盈餘分配進個人帳戶、個人增資與股東借款、在股市增持或減持自家股票、個人消費與形象、公益捐款與基金會；公司可以買回庫藏股，並賣回市場或發給員工。'],
     ['1.0.0-rc2', '突發事件（油價、政局動盪、外交風波、疫情、經濟景氣、颱風與火山、航管罷工、大型活動、規費與保險）與燃油避險；社群改成每月刷新、內容加倍、提到艙等時用你自訂的名稱；手機版底部分頁改成常用 5 個加「更多」、鎖住雙擊放大、表格改成卡片、長清單分頁。'],

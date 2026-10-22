@@ -78,10 +78,11 @@
         <dt>機隊</dt><dd>${G.carrierFleetReal(c.code) ? `${num(G.carrierFleetEst(c.code))} 架<small class="src">真實客機數（維基百科），各航線班次已依此校正</small>` : `約 ${num(G.carrierFleetEst(c.code))} 架<small class="src">依各航線估計班次換算，不是真實機隊數</small>`}</dd>
         <dt>定位</dt><dd>${c.lcc ? '低成本：票價約參考票價的 78%，只有經濟艙' : '傳統：全額票價、多艙等，長程有豪華經濟艙'}</dd>
         <dt>航空聯盟</dt><dd>${G.ALLY_OF && G.ALLY_OF[c.code] ? esc(G.ALLIANCES[G.ALLY_OF[c.code]].zh) + (G.isPartner(c.code) ? '（你的盟友）' : '') : G.isPartner && G.isPartner(c.code) ? '你的盟友' : '未加入'}</dd>
-        ${G.STOCK_OF && G.STOCK_OF[c.code] ? (() => { const k = G.STOCK_OF[c.code], q = G.quote(k); return `<dt>股票</dt><dd>${esc(G.LISTED[k].zh)} $${q.p.toFixed(2)}${G.stakeIn(c.code) ? `，你持有 ${(G.stakeIn(c.code) * 100).toFixed(2)}%` : ''}</dd>`; })() : ''}</dl>
+        ${G.STOCK_OF && G.STOCK_OF[c.code] ? (() => { const k = G.STOCK_OF[c.code], q = G.quote(k); return `<dt>股票</dt><dd>${esc(G.LISTED[k].zh)} ${q ? `$${q.p.toFixed(2)}${G.stakeIn(c.code) ? `，你持有 ${(G.stakeIn(c.code) * 100).toFixed(2)}%` : ''}` : '已下市（被你收購）'}</dd>`; })() : ''}</dl>
       <div class="row-btns"><button class="btn sm ${on ? 'primary' : ''}" data-act="rv-map" data-code="${c.code}">${on ? '隱藏地圖航網' : '在地圖顯示航網'}</button>
         ${G.allyState && G.allyState().kind === 'own' && !G.isPartner(c.code) ? `<button class="btn sm" data-act="ally-inv-ai" data-code="${c.code}">邀請加入${esc(G.allyState().name)}</button>` : ''}
-        ${G.STOCK_OF && G.STOCK_OF[c.code] ? `<button class="btn sm" data-act="stk-goto" data-k="${G.STOCK_OF[c.code]}">買賣股票</button>` : ''}</div>
+        ${G.STOCK_OF && G.STOCK_OF[c.code] && G.quote(G.STOCK_OF[c.code]) ? `<button class="btn sm" data-act="stk-goto" data-k="${G.STOCK_OF[c.code]}">買賣股票</button>` : ''}</div>
+      ${U.rvExtra ? U.rvExtra(c) : ''}
       ${ov.length ? `<h4>與你重疊的航線</h4>${ov.map((r) => { const x = G.rivalsOn(r.a, r.b).find((y) => y.code === c.code); return `<p class="rv-line"><b>${r.a}–${r.b}</b> 每日約 ${x.f.toFixed(1)} 班 · 票價 ${x.war ? `<b class="neg">${pct(x.p)}</b>（降價中）` : pct(x.p)} · 你的${esc(G.cname('Y'))} ${pct(r.fare.Y || 1)}</p>`; }).join('')}` : ''}
       <h4>班次最多的航線（估計）</h4>
       ${top.map((x) => `<p class="rv-line">${x.a}–${x.b} · 每日約 ${x.r.f.toFixed(1)} 班</p>`).join('')}
@@ -95,6 +96,7 @@
       <div class="table-wrap"><table class="rv-table"><thead><tr><th>航線</th><th>對手</th><th>價格戰</th></tr></thead><tbody>
         ${mine.map(({ r, rv }) => `<tr><td><b>${r.a}–${r.b}</b></td><td>${rv.length ? rv.map((x) => badge(x.c)).join('') : '<span class="chip fit-l">獨飛</span>'}</td><td>${rv.filter((x) => x.war).map((x) => esc(G.carrierName(x.c))).join('、') || '—'}</td></tr>`).join('')}
       </tbody></table></div>` : ''}
+      ${U.subsBox ? U.subsBox() : ''}
       ${news.length ? `<h3>對手動態</h3>${news.slice(0, 6).map((n) => `<p class="rv-line"><small class="muted">${new Date(n.t).toISOString().slice(0, 10)}</small> ${esc(n.text)}</p>`).join('')}` : ''}
       <h3>航空公司</h3>
       <label class="search"><span>搜尋</span><input id="rv-q" type="search" placeholder="代碼、中英文名稱或國家，例如 CX、Peach、日本" value="${esc(q)}" autocomplete="off"></label>

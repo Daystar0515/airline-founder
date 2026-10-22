@@ -1172,6 +1172,17 @@ table.tiers td.on { background: var(--accent-soft); color: var(--accent); font-w
 .ac-tags { margin: 2px 0; }
 .ac-tags .chip:first-child { margin-left: 0; }
 .lv-pre i { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25); }
+.integ-mix { font-size: 13px; color: var(--label); margin: 4px 0 0; line-height: 1.6; }
+.integ-mix b { margin-right: 8px; color: var(--fg); }
+/* v1.1.0 版面修正 */
+table.rv-table td:nth-child(2) { white-space: normal; }
+table.rv-table td:first-child { white-space: nowrap; }
+:root[data-layout='mobile'] table.rv-table td:first-child { white-space: nowrap; }
+.brand-pick .btn.primary:disabled { opacity: 1; cursor: default; }
+.brand-row .btn { white-space: nowrap; }
+table.rv-table td:nth-child(2) { width: 58%; }
+table.rv-table td:nth-child(3) { white-space: normal; font-size: 12px; }
+table.rv-table td:nth-child(2), table.rv-table th:nth-child(2) { text-align: left; }
 
 </style>
 </head>
@@ -1273,7 +1284,7 @@ table.tiers td.on { background: var(--accent-soft); color: var(--accent); font-w
 // 版本、更新紀錄、遊戲標誌。
 (function () {
   const G = (window.G = window.G || {});
-  G.VERSION = '1.0.0';
+  G.VERSION = '1.1.0';
   G.REPORT_URL = 'https://github.com/Daystar0515/airline-founder/issues/new'; // 錯誤畫面與「關於」的回報按鈕
   const LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="航空公司創始人標誌"><defs><linearGradient id="afbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123a7a"/><stop offset="1" stop-color="#1f6feb"/></linearGradient><clipPath id="afr"><rect width="512" height="512" rx="112"/></clipPath></defs><g clip-path="url(#afr)"><rect width="512" height="512" fill="url(#afbg)"/><circle cx="256" cy="700" r="420" fill="#fff" opacity="0.10"/><circle cx="256" cy="700" r="330" fill="#fff" opacity="0.07"/><path d="M120 372 C 165 262, 250 204, 318 186" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-dasharray="1 31" opacity="0.95"/><circle cx="120" cy="372" r="30" fill="#fff"/><circle cx="120" cy="372" r="17" fill="#f2a93b"/><g transform="translate(386 168) rotate(-18) scale(9.2)"><polygon points="11,0 9,-1.9 3.2,-2 -1.6,-11.5 -4.2,-11.5 -2.2,-2 -7.6,-1.7 -10,-5.4 -11.8,-5.4 -10.8,-1.2 -11.4,0 -10.8,1.2 -11.8,5.4 -10,5.4 -7.6,1.7 -2.2,2 -4.2,11.5 -1.6,11.5 3.2,2 9,1.9" fill="#fff"/></g></g></svg>`;
   // 每次產生不同的 id，避免同一頁出現好幾個標誌時漸層與裁切互相干擾
@@ -1281,6 +1292,7 @@ table.tiers td.on { background: var(--accent-soft); color: var(--accent); font-w
   G.logoSvg = () => { const k = 'af' + (++seq); return LOGO.replace(/afbg/g, k + 'bg').replace(/afr/g, k + 'r'); };
   Object.defineProperty(G, 'LOGO_SVG', { get: () => G.logoSvg() });
   G.CHANGELOG = [
+    ['1.1.0', '修正：收購上市航空集團後，它的股票改為下市、不能再買賣（收購審查期間也不能加碼；賣掉子公司時重新掛牌，舊存檔自動修正）。整合子公司改為只把飛機納入你的機隊（依對方航網估算機型，停在主要樞紐等你指派航線），對方原本的航線不保留、從市場上消失。版面：競爭頁的航線對手標籤不再超出畫面、手機版航線名稱不再斷行、目前經營品牌的按鈕改為清楚的選取狀態。'],
     ['1.0.0', '正式版。經營更深一層：轉機旅客、機腹貨運與全貨機、自創子航空公司（低成本、區域航空，依機隊規模最多 6 家）、管制機場時刻帶、向原廠訂購排隊交機（批量折扣）、淡旺季與節日、併購 AI 航空公司（可維持獨立子公司、整合但保留品牌，或完全併入主品牌）。目標與結構：四種難度、排行榜（含全世界機隊排名）、新成就。看得見的東西：塗裝（地圖飛機圖示的機身、機尾、發動機顏色）、晝夜線與天候範圍、航線每月走勢圖、季節圖。多人連線：房間聊天、玩家之間買賣飛機、聯營航線、限時比賽。'],
     ['1.0.0-rc3', '公司與個人資產分開：新增「個人」分頁（個人現金、自家持股、房產與收藏、身價走勢）、董事長薪酬、股利與盈餘分配進個人帳戶、個人增資與股東借款、在股市增持或減持自家股票、個人消費與形象、公益捐款與基金會；公司可以買回庫藏股，並賣回市場或發給員工。'],
     ['1.0.0-rc2', '突發事件（油價、政局動盪、外交風波、疫情、經濟景氣、颱風與火山、航管罷工、大型活動、規費與保險）與燃油避險；社群改成每月刷新、內容加倍、提到艙等時用你自訂的名稱；手機版底部分頁改成常用 5 個加「更多」、鎖住雙擊放大、表格改成卡片、長清單分頁。'],
@@ -6353,6 +6365,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     M.lastSec = sec;
     const day = Math.floor(t / DAY), dt = new Date(t), mon = dt.getUTCMonth() + 1, date = dt.getUTCDate();
     Object.entries(M.stocks).forEach(([k, s]) => {
+      if (s.delisted) return; // v1.1.0 被你收購後下市
       if (s.h == null) s.h = s.vol * s.vol;
       const e = Math.sqrt(s.h) * shock();
       s.h = s.vol * s.vol * 0.05 + 0.1 * e * e + 0.85 * s.h;
@@ -6390,7 +6403,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       return p && p.stock ? { key, name: p.name, p: p.stock.price, shares: p.stock.shares, human: true, chg: p.stock.chg || 0 } : null;
     }
     const s = Mk().stocks[key];
-    return s ? { key, name: G.LISTED[key].zh, p: s.p, shares: s.shares, chg: s.chg || 0 } : null;
+    return s && !s.delisted ? { key, name: G.LISTED[key].zh, p: s.p, shares: s.shares, chg: s.chg || 0 } : null;
   };
   G.buyStock = (key, n) => {
     const S = G.S, X = G.MKT, q = G.quote(key), F = S.fin;
@@ -6495,7 +6508,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     if (partners.length && Math.random() < 0.12) { buyer = partners[Math.floor(Math.random() * partners.length)]; why = 'strategic'; }
     // 財務投資：股價明顯低於合理價值、而且有獲利
     else if (st.price < fair * 0.85 && F.statements.slice(-3).reduce((s, x) => s + x.ni, 0) > 0 && Math.random() < 0.08) {
-      const big = Object.keys(G.LISTED).filter((k) => k !== S.company.code && !H.some((h) => h.code === k)).sort((a, b) => Mk().stocks[b].shares * Mk().stocks[b].p - Mk().stocks[a].shares * Mk().stocks[a].p).slice(0, 25);
+      const big = Object.keys(G.LISTED).filter((k) => k !== S.company.code && !Mk().stocks[k].delisted && !H.some((h) => h.code === k)).sort((a, b) => Mk().stocks[b].shares * Mk().stocks[b].p - Mk().stocks[a].shares * Mk().stocks[a].p).slice(0, 25);
       buyer = big[Math.floor(Math.random() * big.length)]; why = 'financial';
     }
     if (!buyer) return;
@@ -6523,14 +6536,14 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     // 持有的 AI 股票配息
     if (date === 15) Object.entries(M.port).forEach(([k, h]) => {
       const s = M.stocks[k];
-      if (!s || s.divM !== mon) return;
+      if (!s || s.delisted || s.divM !== mon) return;
       const dps = s.p * s.divY;
       s.p -= dps; s.lastDiv = { t: S.time, dps };
       const v = dps * h.n;
       G.cashIn(v, 'divIn'); S.day.gain += v; h.divs = (h.divs || 0) + v;
       G.log(`收到${G.LISTED[k].zh}現金股利 ${G.money(v)}（每股 $${dps.toFixed(2)}）`);
     });
-    if (date === 15) Object.entries(M.stocks).forEach(([k, s]) => { if (s.divM === mon && !M.port[k]) { const dps = s.p * s.divY; s.p -= dps; s.lastDiv = { t: S.time, dps }; } });
+    if (date === 15) Object.entries(M.stocks).forEach(([k, s]) => { if (!s.delisted && s.divM === mon && !M.port[k]) { const dps = s.p * s.divY; s.p -= dps; s.lastDiv = { t: S.time, dps }; } });
     // 朋友公司的股利（從他每天傳來的公開資訊得知）
     Object.entries(M.port).forEach(([k, h]) => {
       if (k[0] !== '@') return;
@@ -7946,7 +7959,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     if (T && T.listed && T.held) { const h = G.mkt().port[T.key]; F.invest = Math.max(0, (F.invest || 0) - h.cost); book += h.cost; delete G.mkt().port[T.key]; }
     F.subsBook = (F.subsBook || 0) + book;
     st().subs.push({ key: D.key, name: D.name, codes: D.codes, listed: D.listed, cost: book, book, since: S.time, ni: 0, divs: 0, last: 0, hubs: [...new Set(D.codes.flatMap((x) => C()[x].hubs))] });
-    if (T && T.listed) G.mkt().stocks[T.key].sub = true;
+    if (T && T.listed) Object.assign(G.mkt().stocks[T.key], { sub: true, delisted: true }); // v1.1.0 全數收購後下市
     bump();
     news(`完成收購${D.name}（${G.money(price)}），成為你的子公司`);
     G._emit('event', { kind: 'mna', text: `${D.name}成為你的子公司` });
@@ -7954,7 +7967,6 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
 
   // ---------- 出售子公司 ----------
   G.mnaSaleValue = (sub) => {
-    if (sub.listed) { const s = G.mkt().stocks[sub.key]; if (s) return s.p * s.shares * 1.1; }
     return sub.book * (0.95 + 0.15 * seeded('sale' + sub.key + Math.floor(G.S.time / (30 * DAY))));
   };
   G.mnaSell = (key) => {
@@ -7967,7 +7979,8 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     S.day.gain += v - sub.book;
     F.subsBook = Math.max(0, (F.subsBook || 0) - sub.book);
     st().subs = st().subs.filter((x) => x !== sub);
-    if (sub.listed && G.mkt().stocks[sub.key]) G.mkt().stocks[sub.key].sub = false;
+    // 上市集團賣回市場：重新掛牌，股價依售價推算
+    if (sub.listed && G.mkt().stocks[sub.key]) { const sk = G.mkt().stocks[sub.key]; Object.assign(sk, { sub: false, delisted: false, h: null }); sk.p = Math.max(0.5, v / 1.1 / sk.shares); sk.fair = sk.p; }
     bump();
     news(`出售子公司${sub.name}，售價 ${G.money(v)}，處分損益 ${G.money(v - sub.book)}`);
     return { ok: true, v, gain: v - sub.book };
@@ -8031,6 +8044,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   G.buyStock = (key, n) => {
     if (G.S && G.S.mna && st().subs.some((x) => x.key === key)) return { ok: false, msg: '這家公司已經是你的子公司' };
     if (G.S && G.S.mna && (st().merged || []).some((x) => x.key === key)) return { ok: false, msg: '這家公司已經併入你的公司' };
+    if (G.S && G.S.mna && st().deals.some((x) => x.key === key)) return { ok: false, msg: '你正在收購這家公司，審查期間不能買進它的股票' };
     return bs0(key, n);
   };
   // 子公司的價值（給公司估值與排行榜）
@@ -8050,43 +8064,31 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     for (const id of opts) { const t = G.TYPES[id]; if (t && !G.canFly(t, A, B)) return id; }
     return null;
   }
+  // v1.1.0 整合只轉入飛機，航線不保留：依對方真實航網（各航線班次 × 飛行時間）估算機型組合
   G.mnaIntegPlan = (sub) => {
-    const S = G.S, X = G.INTEG, by = new Map();
-    const hubsOf = new Set(sub.hubs);
+    const X = G.INTEG, w = new Map();
     sub.codes.forEach((code) => {
       const c = G.CARRIERS[code];
       if (!c) return;
       c.routes.forEach((k) => {
-        let a = k.slice(0, 3), b = k.slice(3);
-        if (!G.AP[a] || !G.AP[b]) return;
-        // 航線要從樞紐出發：子公司的樞紐或你原本的樞紐
-        const ha = hubsOf.has(a) || S.hubs[a], hb = hubsOf.has(b) || S.hubs[b];
-        if (!ha && !hb) return;
-        if (!ha) { const t = a; a = b; b = t; }
-        if (S.routes.some((r) => G.pairKey(r.a, r.b) === G.pairKey(a, b))) return; // 你已經在飛的航線：需求自然會轉給你
-        if (G.routeRoleWhy && G.routeRoleWhy(G.AP[a], G.AP[b])) return;
+        const a = k.slice(0, 3), b = k.slice(3), A = G.AP[a], B = G.AP[b];
+        if (!A || !B) return;
         const x = G.rivalsOn(a, b).find((y) => y.code === code);
         if (!x) return;
-        const kk = G.pairKey(a, b), o = by.get(kk);
-        if (o) o.f += x.f; else by.set(kk, { a, b, f: x.f, lcc: c.lcc, d: G.dist(G.AP[a], G.AP[b]) });
+        const d = G.dist(A, B), type = pickType(A, B, d, c.lcc);
+        if (!type) return;
+        const t = G.TYPES[type], hrs = x.f * 2 * (G.blockMinutes(t, G.legKm(A, B)) + G.turnMinutes(t)) / 60;
+        w.set(type, (w.get(type) || 0) + hrs);
       });
     });
-    const rows = [...by.values()].sort((p, q) => q.f - p.f);
     const est = Math.round(sub.codes.reduce((t, c) => t + G.carrierFleetEst(c), 0));
-    let budget = Math.min(est, X.maxFleet);
-    const routes = [], hubs = new Set();
-    for (const p of rows) {
-      if (budget <= 0) break;
-      const A = G.AP[p.a], B = G.AP[p.b], type = pickType(A, B, p.d, p.lcc);
-      if (!type) continue;
-      const t = G.TYPES[type], cyc = 1440 / (2 * (G.blockMinutes(t, G.legKm(A, B)) + G.turnMinutes(t)));
-      const n = Math.max(1, Math.min(budget, 8, Math.round(p.f / cyc)));
-      budget -= n;
-      routes.push({ ...p, type, n });
-      if (hubsOf.has(p.a) && !S.hubs[p.a]) hubs.add(p.a);
-    }
-    const aircraft = routes.reduce((t, p) => t + p.n, 0);
-    return { routes, aircraft, hubs: [...hubs], est, capped: est > X.maxFleet };
+    const n = Math.min(est, X.maxFleet), tot = [...w.values()].reduce((t, v) => t + v, 0);
+    let types = tot ? [...w.entries()].map(([type, v]) => ({ type, n: Math.floor((v / tot) * n), r: ((v / tot) * n) % 1 })) : [];
+    // 四捨五入後補齊到 n 架
+    let left = n - types.reduce((t, x) => t + x.n, 0);
+    types.sort((p, q) => q.r - p.r).forEach((x) => { if (left > 0) { x.n++; left--; } });
+    types = types.filter((x) => x.n > 0).sort((p, q) => q.n - p.n).map(({ type, n: k }) => ({ type, n: k }));
+    return { types, aircraft: types.reduce((t, x) => t + x.n, 0), est, capped: est > X.maxFleet };
   };
   G.mnaIntegCost = (sub, mode, plan) => {
     plan = plan || G.mnaIntegPlan(sub);
@@ -8098,20 +8100,17 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     if (sub.integ) return { ok: false, msg: '已經在整合中' };
     if (mode !== 'brand' && mode !== 'main') return { ok: false, msg: '請選擇整合方式' };
     const plan = G.mnaIntegPlan(sub);
-    if (!plan.routes.length) return { ok: false, msg: '這家公司的航線沒有辦法由你經營（機場類型或航程限制），只能維持獨立子公司' };
+    if (!plan.aircraft) return { ok: false, msg: '估算不出這家公司的機隊，只能維持獨立子公司' };
     const cost = G.mnaIntegCost(sub, mode, plan);
     if (S.cash < cost) return { ok: false, msg: `資金不足：整合費用需要 ${G.money(cost)}` };
     G._spend(cost, 'overhead');
     sub.integ = { mode, start: S.time, until: S.time + X.days * DAY, cost };
     if (S.hr && S.hr.groups) Object.values(S.hr.groups).forEach((g) => (g.morale = clamp(g.morale - X.morale, 0, 100))); // 兩邊員工都擔心工作與年資
-    news(`開始整合${sub.name}（${mode === 'brand' ? '保留原品牌' : '併入主品牌'}），整合費 ${G.money(cost)}，約 ${X.days} 天完成；預計轉入 ${plan.aircraft} 架飛機、${plan.routes.length} 條航線${plan.capped ? `（對方約 ${plan.est} 架，一次最多轉入 ${X.maxFleet} 架，其餘退租）` : ''}`);
+    news(`開始整合${sub.name}（${mode === 'brand' ? '保留原品牌' : '併入主品牌'}），整合費 ${G.money(cost)}，約 ${X.days} 天完成；預計轉入 ${plan.aircraft} 架飛機${plan.capped ? `（對方約 ${plan.est} 架，一次最多轉入 ${X.maxFleet} 架，其餘退租）` : ''}，對方的航線不保留`);
     return { ok: true, plan, cost };
   };
   function integrate(sub) {
     const S = G.S, F = S.fin, X = G.INTEG, plan = G.mnaIntegPlan(sub), mode = sub.integ.mode;
-    const ups = () => Object.fromEntries(Object.keys(G.UPGRADES).map((k) => [k, 0]));
-    plan.hubs.forEach((h) => { if (!S.hubs[h]) S.hubs[h] = { type: 'secondary', since: S.time, upgrades: ups() }; });
-    G.hubVer++;
     let brand = null;
     if (mode === 'brand' && G.BRAND_KINDS) {
       S.brands = S.brands || []; S.brandSeq = (S.brandSeq || 0) + 1;
@@ -8121,19 +8120,12 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       S.brands.push(brand);
     }
     F.subsBook = Math.max(0, (F.subsBook || 0) - sub.book);
-    let owned = 0, deps = 0, n = 0, nr = 0;
-    const cap = sub.book * X.ownedCap, slotNeed = {};
-    plan.routes.forEach((p) => [p.a, p.b].forEach((ap) => { if (G.isSlotAp && G.isSlotAp(ap) && !S.hubs[ap]) slotNeed[ap] = (slotNeed[ap] || 0) + p.n * 3; }));
-    // 時刻帶跟著航空公司一起轉移
-    Object.entries(slotNeed).forEach(([ap, k]) => G.grantSlots(ap, k, `整合${sub.name}`));
-    for (const p of plan.routes) {
-      const r0 = G.openRoute(p.a, p.b, { free: true });
-      if (!r0.ok) continue;
-      const r = r0.route; nr++;
-      if (brand) r.brand = brand.id;
+    let owned = 0, deps = 0, n = 0;
+    const cap = sub.book * X.ownedCap;
+    for (const p of plan.types) {
       const t = G.TYPES[p.type];
       for (let i = 0; i < p.n; i++) {
-        const age = 2 + Math.random() * 12, hours = Math.round(age * 3000), cycles = Math.round(hours / Math.max(1.2, p.d / 700 + 0.5));
+        const age = 2 + Math.random() * 12, hours = Math.round(age * 3000), cycles = Math.round(hours / (t.wide ? 6 : 1.8));
         const mx = {}; G.CHECK_LEVELS.forEach((lv) => (mx[lv] = Math.round(G.CHECKS[lv].interval * Math.random() * 0.7)));
         const cond = +(0.8 + Math.random() * 0.15).toFixed(2), value = t.price * 1e6 * Math.max(0.25, 0.85 - 0.04 * age);
         const o = { hours, cycles, cond, mx, used: true };
@@ -8148,24 +8140,23 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
           if (res.ok) deps += dep; else S.cash -= dep;
         }
         if (!res || !res.ok) continue;
-        res.ac.newCabin = false; res.ac.loc = p.a; n++;
-        G.assign(res.ac.id, r.id);
+        res.ac.newCabin = false; n++;
       }
     }
     const gw = sub.book - owned - deps;
     if (gw >= 0) F.goodwill = (F.goodwill || 0) + gw; else S.day.gain += -gw;
     const m = st();
     m.merged = m.merged || [];
-    m.merged.push({ key: sub.key, name: sub.name, codes: sub.codes, at: S.time, mode, aircraft: n, routes: nr, brand: brand ? brand.id : null });
+    m.merged.push({ key: sub.key, name: sub.name, codes: sub.codes, at: S.time, mode, aircraft: n, routes: 0, brand: brand ? brand.id : null });
     m.subs = m.subs.filter((x) => x !== sub);
-    if (sub.listed && G.mkt().stocks[sub.key]) { G.mkt().stocks[sub.key].sub = false; G.mkt().stocks[sub.key].merged = true; }
+    if (sub.listed && G.mkt().stocks[sub.key]) Object.assign(G.mkt().stocks[sub.key], { sub: false, merged: true, delisted: true });
     S.stats = S.stats || {}; S.stats.integrations = (S.stats.integrations || 0) + 1;
     bump(); if (S.rivals) S.rivals.ver = (S.rivals.ver || 0) + 1;
     if (G.nonstopReset) G.nonstopReset();
     G.routeVer++; if (G.xferReset) G.xferReset();
-    news(`完成整合${sub.name}：轉入 ${n} 架飛機、${nr} 條航線${plan.hubs.length ? `、${plan.hubs.join('、')} 成為你的次要樞紐` : ''}${brand ? `，以「${brand.name}」（${brand.code}）品牌繼續飛` : '，全部改用你的品牌'}${gw > 0 ? `；商譽 ${G.money(gw)}` : ''}`);
-    G._emit('event', { kind: 'mna', text: `${sub.name}整合完成` });
-    G._emit('fleet'); G._emit('routes'); G._emit('hubs');
+    news(`完成整合${sub.name}：${n} 架飛機加入你的機隊，停在主要樞紐等你指派航線；對方原本的航線全部停飛${brand ? `。「${brand.name}」（${brand.code}）成為你的子航空公司，可以把航線交給它經營` : '，飛機換上你的塗裝'}${gw > 0 ? `；商譽 ${G.money(gw)}` : ''}`);
+    G._emit('event', { kind: 'mna', text: `${sub.name}整合完成，${n} 架飛機加入機隊` });
+    G._emit('fleet'); G._emit('routes');
   }
   // 已經併入的公司不再是對手
   const mergedSet = () => { const s = new Set(); ((G.S && G.S.mna && G.S.mna.merged) || []).forEach((m) => m.codes.forEach((c) => s.add(c))); return s; };
@@ -8175,6 +8166,14 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   const co = G.carriersOn;
   G.carriersOn = (a, b) => { const out = co(a, b); if (!G.S || !G.S.mna || !(G.S.mna.merged || []).length) return out; const m = mergedSet(); return out.filter((x) => !m.has(x)); };
 
+  // v1.1.0 舊存檔：已收購或已整合的上市集團改為下市
+  const fx0 = G.fixV10;
+  G.fixV10 = (S) => {
+    if (fx0) fx0(S);
+    const M = S.mkt, m = S.mna;
+    if (!M || !m) return;
+    [...(m.subs || []), ...(m.merged || [])].forEach((x) => { const sk = M.stocks && M.stocks[x.key]; if (sk) sk.delisted = true; });
+  };
   // 存檔修復
   G.initMna = (S) => { S.mna = S.mna || blank(); if (S.fin) S.fin.subsBook = S.fin.subsBook || 0; };
   const iv = G.initV10;
@@ -10961,10 +10960,10 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
         <dt>機隊</dt><dd>${G.carrierFleetReal(c.code) ? `${num(G.carrierFleetEst(c.code))} 架<small class="src">真實客機數（維基百科），各航線班次已依此校正</small>` : `約 ${num(G.carrierFleetEst(c.code))} 架<small class="src">依各航線估計班次換算，不是真實機隊數</small>`}</dd>
         <dt>定位</dt><dd>${c.lcc ? '低成本：票價約參考票價的 78%，只有經濟艙' : '傳統：全額票價、多艙等，長程有豪華經濟艙'}</dd>
         <dt>航空聯盟</dt><dd>${G.ALLY_OF && G.ALLY_OF[c.code] ? esc(G.ALLIANCES[G.ALLY_OF[c.code]].zh) + (G.isPartner(c.code) ? '（你的盟友）' : '') : G.isPartner && G.isPartner(c.code) ? '你的盟友' : '未加入'}</dd>
-        ${G.STOCK_OF && G.STOCK_OF[c.code] ? (() => { const k = G.STOCK_OF[c.code], q = G.quote(k); return `<dt>股票</dt><dd>${esc(G.LISTED[k].zh)} $${q.p.toFixed(2)}${G.stakeIn(c.code) ? `，你持有 ${(G.stakeIn(c.code) * 100).toFixed(2)}%` : ''}</dd>`; })() : ''}</dl>
+        ${G.STOCK_OF && G.STOCK_OF[c.code] ? (() => { const k = G.STOCK_OF[c.code], q = G.quote(k); return `<dt>股票</dt><dd>${esc(G.LISTED[k].zh)} ${q ? `$${q.p.toFixed(2)}${G.stakeIn(c.code) ? `，你持有 ${(G.stakeIn(c.code) * 100).toFixed(2)}%` : ''}` : '已下市（被你收購）'}</dd>`; })() : ''}</dl>
       <div class="row-btns"><button class="btn sm ${on ? 'primary' : ''}" data-act="rv-map" data-code="${c.code}">${on ? '隱藏地圖航網' : '在地圖顯示航網'}</button>
         ${G.allyState && G.allyState().kind === 'own' && !G.isPartner(c.code) ? `<button class="btn sm" data-act="ally-inv-ai" data-code="${c.code}">邀請加入${esc(G.allyState().name)}</button>` : ''}
-        ${G.STOCK_OF && G.STOCK_OF[c.code] ? `<button class="btn sm" data-act="stk-goto" data-k="${G.STOCK_OF[c.code]}">買賣股票</button>` : ''}</div>
+        ${G.STOCK_OF && G.STOCK_OF[c.code] && G.quote(G.STOCK_OF[c.code]) ? `<button class="btn sm" data-act="stk-goto" data-k="${G.STOCK_OF[c.code]}">買賣股票</button>` : ''}</div>
       ${U.rvExtra ? U.rvExtra(c) : ''}
       ${ov.length ? `<h4>與你重疊的航線</h4>${ov.map((r) => { const x = G.rivalsOn(r.a, r.b).find((y) => y.code === c.code); return `<p class="rv-line"><b>${r.a}–${r.b}</b> 每日約 ${x.f.toFixed(1)} 班 · 票價 ${x.war ? `<b class="neg">${pct(x.p)}</b>（降價中）` : pct(x.p)} · 你的${esc(G.cname('Y'))} ${pct(r.fare.Y || 1)}</p>`; }).join('')}` : ''}
       <h4>班次最多的航線（估計）</h4>
@@ -11517,7 +11516,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   let q = '', sort = 'cap', sel = null, amt = '';
   const rows = () => {
     const Mk = G.mkt();
-    let list = Object.entries(Mk.stocks).map(([k, s]) => {
+    let list = Object.entries(Mk.stocks).filter(([, s]) => !s.delisted).map(([k, s]) => {
       const L = G.LISTED[k], y = s.hist.length > 252 ? s.hist[s.hist.length - 252] : s.hist[0];
       return { k, L, s, cap: s.p * s.shares, chg: s.chg || 0, y1: y ? s.p / y - 1 : 0 };
     });
@@ -12361,9 +12360,9 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
       <p>收購完成後對方成為<b>子公司</b>：仍用原品牌營運，以權益法入帳（每月依獲利認列投資收益，一半以現金股利匯回）。子公司不再搶你的旅客、不打價格戰，飛往它的樞紐還會多一些轉機客。收購滿半年後可以出售。子公司計入集團旗下航空公司的上限（見「子航空公司與集團」）。</p>
       <p><b>整合</b>：收購完成後可以按「整合…」，選擇像國泰收購港龍那樣的三個階段之一：</p>
       <ul><li><b>維持獨立子公司</b>：現在的狀態，權益法認列獲利。</li>
-        <li><b>整合，保留品牌</b>：它的飛機（依它的航網估算機型，一次最多 150 架）、航線、樞紐與時刻帶轉給你調度，用原品牌繼續飛，成為你的子航空公司；之後可以再併入主品牌。</li>
-        <li><b>完全併入主品牌</b>：同樣轉入，但全部換成你的品牌（每架重新塗裝 12 萬美元），不佔子航空公司名額。</li></ul>
-      <p>整合約 120 天，費用是收購價的 2% 加每架飛機 30 萬美元，期間員工士氣下降。帳上的子公司投資會轉成飛機（自有飛機最多約收購價的六成，其餘是租約）、租機保證金與商譽。整合後這家公司不再是你的對手；你原本已經在飛的航線不會重複開設。機隊一下子變大，模擬會變慢一些。</p>`],
+        <li><b>整合，保留品牌</b>：它的飛機（依它的航網估算機型，一次最多 150 架）納入你的機隊，用原品牌成為你的子航空公司，可以把你的航線交給它經營；之後可以再併入主品牌。</li>
+        <li><b>完全併入主品牌</b>：同樣轉入飛機，但全部換成你的品牌（每架重新塗裝 12 萬美元），不佔子航空公司名額。</li></ul>
+      <p>整合約 120 天，費用是收購價的 2% 加每架飛機 30 萬美元，期間員工士氣下降。帳上的子公司投資會轉成飛機（自有飛機最多約收購價的六成，其餘是租約）、租機保證金與商譽。對方原本的航線不保留：整合後它停飛、不再是你的對手，空出來的市場由你和其他航空公司競爭；轉入的飛機停在你的主要樞紐，等你指派航線。收購上市集團後，它的股票會下市、不能再買賣；之後把它賣掉時會重新掛牌。</p>`],
     ['difficulty', '難度與排行榜', '其他', `
       <p>開新遊戲時可以選四種難度：<b>輕鬆</b>（資金 ×1.5、需求 +8%、事件少而輕）、<b>標準</b>、<b>困難</b>（資金 ×0.8、需求 −5%、事件更多更重、對手更常降價、利率 +1%）、<b>硬派</b>（資金 ×0.6、需求 −10%、利率 +2%、故障率 +30%）。舊存檔都是標準難度。</p>
       <p><b>排行榜</b>記錄這台裝置上所有存檔的最佳成績（每月 1 日更新），分數是公司價值（百萬美元）乘上難度倍率（輕鬆 ×0.8、標準 ×1、困難 ×1.25、硬派 ×1.6），也可以改看創辦人身價或累計旅客；另外會顯示你的機隊在全世界航空公司中排第幾名。</p>`],
@@ -13161,8 +13160,8 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     return `<section class="subs"><h3>子公司與收購案</h3>
       ${m.deals.map((d) => `<div class="sub-row deal"><span><b>${esc(d.name)}</b><small>收購審查中 · 出價 ${M(d.price)} · 約 ${Math.max(0, Math.ceil((d.due - S.time) / DAY))} 天後公布結果 · 核准機會約 ${pct(d.p)}</small></span><button class="btn sm" data-act="mna-withdraw" data-id="${d.id}">撤回</button></div>`).join('')}
       ${m.subs.map((x) => `<div class="sub-row"><span><b>${esc(x.name)}</b><small>${x.codes.join('、')} · 收購價 ${M(x.cost)} · 帳面 ${M(x.book)} · 上月認列 <b class="${x.last < 0 ? 'neg' : 'pos'}">${M(x.last)}</b> · 累計股利 ${M(x.divs)}${x.integ ? ` · <b>整合中（${x.integ.mode === 'brand' ? '保留品牌' : '併入主品牌'}），剩 ${Math.max(0, Math.ceil((x.integ.until - S.time) / DAY))} 天</b>` : ''}</small></span>${x.integ ? '' : `<button class="btn sm primary" data-act="integ-open" data-k="${x.key}">整合…</button><button class="btn sm" data-act="mna-sell" data-k="${x.key}" ${S.time - x.since < 180 * DAY ? 'disabled title="收購滿半年才能出售"' : ''}>出售（約 ${M(G.mnaSaleValue(x))}）</button>`}</div>`).join('')}
-      ${(m.merged || []).length ? `<p class="note">已整合：${m.merged.map((x) => `${esc(x.name)}（${x.mode === 'brand' ? '保留品牌' : '併入主品牌'}，${x.aircraft} 架、${x.routes} 條航線）`).join('、')}</p>` : ''}
-      <p class="note">獨立子公司仍用原品牌自己營運，以權益法入帳：每月依獲利認列投資收益，一半以現金股利匯回；不再搶你的旅客、不打價格戰，飛往它的樞紐多 ${pct(G.MNA.feed)} 攬客力。按「整合…」可以把它的飛機、航線與樞紐併進你的航網。</p></section>`;
+      ${(m.merged || []).length ? `<p class="note">已整合：${m.merged.map((x) => `${esc(x.name)}（${x.mode === 'brand' ? '保留品牌' : '併入主品牌'}，${x.aircraft} 架）`).join('、')}</p>` : ''}
+      <p class="note">獨立子公司仍用原品牌自己營運，以權益法入帳：每月依獲利認列投資收益，一半以現金股利匯回；不再搶你的旅客、不打價格戰，飛往它的樞紐多 ${pct(G.MNA.feed)} 攬客力。按「整合…」可以把它的飛機納入你的機隊（航線不保留）。</p></section>`;
   };
   U.rvExtra = (c) => {
     const why = G.mnaWhyNot(c.code);
@@ -13180,17 +13179,19 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   U.integDialog = (key) => {
     const S = G.S, sub = G.mnaState().subs.find((x) => x.key === key);
     if (!sub) return;
-    const plan = G.mnaIntegPlan(sub), X = G.INTEG;
+    const plan = G.mnaIntegPlan(sub), X = G.INTEG, ok = plan.aircraft > 0;
     const cB = G.mnaIntegCost(sub, 'brand', plan), cM = G.mnaIntegCost(sub, 'main', plan);
-    const opt = (mode, title, ex, body, cost) => `<div class="integ-opt"><h4>${title}</h4><p class="note">${ex}</p><ul class="plain">${body}</ul>${mode ? `<div class="row-btns"><button class="btn ${mode === 'brand' ? 'primary' : ''}" data-act="integ-go" data-k="${key}" data-m="${mode}" ${plan.routes.length ? '' : 'disabled'}>${title}（${M(cost)}）</button></div>` : ''}</div>`;
+    const mix = plan.types.map((x) => `${esc(G.TYPES[x.type].model)} × ${x.n}`).join('、');
+    const opt = (mode, title, ex, body, cost) => `<div class="integ-opt"><h4>${title}</h4><p class="note">${ex}</p><ul class="plain">${body}</ul>${mode ? `<div class="row-btns"><button class="btn ${mode === 'brand' ? 'primary' : ''}" data-act="integ-go" data-k="${key}" data-m="${mode}" ${ok ? '' : 'disabled'}>${title}（${M(cost)}）</button></div>` : ''}</div>`;
     U.modal(`<h2>整合${esc(sub.name)}</h2>
-      <p class="sub">${plan.routes.length ? `預計轉入 ${plan.aircraft} 架飛機、${plan.routes.length} 條航線${plan.hubs.length ? `，${plan.hubs.join('、')} 會成為你的次要樞紐` : ''}${plan.capped ? `（對方約 ${plan.est} 架，一次最多轉入 ${X.maxFleet} 架，其餘退租）` : ''}。整合約 ${X.days} 天，期間員工士氣 −${X.morale}。` : '這家公司的航線沒辦法由你經營（機場類型或航程限制），只能維持獨立子公司。'}</p>
+      <p class="sub">${ok ? `預計轉入 ${plan.aircraft} 架飛機${plan.capped ? `（對方約 ${plan.est} 架，一次最多轉入 ${X.maxFleet} 架，其餘退租）` : ''}。對方原本的航線不保留，飛機會停在你的主要樞紐，等你指派航線。整合約 ${X.days} 天，期間員工士氣 −${X.morale}。` : '估算不出這家公司的機隊，只能維持獨立子公司。'}</p>
+      ${ok ? `<p class="integ-mix"><b>機型（依對方航網估算）</b>${mix}</p>` : ''}
       <div class="integ-grid">
         ${opt(null, '維持獨立子公司', '現在的狀態：對方用自己的品牌、自己營運。', `<li>每月依獲利認列投資收益，一半以股利匯回</li><li>不搶你的客人、不打價格戰</li><li>滿半年可以出售</li>`)}
-        ${opt('brand', '整合，保留品牌', '像國泰收購港龍後的「國泰港龍」：飛機、航線、樞紐與時刻帶都交給你調度，但飛機上仍是原本的名字。', `<li>成為你的子航空公司「${esc(sub.name)}」${G.CARRIERS[sub.codes[0]] && G.CARRIERS[sub.codes[0]].lcc ? '（照樣是低成本航空）' : ''}</li><li>在它的母國保有在地旅客的忠誠度（攬客力 +${pct(G.BRAND_KINDS.acq.home)}）</li><li>每月固定管理成本 ${M(G.BRAND.fixed)}；之後隨時可以再併入主品牌</li>`, cB)}
-        ${opt('main', '完全併入主品牌', '像 2020 年國泰港龍停飛、航線全部改由國泰經營：一次到位，全部換成你的品牌。', `<li>飛機全部重新塗裝（每架 ${M(X.repaint)}）</li><li>不佔集團的子航空公司名額、沒有額外管理成本</li><li>失去原品牌在母國的忠誠度</li>`, cM)}
+        ${opt('brand', '整合，保留品牌', '像國泰收購港龍後的「國泰港龍」：機隊交給你調度，飛機上仍是原本的名字。', `<li>成為你的子航空公司「${esc(sub.name)}」${G.CARRIERS[sub.codes[0]] && G.CARRIERS[sub.codes[0]].lcc ? '（照樣是低成本航空）' : ''}，可以把你的航線交給它經營</li><li>在它的母國保有在地旅客的忠誠度（攬客力 +${pct(G.BRAND_KINDS.acq.home)}）</li><li>每月固定管理成本 ${M(G.BRAND.fixed)}；之後隨時可以再併入主品牌</li>`, cB)}
+        ${opt('main', '完全併入主品牌', '像 2020 年國泰港龍停飛、併回國泰：一次到位，全部換成你的品牌。', `<li>飛機全部重新塗裝（每架 ${M(X.repaint)}）</li><li>不佔集團的子航空公司名額、沒有額外管理成本</li><li>失去原品牌在母國的忠誠度</li>`, cM)}
       </div>
-      <p class="note">整合費包含收購價的 ${pct(X.costPct)} 與每架飛機 ${M(X.perAc)} 的系統、訓練與換證費用。帳上的子公司投資會轉成飛機（自有飛機最多約收購價的六成，其餘是租約）、租機保證金與商譽。整合後這家公司不再是你的對手；你原本已經在飛的航線不會重複開設。</p>`, 'wide');
+      <p class="note">整合費包含收購價的 ${pct(X.costPct)} 與每架飛機 ${M(X.perAc)} 的系統、訓練與換證費用。帳上的子公司投資會轉成飛機（自有飛機最多約收購價的六成，其餘是租約）、租機保證金與商譽。整合後這家公司不再是你的對手，它原本的航線停飛，空出來的市場由你和其他航空公司競爭。</p>`, 'wide');
   };
 
   // ====================================================================

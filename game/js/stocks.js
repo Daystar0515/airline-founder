@@ -102,6 +102,7 @@
     M.lastSec = sec;
     const day = Math.floor(t / DAY), dt = new Date(t), mon = dt.getUTCMonth() + 1, date = dt.getUTCDate();
     Object.entries(M.stocks).forEach(([k, s]) => {
+      if (s.delisted) return; // v1.1.0 被你收購後下市
       if (s.h == null) s.h = s.vol * s.vol;
       const e = Math.sqrt(s.h) * shock();
       s.h = s.vol * s.vol * 0.05 + 0.1 * e * e + 0.85 * s.h;
@@ -139,7 +140,7 @@
       return p && p.stock ? { key, name: p.name, p: p.stock.price, shares: p.stock.shares, human: true, chg: p.stock.chg || 0 } : null;
     }
     const s = Mk().stocks[key];
-    return s ? { key, name: G.LISTED[key].zh, p: s.p, shares: s.shares, chg: s.chg || 0 } : null;
+    return s && !s.delisted ? { key, name: G.LISTED[key].zh, p: s.p, shares: s.shares, chg: s.chg || 0 } : null;
   };
   G.buyStock = (key, n) => {
     const S = G.S, X = G.MKT, q = G.quote(key), F = S.fin;
@@ -244,7 +245,7 @@
     if (partners.length && Math.random() < 0.12) { buyer = partners[Math.floor(Math.random() * partners.length)]; why = 'strategic'; }
     // 財務投資：股價明顯低於合理價值、而且有獲利
     else if (st.price < fair * 0.85 && F.statements.slice(-3).reduce((s, x) => s + x.ni, 0) > 0 && Math.random() < 0.08) {
-      const big = Object.keys(G.LISTED).filter((k) => k !== S.company.code && !H.some((h) => h.code === k)).sort((a, b) => Mk().stocks[b].shares * Mk().stocks[b].p - Mk().stocks[a].shares * Mk().stocks[a].p).slice(0, 25);
+      const big = Object.keys(G.LISTED).filter((k) => k !== S.company.code && !Mk().stocks[k].delisted && !H.some((h) => h.code === k)).sort((a, b) => Mk().stocks[b].shares * Mk().stocks[b].p - Mk().stocks[a].shares * Mk().stocks[a].p).slice(0, 25);
       buyer = big[Math.floor(Math.random() * big.length)]; why = 'financial';
     }
     if (!buyer) return;
@@ -272,14 +273,14 @@
     // 持有的 AI 股票配息
     if (date === 15) Object.entries(M.port).forEach(([k, h]) => {
       const s = M.stocks[k];
-      if (!s || s.divM !== mon) return;
+      if (!s || s.delisted || s.divM !== mon) return;
       const dps = s.p * s.divY;
       s.p -= dps; s.lastDiv = { t: S.time, dps };
       const v = dps * h.n;
       G.cashIn(v, 'divIn'); S.day.gain += v; h.divs = (h.divs || 0) + v;
       G.log(`收到${G.LISTED[k].zh}現金股利 ${G.money(v)}（每股 $${dps.toFixed(2)}）`);
     });
-    if (date === 15) Object.entries(M.stocks).forEach(([k, s]) => { if (s.divM === mon && !M.port[k]) { const dps = s.p * s.divY; s.p -= dps; s.lastDiv = { t: S.time, dps }; } });
+    if (date === 15) Object.entries(M.stocks).forEach(([k, s]) => { if (!s.delisted && s.divM === mon && !M.port[k]) { const dps = s.p * s.divY; s.p -= dps; s.lastDiv = { t: S.time, dps }; } });
     // 朋友公司的股利（從他每天傳來的公開資訊得知）
     Object.entries(M.port).forEach(([k, h]) => {
       if (k[0] !== '@') return;

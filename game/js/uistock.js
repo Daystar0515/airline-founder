@@ -85,7 +85,7 @@
   let q = '', sort = 'cap', sel = null, amt = '';
   const rows = () => {
     const Mk = G.mkt();
-    let list = Object.entries(Mk.stocks).map(([k, s]) => {
+    let list = Object.entries(Mk.stocks).filter(([, s]) => !s.delisted).map(([k, s]) => {
       const L = G.LISTED[k], y = s.hist.length > 252 ? s.hist[s.hist.length - 252] : s.hist[0];
       return { k, L, s, cap: s.p * s.shares, chg: s.chg || 0, y1: y ? s.p / y - 1 : 0 };
     });

@@ -192,8 +192,8 @@
     return `<section class="subs"><h3>子公司與收購案</h3>
       ${m.deals.map((d) => `<div class="sub-row deal"><span><b>${esc(d.name)}</b><small>收購審查中 · 出價 ${M(d.price)} · 約 ${Math.max(0, Math.ceil((d.due - S.time) / DAY))} 天後公布結果 · 核准機會約 ${pct(d.p)}</small></span><button class="btn sm" data-act="mna-withdraw" data-id="${d.id}">撤回</button></div>`).join('')}
       ${m.subs.map((x) => `<div class="sub-row"><span><b>${esc(x.name)}</b><small>${x.codes.join('、')} · 收購價 ${M(x.cost)} · 帳面 ${M(x.book)} · 上月認列 <b class="${x.last < 0 ? 'neg' : 'pos'}">${M(x.last)}</b> · 累計股利 ${M(x.divs)}${x.integ ? ` · <b>整合中（${x.integ.mode === 'brand' ? '保留品牌' : '併入主品牌'}），剩 ${Math.max(0, Math.ceil((x.integ.until - S.time) / DAY))} 天</b>` : ''}</small></span>${x.integ ? '' : `<button class="btn sm primary" data-act="integ-open" data-k="${x.key}">整合…</button><button class="btn sm" data-act="mna-sell" data-k="${x.key}" ${S.time - x.since < 180 * DAY ? 'disabled title="收購滿半年才能出售"' : ''}>出售（約 ${M(G.mnaSaleValue(x))}）</button>`}</div>`).join('')}
-      ${(m.merged || []).length ? `<p class="note">已整合：${m.merged.map((x) => `${esc(x.name)}（${x.mode === 'brand' ? '保留品牌' : '併入主品牌'}，${x.aircraft} 架、${x.routes} 條航線）`).join('、')}</p>` : ''}
-      <p class="note">獨立子公司仍用原品牌自己營運，以權益法入帳：每月依獲利認列投資收益，一半以現金股利匯回；不再搶你的旅客、不打價格戰，飛往它的樞紐多 ${pct(G.MNA.feed)} 攬客力。按「整合…」可以把它的飛機、航線與樞紐併進你的航網。</p></section>`;
+      ${(m.merged || []).length ? `<p class="note">已整合：${m.merged.map((x) => `${esc(x.name)}（${x.mode === 'brand' ? '保留品牌' : '併入主品牌'}，${x.aircraft} 架）`).join('、')}</p>` : ''}
+      <p class="note">獨立子公司仍用原品牌自己營運，以權益法入帳：每月依獲利認列投資收益，一半以現金股利匯回；不再搶你的旅客、不打價格戰，飛往它的樞紐多 ${pct(G.MNA.feed)} 攬客力。按「整合…」可以把它的飛機納入你的機隊（航線不保留）。</p></section>`;
   };
   U.rvExtra = (c) => {
     const why = G.mnaWhyNot(c.code);
@@ -211,17 +211,19 @@
   U.integDialog = (key) => {
     const S = G.S, sub = G.mnaState().subs.find((x) => x.key === key);
     if (!sub) return;
-    const plan = G.mnaIntegPlan(sub), X = G.INTEG;
+    const plan = G.mnaIntegPlan(sub), X = G.INTEG, ok = plan.aircraft > 0;
     const cB = G.mnaIntegCost(sub, 'brand', plan), cM = G.mnaIntegCost(sub, 'main', plan);
-    const opt = (mode, title, ex, body, cost) => `<div class="integ-opt"><h4>${title}</h4><p class="note">${ex}</p><ul class="plain">${body}</ul>${mode ? `<div class="row-btns"><button class="btn ${mode === 'brand' ? 'primary' : ''}" data-act="integ-go" data-k="${key}" data-m="${mode}" ${plan.routes.length ? '' : 'disabled'}>${title}（${M(cost)}）</button></div>` : ''}</div>`;
+    const mix = plan.types.map((x) => `${esc(G.TYPES[x.type].model)} × ${x.n}`).join('、');
+    const opt = (mode, title, ex, body, cost) => `<div class="integ-opt"><h4>${title}</h4><p class="note">${ex}</p><ul class="plain">${body}</ul>${mode ? `<div class="row-btns"><button class="btn ${mode === 'brand' ? 'primary' : ''}" data-act="integ-go" data-k="${key}" data-m="${mode}" ${ok ? '' : 'disabled'}>${title}（${M(cost)}）</button></div>` : ''}</div>`;
     U.modal(`<h2>整合${esc(sub.name)}</h2>
-      <p class="sub">${plan.routes.length ? `預計轉入 ${plan.aircraft} 架飛機、${plan.routes.length} 條航線${plan.hubs.length ? `，${plan.hubs.join('、')} 會成為你的次要樞紐` : ''}${plan.capped ? `（對方約 ${plan.est} 架，一次最多轉入 ${X.maxFleet} 架，其餘退租）` : ''}。整合約 ${X.days} 天，期間員工士氣 −${X.morale}。` : '這家公司的航線沒辦法由你經營（機場類型或航程限制），只能維持獨立子公司。'}</p>
+      <p class="sub">${ok ? `預計轉入 ${plan.aircraft} 架飛機${plan.capped ? `（對方約 ${plan.est} 架，一次最多轉入 ${X.maxFleet} 架，其餘退租）` : ''}。對方原本的航線不保留，飛機會停在你的主要樞紐，等你指派航線。整合約 ${X.days} 天，期間員工士氣 −${X.morale}。` : '估算不出這家公司的機隊，只能維持獨立子公司。'}</p>
+      ${ok ? `<p class="integ-mix"><b>機型（依對方航網估算）</b>${mix}</p>` : ''}
       <div class="integ-grid">
         ${opt(null, '維持獨立子公司', '現在的狀態：對方用自己的品牌、自己營運。', `<li>每月依獲利認列投資收益，一半以股利匯回</li><li>不搶你的客人、不打價格戰</li><li>滿半年可以出售</li>`)}
-        ${opt('brand', '整合，保留品牌', '像國泰收購港龍後的「國泰港龍」：飛機、航線、樞紐與時刻帶都交給你調度，但飛機上仍是原本的名字。', `<li>成為你的子航空公司「${esc(sub.name)}」${G.CARRIERS[sub.codes[0]] && G.CARRIERS[sub.codes[0]].lcc ? '（照樣是低成本航空）' : ''}</li><li>在它的母國保有在地旅客的忠誠度（攬客力 +${pct(G.BRAND_KINDS.acq.home)}）</li><li>每月固定管理成本 ${M(G.BRAND.fixed)}；之後隨時可以再併入主品牌</li>`, cB)}
-        ${opt('main', '完全併入主品牌', '像 2020 年國泰港龍停飛、航線全部改由國泰經營：一次到位，全部換成你的品牌。', `<li>飛機全部重新塗裝（每架 ${M(X.repaint)}）</li><li>不佔集團的子航空公司名額、沒有額外管理成本</li><li>失去原品牌在母國的忠誠度</li>`, cM)}
+        ${opt('brand', '整合，保留品牌', '像國泰收購港龍後的「國泰港龍」：機隊交給你調度，飛機上仍是原本的名字。', `<li>成為你的子航空公司「${esc(sub.name)}」${G.CARRIERS[sub.codes[0]] && G.CARRIERS[sub.codes[0]].lcc ? '（照樣是低成本航空）' : ''}，可以把你的航線交給它經營</li><li>在它的母國保有在地旅客的忠誠度（攬客力 +${pct(G.BRAND_KINDS.acq.home)}）</li><li>每月固定管理成本 ${M(G.BRAND.fixed)}；之後隨時可以再併入主品牌</li>`, cB)}
+        ${opt('main', '完全併入主品牌', '像 2020 年國泰港龍停飛、併回國泰：一次到位，全部換成你的品牌。', `<li>飛機全部重新塗裝（每架 ${M(X.repaint)}）</li><li>不佔集團的子航空公司名額、沒有額外管理成本</li><li>失去原品牌在母國的忠誠度</li>`, cM)}
       </div>
-      <p class="note">整合費包含收購價的 ${pct(X.costPct)} 與每架飛機 ${M(X.perAc)} 的系統、訓練與換證費用。帳上的子公司投資會轉成飛機（自有飛機最多約收購價的六成，其餘是租約）、租機保證金與商譽。整合後這家公司不再是你的對手；你原本已經在飛的航線不會重複開設。</p>`, 'wide');
+      <p class="note">整合費包含收購價的 ${pct(X.costPct)} 與每架飛機 ${M(X.perAc)} 的系統、訓練與換證費用。帳上的子公司投資會轉成飛機（自有飛機最多約收購價的六成，其餘是租約）、租機保證金與商譽。整合後這家公司不再是你的對手，它原本的航線停飛，空出來的市場由你和其他航空公司競爭。</p>`, 'wide');
   };
 
   // ====================================================================
