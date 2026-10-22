@@ -306,19 +306,29 @@
     const prop = mk([[8.2, 0], [6.8, -1.1], [1.6, -1.1], [1.6, -9.4], [-0.6, -9.4], [-0.6, -1.1], [-5.4, -0.9], [-6.4, -3.6], [-7.8, -3.6], [-7.2, -0.6], [-8, 0]]);
     const wideEng = new Path2D(); [[0.9, 4.8], [0.9, -4.8]].forEach(([x, y]) => wideEng.ellipse(x, y, 1.9, 0.9, 0, 0, 7));
     const props = new Path2D(); [3.6, -3.6, 6.4, -6.4].forEach((y) => { props.moveTo(2.9, y - 1.6); props.lineTo(2.9, y + 1.6); });
-    return { narrow, wide, prop, wideEng, props };
+    // v1.0.0 塗裝：窄體機與螺旋槳機的發動機
+    const narrowEng = new Path2D(); [[1.1, 3.7], [1.1, -3.7]].forEach(([x, y]) => { narrowEng.moveTo(x + 1.5, y); narrowEng.ellipse(x, y, 1.5, 0.75, 0, 0, 7); });
+    const propEng = new Path2D(); [3.6, -3.6, 6.4, -6.4].forEach((y) => { propEng.moveTo(2.6, y); propEng.ellipse(1.3, y, 1.3, 0.62, 0, 0, 7); });
+    return { narrow, wide, prop, wideEng, props, narrowEng, propEng };
   })();
   M.ICONS = ICONS;
-  function drawPlane(c, x, y, ang, t, fill) {
+  // fill：機身色；tail：機尾（垂直與水平尾翼）色；eng：發動機色（沒有就用原本的樣子）；fixed：固定縮放（塗裝編輯器的預覽用）
+  function drawPlane(c, x, y, ang, t, fill, tail, eng, fixed) {
     const kind = t.body === 'turboprop' ? 'prop' : t.wide ? 'wide' : 'narrow';
-    const s = Math.max(0.62, Math.min(1.15, 0.55 + view.k / 40)) * (t.body === 'regional' ? 0.85 : 1);
+    const s = fixed || Math.max(0.62, Math.min(1.15, 0.55 + view.k / 40)) * (t.body === 'regional' ? 0.85 : 1);
     c.save(); c.translate(x, y); c.rotate(ang); c.scale(s, s);
     c.lineJoin = 'round'; c.lineWidth = 1.8 / s; c.strokeStyle = 'rgba(16,26,36,0.88)';
     c.stroke(ICONS[kind]); c.fillStyle = fill; c.fill(ICONS[kind]);
-    if (kind === 'wide') { c.fillStyle = 'rgba(0,0,0,0.45)'; c.fill(ICONS.wideEng); }
+    // v1.0.0 塗裝：尾翼與水平尾翼塗上尾翼色
+    if (tail && tail !== fill) { c.save(); c.clip(ICONS[kind]); c.fillStyle = tail; c.fillRect(-13, -7, kind === 'wide' ? 6.6 : kind === 'prop' ? 7.6 : 6.6, 14); c.restore(); }
+    if (eng) {
+      const ep = ICONS[kind === 'wide' ? 'wideEng' : kind === 'prop' ? 'propEng' : 'narrowEng'];
+      c.fillStyle = eng; c.fill(ep); c.lineWidth = 0.5; c.strokeStyle = 'rgba(16,26,36,0.75)'; c.stroke(ep);
+    } else if (kind === 'wide') { c.fillStyle = 'rgba(0,0,0,0.45)'; c.fill(ICONS.wideEng); }
     if (kind === 'prop') { c.lineWidth = 0.9; c.strokeStyle = 'rgba(0,0,0,0.6)'; c.stroke(ICONS.props); }
     c.restore();
   }
+  M.drawIcon = (c, x, y, ang, t, col, scale) => drawPlane(c, x, y, ang, t, col.body, col.tail, col.engines, scale);
   // 深色字加白色外框，在淺色底圖上清楚可讀
   function haloText(c, txt, x, y, color) {
     c.lineWidth = 3.2; c.strokeStyle = 'rgba(255,255,255,0.92)'; c.lineJoin = 'round';
@@ -512,6 +522,7 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, W, H);
     const S = G.S;
+    if (M.underlay) M.underlay(c, { toScreen, offsets, screenOf, W, H, view, millerY });
     if (S && M.show.planes) {
       S.fleet.forEach((ac) => {
         if (ac.st !== 'air' || !ac.leg) return;
@@ -521,10 +532,14 @@
         for (const o of offsets()) {
           const [x, y] = toScreen(lon, lat, o);
           if (x < -20 || x > W + 20 || y < -20 || y > H + 20) continue;
-          drawPlane(c, x, y, ang, G.TYPES[ac.type], L.emergency ? '#ff6b5e' : L.ferry && !L.charter ? '#b8c4ca' : '#ffffff');
+          const pc = G.planeColors ? G.planeColors(ac) : null;
+          const plain = L.emergency || (L.ferry && !L.charter);
+          drawPlane(c, x, y, ang, G.TYPES[ac.type], L.emergency ? '#ff6b5e' : L.ferry && !L.charter ? '#b8c4ca' : pc ? pc.body : '#ffffff', plain ? null : pc && pc.tail, plain ? null : pc && pc.engines);
         }
       });
     }
+    // v1.0.0 疊加圖層：晝夜分界、天候與關閉的機場（map10.js）
+    if (M.overlay) M.overlay(c, { toScreen, offsets, screenOf, W, H, view, millerY });
     for (const [iata, style] of [[M.hover, 'hover'], [M.selected, 'sel']]) {
       if (!iata) continue;
       const [x, y] = screenOf(G.AP[iata]);

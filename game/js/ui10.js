@@ -43,11 +43,10 @@
   // ====================================================================
   // 機隊：塗裝縮圖、訂單、全貨機
   // ====================================================================
+  // 機隊卡片：只標示子航空公司與全貨機（塗裝只顯示在地圖上）
   U.acThumb = (ac) => {
-    if (!G.liveryThumb) return '';
-    let u = ''; try { u = G.liveryThumb(ac); } catch (e) { return ''; }
-    const t = G.TYPES[ac.type], r = ac.route && G.S.routes.find((x) => x.id === ac.route);
-    return `<div class="ac-thumb"><img src="${u}" alt="${esc(t.model)} 塗裝" loading="lazy" decoding="async">${G.brandOf(r) ? brandChip(G.brandOf(r)) : ''}${t.freighter ? '<span class="chip">全貨機</span>' : ''}</div>`;
+    const t = G.TYPES[ac.type], r = ac.route && G.S.routes.find((x) => x.id === ac.route), br = G.brandOf(r);
+    return br || t.freighter ? `<p class="ac-tags">${br ? brandChip(br) : ''}${t.freighter ? '<span class="chip">全貨機</span>' : ''}</p>` : '';
   };
   const fb0 = U.fleetBody;
   U.fleetBody = (fleet, rowOf) => ordersBox() + (fb0 ? fb0(fleet, rowOf) : fleet.map(rowOf).join(''));
@@ -269,26 +268,38 @@
   // ====================================================================
   let lv = null;
   U.liveryDialog = () => { lv = JSON.parse(JSON.stringify(G.livery())); drawLivery(); };
-  function preview() {
-    const S = G.S;
-    return ['narrow', 'wide', 'prop'].map((k) => `<div class="lv-prev">${G.liverySVG(lv, { kind: k, logo: S.company.logo, reg: G.defaultReg ? G.defaultReg() : '', w: '100%', h: 'auto', label: `${k === 'wide' ? '寬體機' : k === 'prop' ? '螺旋槳機' : '窄體機'}塗裝預覽` })}</div>`).join('');
+  // 預覽：直接用地圖上的飛機圖示，放大畫在一小塊海面上
+  const PREV = [['A20N', '窄體機'], ['B789', '寬體機'], ['AT76', '螺旋槳機']];
+  function paintPreview() {
+    const cv = $('#lv-canvas');
+    if (!cv || !G.map.drawIcon) return;
+    const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 480, h = 150;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const c = cv.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.fillStyle = '#a7cbe3'; c.fillRect(0, 0, w, h);
+    const sc = Math.min(4.2, w / 115);
+    c.font = '12px ' + (getComputedStyle(document.documentElement).getPropertyValue('--font-body') || 'sans-serif');
+    c.textAlign = 'center';
+    PREV.forEach(([id, name], i) => {
+      const t = G.TYPES[id], x = (w / 3) * (i + 0.5), y = 66;
+      G.map.drawIcon(c, x, y, -Math.PI / 2, t, lv, sc);
+      c.fillStyle = '#17212b'; c.fillText(name, x, h - 10);
+    });
   }
   function drawLivery() {
     const S = G.S, first = !S.company.livery;
     const col = (k, n) => `<label class="lv-col"><input type="color" id="lv-${k}" data-lv="${k}" value="${esc(lv[k])}"><span>${n}</span></label>`;
-    U.modal(`<h2>塗裝編輯器</h2>
-      <div id="lv-prev" class="lv-prevs">${preview()}</div>
-      <h4>樣式</h4>
-      <div class="lv-styles">${Object.entries(G.LIVERY_STYLES).map(([k, s]) => `<button class="fcard" data-act="lv-style" data-k="${k}" aria-pressed="${lv.style === k}"><b>${s.name}</b><small class="fdesc">${s.desc}</small></button>`).join('')}</div>
-      <h4>顏色</h4>
-      <div class="lv-cols">${col('body', '機身')}${col('belly', '機腹／色帶')}${col('stripe', '腰線／飾帶')}${col('tail', '尾翼')}${col('engines', '發動機')}${col('title', '公司名稱')}</div>
-      <div class="lv-presets"><span class="lbl">配色範本</span>${G.LIVERY_PRESETS.map((p, i) => `<button class="lv-pre" data-act="lv-preset" data-i="${i}" title="${esc(p.name)}"><i style="background:${p.tail}"></i><i style="background:${p.stripe}"></i><span>${esc(p.name)}</span></button>`).join('')}<button class="lv-pre" data-act="lv-preset" data-i="co"><i style="background:${esc(S.company.color)}"></i><span>企業色</span></button></div>
-      <h4>尾翼圖案</h4>
-      <div class="seg" role="group" aria-label="尾翼圖案">${[['code', '公司代碼'], ['logo', '企業標誌'], ['none', '不放']].map(([k, n]) => `<button data-act="lv-tail" data-k="${k}" aria-pressed="${lv.tailLogo === k}" ${k === 'logo' && !S.company.logo ? 'disabled' : ''}>${n}</button>`).join('')}</div>
-      <p class="note">${first ? '第一次設定塗裝免費。' : `換新塗裝需要重新噴漆：每架 ${M(G.REPAINT_COST)}，全機隊（子航空公司的飛機除外）共 ${M(G.repaintCost())}。`}地圖上的飛機會用機身色與尾翼色顯示；子航空公司航線的飛機用它的品牌色。</p>
-      <div class="row-btns"><span class="spacer"></span><button class="btn" data-act="modal-close">取消</button><button class="btn primary" data-act="lv-save">${first ? '套用塗裝' : `重新塗裝（${M(G.repaintCost())}）`}</button></div>`, 'wide');
+    U.modal(`<h2>塗裝</h2>
+      <p class="sub">決定地圖上飛機圖示的機身、機尾與發動機顏色。</p>
+      <canvas id="lv-canvas" class="lv-canvas" role="img" aria-label="塗裝預覽：窄體機、寬體機、螺旋槳機"></canvas>
+      <div class="lv-cols">${G.LIVERY_PARTS.map(([k, n]) => col(k, n)).join('')}</div>
+      <div class="lv-presets"><span class="lbl">配色範本</span>${G.LIVERY_PRESETS.map((p, i) => `<button class="lv-pre" data-act="lv-preset" data-i="${i}" title="${esc(p.name)}"><i style="background:${p.body}"></i><i style="background:${p.tail}"></i><i style="background:${p.engines}"></i><span>${esc(p.name)}</span></button>`).join('')}<button class="lv-pre" data-act="lv-preset" data-i="co"><i style="background:#ffffff"></i><i style="background:${esc(S.company.color)}"></i><span>企業色</span></button></div>
+      <p class="note">${first ? '第一次設定塗裝免費。' : `換新塗裝需要重新噴漆：每架 ${M(G.REPAINT_COST)}，全機隊（子航空公司的飛機除外）共 ${M(G.repaintCost())}。`}子航空公司航線的飛機用它自己的品牌色。</p>
+      <div class="row-btns"><span class="spacer"></span><button class="btn" data-act="modal-close">取消</button><button class="btn primary" data-act="lv-save">${first ? '套用塗裝' : `重新塗裝（${M(G.repaintCost())}）`}</button></div>`);
+    requestAnimationFrame(paintPreview);
   }
-  const lvRefresh = () => { const el = $('#lv-prev'); if (el) el.innerHTML = preview(); };
+  const lvRefresh = () => paintPreview();
   document.addEventListener('input', (e) => { const k = e.target.dataset && e.target.dataset.lv; if (k && lv) { lv[k] = e.target.value; lvRefresh(); } });
 
   // ====================================================================
@@ -336,9 +347,7 @@
       case 'board-by': boardBy = d.k; U.boardDialog(); return;
       case 'board-clear': if (el.dataset.confirm) { store.set(BOARD, '[]'); U.boardDialog(); } else { el.dataset.confirm = '1'; el.textContent = '再按一次清除'; } return;
       case 'm-livery': if (!S) return; U.liveryDialog(); return;
-      case 'lv-style': lv.style = d.k; drawLivery(); return;
-      case 'lv-tail': lv.tailLogo = d.k; drawLivery(); return;
-      case 'lv-preset': { const p = d.i === 'co' ? (() => { const x = G.defaultLivery(S); return x; })() : G.LIVERY_PRESETS[+d.i]; ['body', 'belly', 'stripe', 'tail', 'engines', 'title'].forEach((k) => (lv[k] = p[k])); drawLivery(); return; }
+      case 'lv-preset': { const p = d.i === 'co' ? G.defaultLivery(S) : G.LIVERY_PRESETS[+d.i]; G.LIVERY_PARTS.forEach(([k]) => (lv[k] = p[k])); drawLivery(); return; }
       case 'lv-save': { const r = res(G.setLivery(lv)); if (r.ok) { U.closeModal(); U.toast(r.cost ? `全機隊重新塗裝完成（${M(r.cost)}）` : '塗裝已套用'); U.render(); G.map.invalidate(); } return; }
       case 'layer-x': G.setMapX(d.k, !G.map.show[d.k]); syncX(); G.map.invalidate(); return;
     }

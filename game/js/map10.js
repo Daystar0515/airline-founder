@@ -110,9 +110,6 @@
   G.planeColors = (ac) => {
     const S = G.S, r = ac.route && S.routes.find((x) => x.id === ac.route);
     const br = G.brandOf && G.brandOf(r);
-    if (br) return { body: '#ffffff', tail: br.color };
-    const L = S.company.livery;
-    if (!L) return { body: '#ffffff', tail: S.company.color };
-    return { body: L.style === 'full' ? L.tail : L.body, tail: L.tail };
+    return br ? G.brandLivery(br) : G.livery();
   };
 })();

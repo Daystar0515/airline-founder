@@ -68,6 +68,8 @@
         <button class="mbtn" data-act="m-help"><b>遊戲百科</b><small>規則與名詞說明</small></button>
         <button class="mbtn" data-act="m-tutorial"><b>新手引導</b><small>從頭帶你玩一次</small></button>
         <button class="mbtn" data-act="m-ach"><b>成就與大事記</b><small>公司的里程碑</small></button>
+        <button class="mbtn" data-act="m-board"><b>排行榜</b><small>各存檔的最佳成績</small></button>
+        ${G.S ? '<button class="mbtn" data-act="m-livery"><b>塗裝</b><small>地圖上的飛機顏色</small></button>' : ''}
         <button class="mbtn" data-act="m-about"><b>關於</b><small>資料來源、授權、更新紀錄</small></button>
         <button class="mbtn" data-act="m-title"><b>回到標題畫面</b><small>先自動存檔</small></button>
       </div>`);
