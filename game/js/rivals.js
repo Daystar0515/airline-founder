@@ -36,26 +36,41 @@
   G.pairKey = (a, b) => (a < b ? a + b : b + a);
   G.carriersOn = (a, b) => (PAIRS.get(G.pairKey(a, b)) || []).filter((code) => !G.S || code !== G.S.company.code);
   G.carriersAt = (iata) => [...(AT.get(iata) || new Map()).entries()].filter(([code]) => !G.S || code !== G.S.company.code).sort((x, y) => y[1] - x[1]);
-  // v1.1.0 機場的其他航空每日離場：把每條航線上對手「目前」的班次加總（對手加班、減班、被你整合都會立刻反映）
-  // 已被你整合的航空公司不計；子公司的班次另外列出（算進你的集團）；沒有航空公司資料的機場仍用人口估算
-  const odCache = new Map();
-  let odKey = '';
+  // v1.1.0 機場的其他航空每日離場：以機場規模（依腹地人口估算，與舊版相同的基準）為準，
+  // 再依「對手目前的班次 ÷ 對手原本的班次」即時增減：對手加班、減班、被你整合（班次歸零）都會立刻反映。
+  // 已被你整合的航空公司不計；子公司的班次另外算（算進你的集團）；沒有航空公司資料的機場維持人口估算。
+  const odCache = new Map(), refCache = new Map();
+  let odKey = '', refCode = '';
+  const defF = (x) => Math.round(clamp(x.f0 * G.fleetScale(x.code), 0.43, x.cap * 1.5) * 10) / 10;
+  // 對手原本的班次（遊戲資料的預設值，不含加減班、不含收購）
+  const refDepartures = (iata) => {
+    const me = G.S.company.code;
+    if (me !== refCode) { refCode = me; refCache.clear(); }
+    let v = refCache.get(iata);
+    if (v == null) {
+      v = 0;
+      (AT_PAIRS.get(iata) || new Set()).forEach((k) => baseOn(k.slice(0, 3), k.slice(3)).forEach((x) => { if (x.code !== me) v += defF(x); }));
+      refCache.set(iata, v);
+    }
+    return v;
+  };
   G.otherDepartures = (iata) => {
     const S = G.S, ap = G.AP[iata];
     const key = Math.floor(S.time / DAY) + ':' + ((S.rivals && S.rivals.ver) || 0) + ':' + ((G.net && G.net.ver) || 0) + ':' + (G.mnaSig ? G.mnaSig() : '') + ':' + S.company.code;
     if (key !== odKey) { odKey = key; odCache.clear(); }
     let v = odCache.get(iata);
     if (v) return v;
-    const ks = AT_PAIRS.get(iata);
-    if (!ks || !ks.size) v = { total: G.baselineDepartures(ap), subs: 0, by: [], est: true };
+    const base = G.baselineDepartures(ap), ref = refDepartures(iata);
+    if (!ref) v = { total: base, subs: 0, by: [], est: true, k: 1 };
     else {
       const by = new Map();
-      let total = 0, subs = 0;
-      ks.forEach((k) => G.rivalsOn(k.slice(0, 3), k.slice(3)).forEach((r) => {
-        if (G.isSub && G.isSub(r.code)) subs += r.f; else total += r.f;
+      let cur = 0, subs = 0;
+      AT_PAIRS.get(iata).forEach((k) => G.rivalsOn(k.slice(0, 3), k.slice(3)).forEach((r) => {
+        if (G.isSub && G.isSub(r.code)) subs += r.f; else cur += r.f;
         by.set(r.code, (by.get(r.code) || 0) + r.f);
       }));
-      v = { total, subs, by: [...by.entries()].sort((x, y) => y[1] - x[1]), est: false };
+      const k = base / ref; // 資料班次換算成機場規模的倍率
+      v = { total: cur * k, subs: subs * k, by: [...by.entries()].map(([c, f]) => [c, f * k]).sort((x, y) => y[1] - x[1]), est: false, k, ratio: (cur + subs) / ref };
     }
     odCache.set(iata, v);
     return v;

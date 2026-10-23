@@ -1292,7 +1292,7 @@ table.rv-table td:nth-child(2), table.rv-table th:nth-child(2) { text-align: lef
   G.logoSvg = () => { const k = 'af' + (++seq); return LOGO.replace(/afbg/g, k + 'bg').replace(/afr/g, k + 'r'); };
   Object.defineProperty(G, 'LOGO_SVG', { get: () => G.logoSvg() });
   G.CHANGELOG = [
-    ['1.1.0', '修正：收購上市航空集團後，它的股票改為下市、不能再買賣（收購審查期間也不能加碼；賣掉子公司時重新掛牌，舊存檔自動修正）。整合子公司改為只把飛機納入你的機隊（依對方航網估算機型，停在主要樞紐等你指派航線），對方原本的航線不保留、從市場上消失。版面：競爭頁的航線對手標籤不再超出畫面、手機版航線名稱不再斷行、目前經營品牌的按鈕改為清楚的選取狀態。被你收購的航空公司會退出原本的聯盟，也不再出現在機場的「在此營運的航空公司」（子公司另外列出）。機場的航班占比改為即時計算：其他航空的每日離場是在此營運的航空公司目前班次的加總，已被你整合的不計，子公司的班次算進你的集團。'],
+    ['1.1.0', '修正：收購上市航空集團後，它的股票改為下市、不能再買賣（收購審查期間也不能加碼；賣掉子公司時重新掛牌，舊存檔自動修正）。整合子公司改為只把飛機納入你的機隊（依對方航網估算機型，停在主要樞紐等你指派航線），對方原本的航線不保留、從市場上消失。版面：競爭頁的航線對手標籤不再超出畫面、手機版航線名稱不再斷行、目前經營品牌的按鈕改為清楚的選取狀態。被你收購的航空公司會退出原本的聯盟，也不再出現在機場的「在此營運的航空公司」（子公司另外列出）。機場的航班占比改為即時計算：其他航空的每日離場以機場規模估算，再依在此營運的航空公司目前的班次增減，已被你整合的不計，子公司的班次算進你的集團。'],
     ['1.0.0', '正式版。經營更深一層：轉機旅客、機腹貨運與全貨機、自創子航空公司（低成本、區域航空，依機隊規模最多 6 家）、管制機場時刻帶、向原廠訂購排隊交機（批量折扣）、淡旺季與節日、併購 AI 航空公司（可維持獨立子公司、整合但保留品牌，或完全併入主品牌）。目標與結構：四種難度、排行榜（含全世界機隊排名）、新成就。看得見的東西：塗裝（地圖飛機圖示的機身、機尾、發動機顏色）、晝夜線與天候範圍、航線每月走勢圖、季節圖。多人連線：房間聊天、玩家之間買賣飛機、聯營航線、限時比賽。'],
     ['1.0.0-rc3', '公司與個人資產分開：新增「個人」分頁（個人現金、自家持股、房產與收藏、身價走勢）、董事長薪酬、股利與盈餘分配進個人帳戶、個人增資與股東借款、在股市增持或減持自家股票、個人消費與形象、公益捐款與基金會；公司可以買回庫藏股，並賣回市場或發給員工。'],
     ['1.0.0-rc2', '突發事件（油價、政局動盪、外交風波、疫情、經濟景氣、颱風與火山、航管罷工、大型活動、規費與保險）與燃油避險；社群改成每月刷新、內容加倍、提到艙等時用你自訂的名稱；手機版底部分頁改成常用 5 個加「更多」、鎖住雙擊放大、表格改成卡片、長清單分頁。'],
@@ -3069,26 +3069,41 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
   G.pairKey = (a, b) => (a < b ? a + b : b + a);
   G.carriersOn = (a, b) => (PAIRS.get(G.pairKey(a, b)) || []).filter((code) => !G.S || code !== G.S.company.code);
   G.carriersAt = (iata) => [...(AT.get(iata) || new Map()).entries()].filter(([code]) => !G.S || code !== G.S.company.code).sort((x, y) => y[1] - x[1]);
-  // v1.1.0 機場的其他航空每日離場：把每條航線上對手「目前」的班次加總（對手加班、減班、被你整合都會立刻反映）
-  // 已被你整合的航空公司不計；子公司的班次另外列出（算進你的集團）；沒有航空公司資料的機場仍用人口估算
-  const odCache = new Map();
-  let odKey = '';
+  // v1.1.0 機場的其他航空每日離場：以機場規模（依腹地人口估算，與舊版相同的基準）為準，
+  // 再依「對手目前的班次 ÷ 對手原本的班次」即時增減：對手加班、減班、被你整合（班次歸零）都會立刻反映。
+  // 已被你整合的航空公司不計；子公司的班次另外算（算進你的集團）；沒有航空公司資料的機場維持人口估算。
+  const odCache = new Map(), refCache = new Map();
+  let odKey = '', refCode = '';
+  const defF = (x) => Math.round(clamp(x.f0 * G.fleetScale(x.code), 0.43, x.cap * 1.5) * 10) / 10;
+  // 對手原本的班次（遊戲資料的預設值，不含加減班、不含收購）
+  const refDepartures = (iata) => {
+    const me = G.S.company.code;
+    if (me !== refCode) { refCode = me; refCache.clear(); }
+    let v = refCache.get(iata);
+    if (v == null) {
+      v = 0;
+      (AT_PAIRS.get(iata) || new Set()).forEach((k) => baseOn(k.slice(0, 3), k.slice(3)).forEach((x) => { if (x.code !== me) v += defF(x); }));
+      refCache.set(iata, v);
+    }
+    return v;
+  };
   G.otherDepartures = (iata) => {
     const S = G.S, ap = G.AP[iata];
     const key = Math.floor(S.time / DAY) + ':' + ((S.rivals && S.rivals.ver) || 0) + ':' + ((G.net && G.net.ver) || 0) + ':' + (G.mnaSig ? G.mnaSig() : '') + ':' + S.company.code;
     if (key !== odKey) { odKey = key; odCache.clear(); }
     let v = odCache.get(iata);
     if (v) return v;
-    const ks = AT_PAIRS.get(iata);
-    if (!ks || !ks.size) v = { total: G.baselineDepartures(ap), subs: 0, by: [], est: true };
+    const base = G.baselineDepartures(ap), ref = refDepartures(iata);
+    if (!ref) v = { total: base, subs: 0, by: [], est: true, k: 1 };
     else {
       const by = new Map();
-      let total = 0, subs = 0;
-      ks.forEach((k) => G.rivalsOn(k.slice(0, 3), k.slice(3)).forEach((r) => {
-        if (G.isSub && G.isSub(r.code)) subs += r.f; else total += r.f;
+      let cur = 0, subs = 0;
+      AT_PAIRS.get(iata).forEach((k) => G.rivalsOn(k.slice(0, 3), k.slice(3)).forEach((r) => {
+        if (G.isSub && G.isSub(r.code)) subs += r.f; else cur += r.f;
         by.set(r.code, (by.get(r.code) || 0) + r.f);
       }));
-      v = { total, subs, by: [...by.entries()].sort((x, y) => y[1] - x[1]), est: false };
+      const k = base / ref; // 資料班次換算成機場規模的倍率
+      v = { total: cur * k, subs: subs * k, by: [...by.entries()].map(([c, f]) => [c, f * k]).sort((x, y) => y[1] - x[1]), est: false, k, ratio: (cur + subs) / ref };
     }
     odCache.set(iata, v);
     return v;
@@ -9308,7 +9323,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
         <dt>宵禁</dt><dd>${cf ? `<span class="chip curfew">${cf.from}–${cf.to}</span> ${esc(cf.note)}${cf.src === 'verify' ? '<small>（待校對）</small>' : ''}` : '無'}</dd>
         <dt>腹地人口</dt><dd>約 ${pop} 人</dd>
         <dt>人均 GDP 係數</dt><dd>${G.wealth(ap.cc).toFixed(2)}</dd>
-        <dt>其他航空每日離場</dt><dd>約 ${G.num(Math.round(G.hubStats(iata).base))} 班<small class="src">${G.hubStats(iata).est ? '這座機場沒有航空公司航線資料，依腹地人口估算' : '依在此營運的航空公司目前的班次即時加總；已被你整合的航空公司不計'}</small></dd>
+        <dt>其他航空每日離場</dt><dd>約 ${G.num(Math.round(G.hubStats(iata).base))} 班<small class="src">${G.hubStats(iata).est ? '這座機場沒有航空公司航線資料，依腹地人口估算' : `依機場規模估算，再隨在此營運的航空公司目前的班次即時增減（目前是原本的 ${pct(G.otherDepartures(iata).ratio || 1)}）；已被你整合的航空公司不計`}</small></dd>
         ${hs && !hub ? `<dt>你的航班占比</dt><dd>${pct(hs.share)}<small class="src">你的每日離場 ${hs.deps.toFixed(1)} 班${subTxt(hs)}</small></dd>` : ''}
       </dl>
       ${hub ? `<div class="callout hub"><b>${hub.type === 'primary' ? '主要樞紐' : '次要樞紐'}${hs.fortress ? '・要塞樞紐' : ''}</b><p>你的每日離場 ${hs.deps.toFixed(1)} 班${subTxt(hs)}，占機場 ${pct(hs.share)}${hub.type === 'primary' ? `（超過 ${pct(G.FORTRESS_SHARE)} 升格為要塞樞紐）` : ''}</p><button class="btn" data-act="go" data-tab="hubs">管理樞紐</button></div>` : ''}
@@ -12341,7 +12356,7 @@ window.BIZ_PROP={"KR":0.54,"CN":1.41,"TW":0.46,"HK":0.4,"US":1.2,"TH":0.54,"SG":
     ['hubs', '樞紐', '公司', `
       <p>航線一定要從樞紐出發。主要樞紐只能有一個，次要樞紐可以有好幾個。每個樞紐都有設立費與每月營運費。</p>
       <ul><li><b>貴賓室</b>（最多 3 級）：商務艙與頭等艙的滿意度與攬客力每級 +5%。</li><li><b>地勤服務</b>（最多 2 級）：過站時間每級 -8%。</li><li><b>維修棚廠</b>（最多 2 級）：1 級可自行做 C 檢、2 級可做 D 檢。</li><li><b>自建空廚</b>（最多 3 級）：餐點成本降低、品質提高。</li></ul>
-      <p>主要樞紐的航班占比超過 70% 會成為<b>要塞樞紐</b>，攬客力 ×1.15。占比每天即時計算：分母是你的班次加上在這座機場營運的所有航空公司目前的班次（對手加班、減班都會反映）；已被你整合的航空公司不計，子公司的班次算進你的集團。大機場的對手很多，想成為要塞樞紐，收購並整合當地的主要對手是最快的方法。</p>`],
+      <p>主要樞紐的航班占比超過 70% 會成為<b>要塞樞紐</b>，攬客力 ×1.15。占比每天即時計算：其他航空的班次以機場規模（腹地人口）估算，再依在這座機場營運的航空公司目前的班次增減——對手加班就變多，被你整合的航空公司班次歸零、不再計入；子公司的班次算進你的集團。所以收購當地的主要對手會讓你的占比上升；整合後轉入的飛機要指派到從這裡出發的航線，班次才會算進你的占比。</p>`],
     ['staff', '人事與工會', '公司', `
       <p>員工分成機師、空服員、地勤與維修技師、辦公室人員；飛機越多需要越多人。人手不足會造成延誤與取消。</p>
       <p><b>士氣</b>受薪資、工時與公司狀況影響。士氣低的員工可能成立工會、提出訴求，14 天內要回應；談判破裂時工會會在 7 天前通知罷工，罷工期間相關航班受影響、股價下跌。</p>`],

@@ -136,7 +136,7 @@
         <dt>宵禁</dt><dd>${cf ? `<span class="chip curfew">${cf.from}–${cf.to}</span> ${esc(cf.note)}${cf.src === 'verify' ? '<small>（待校對）</small>' : ''}` : '無'}</dd>
         <dt>腹地人口</dt><dd>約 ${pop} 人</dd>
         <dt>人均 GDP 係數</dt><dd>${G.wealth(ap.cc).toFixed(2)}</dd>
-        <dt>其他航空每日離場</dt><dd>約 ${G.num(Math.round(G.hubStats(iata).base))} 班<small class="src">${G.hubStats(iata).est ? '這座機場沒有航空公司航線資料，依腹地人口估算' : '依在此營運的航空公司目前的班次即時加總；已被你整合的航空公司不計'}</small></dd>
+        <dt>其他航空每日離場</dt><dd>約 ${G.num(Math.round(G.hubStats(iata).base))} 班<small class="src">${G.hubStats(iata).est ? '這座機場沒有航空公司航線資料，依腹地人口估算' : `依機場規模估算，再隨在此營運的航空公司目前的班次即時增減（目前是原本的 ${pct(G.otherDepartures(iata).ratio || 1)}）；已被你整合的航空公司不計`}</small></dd>
         ${hs && !hub ? `<dt>你的航班占比</dt><dd>${pct(hs.share)}<small class="src">你的每日離場 ${hs.deps.toFixed(1)} 班${subTxt(hs)}</small></dd>` : ''}
       </dl>
       ${hub ? `<div class="callout hub"><b>${hub.type === 'primary' ? '主要樞紐' : '次要樞紐'}${hs.fortress ? '・要塞樞紐' : ''}</b><p>你的每日離場 ${hs.deps.toFixed(1)} 班${subTxt(hs)}，占機場 ${pct(hs.share)}${hub.type === 'primary' ? `（超過 ${pct(G.FORTRESS_SHARE)} 升格為要塞樞紐）` : ''}</p><button class="btn" data-act="go" data-tab="hubs">管理樞紐</button></div>` : ''}
