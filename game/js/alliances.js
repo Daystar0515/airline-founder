@@ -36,12 +36,34 @@
   G.BENEFITS_REAL = ['常客計畫互惠：在任一成員累積與兌換里程，高等級會員身分互認', '高等級會員與商務艙旅客共用成員的貴賓室，享優先報到、登機與行李', '代碼共享與轉機銜接：一張機票到底、行李直掛、轉機時間有保障', '樞紐機場航廈共用（co-location）', '聯盟環球票與區域通行票'];
   function build() {
     Object.entries(RAW).forEach(([id, a]) => {
-      G.ALLIANCES[id] = { id, ...a, members: a.members.split(' ').filter((c) => C()[c]) };
+      const all = a.members.split(' ').filter((c) => C()[c]);
+      G.ALLIANCES[id] = { id, ...a, all, members: all.slice() };
     });
     G.ALLY_OF = {};
     Object.values(G.ALLIANCES).forEach((a) => a.members.forEach((c) => (G.ALLY_OF[c] = a.id)));
   }
   build();
+  // v1.1.0 被你收購（子公司）或整合的航空公司退出原本的聯盟，也從你自組聯盟的成員、邀請與申請中移除
+  let syncS = null, syncSig = null;
+  G.allySync = () => {
+    const S = G.S;
+    if (!S) return;
+    const sig = (G.mnaSig ? G.mnaSig() : '') + '#' + S.company.code;
+    if (S === syncS && sig === syncSig) return;
+    syncS = S; syncSig = sig;
+    const acq = G.acquiredCodes ? G.acquiredCodes() : new Set();
+    G.ALLY_OF = {};
+    Object.values(G.ALLIANCES).forEach((a) => { a.members = a.all.filter((c) => !acq.has(c)); a.members.forEach((c) => (G.ALLY_OF[c] = a.id)); });
+    const al = S.ally;
+    if (al) {
+      const drop = (x) => !(acq.has(x.code) && x.kind !== 'player');
+      if (al.members) al.members = al.members.filter((m) => m.founder || drop(m));
+      if (al.invites) al.invites = al.invites.filter((x) => !acq.has(x.code));
+      if (al.apps) al.apps = al.apps.filter((x) => !acq.has(x.code));
+      al.ver = (al.ver || 0) + 1;
+    }
+    cache = null; netCache.clear();
+  };
 
   // ---------- 狀態 ----------
   const blank = () => ({ ver: 1, kind: null, id: null, status: null, at: null, since: null, name: null, color: null, members: [], invites: [], apps: [], inbox: [], cool: {}, news: [], warn: 0 });
@@ -71,6 +93,7 @@
     return Object.entries(N.players).filter(([id, p]) => id !== N.myId && p && p.code).map(([id, p]) => ({ id, ...p }));
   }
   G.allyPartners = () => {
+    G.allySync();
     const al = A(), key = al.ver + '.' + ((G.net && G.net.ver) || 0) + '.' + (G.S.company.code);
     if (cache && cache.key === key) return cache;
     const ai = new Set(), human = new Set(), hubs = new Set();
@@ -233,8 +256,10 @@
   };
   // AI 對邀請的評估（0–1 的同意機率與原因）
   G.allyInviteEval = (code) => {
+    G.allySync();
     const S = G.S, c = C()[code], al = A();
     if (!c) return { p: 0, why: '找不到這家航空公司' };
+    if (G.isAcquired && G.isAcquired(code)) return { p: 0, why: G.isSub && G.isSub(code) ? '已是你的子公司' : '已被你整合' };
     if (G.ALLY_OF[code]) return { p: 0, why: `已是${G.ALLIANCES[G.ALLY_OF[code]].zh}成員，不會考慮` };
     const par = G.STOCK_OF && G.STOCK_OF[code];
     if (par && par !== code && G.ALLY_OF[par]) return { p: 0, why: `母公司${G.carrierName(C()[par])}是${G.ALLIANCES[G.ALLY_OF[par]].zh}成員` };

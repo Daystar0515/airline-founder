@@ -35,10 +35,11 @@
   };
   // ---------- 機場頁：在此營運的航空公司 ----------
   U.airportExtra = (ap) => {
-    const list = G.carriersAt(ap.iata);
-    if (!list.length) return '';
+    const list = G.carriersAt(ap.iata), mine = G.subsAt ? G.subsAt(ap.iata) : [];
+    if (!list.length && !mine.length) return '';
     const hubOf = list.filter(([code]) => G.CARRIERS[code].hubs.includes(ap.iata));
     return `<h3>在此營運的航空公司（${list.length} 家）</h3>
+      ${mine.length ? `<p class="note">你的子公司：${mine.map(([code, n]) => `${esc(G.carrierName(G.CARRIERS[code]))}（${n} 條航線）`).join('、')}</p>` : ''}
       ${hubOf.length ? `<p class="note">以這裡為樞紐：${hubOf.map(([code]) => esc(G.carrierName(G.CARRIERS[code]))).join('、')}</p>` : ''}
       <div class="chips">${list.slice(0, 24).map(([code, n]) => `<button class="chip linkish" data-act="rv-open" data-code="${code}">${esc(G.carrierName(G.CARRIERS[code]))} · ${n}</button>`).join('')}${list.length > 24 ? `<span class="chip">另 ${list.length - 24} 家</span>` : ''}</div>`;
   };
@@ -77,10 +78,10 @@
         <dt>航線／航點</dt><dd>${c.routes.length} 條航線、${c.nDest} 個航點</dd>
         <dt>機隊</dt><dd>${G.carrierFleetReal(c.code) ? `${num(G.carrierFleetEst(c.code))} 架<small class="src">真實客機數（維基百科），各航線班次已依此校正</small>` : `約 ${num(G.carrierFleetEst(c.code))} 架<small class="src">依各航線估計班次換算，不是真實機隊數</small>`}</dd>
         <dt>定位</dt><dd>${c.lcc ? '低成本：票價約參考票價的 78%，只有經濟艙' : '傳統：全額票價、多艙等，長程有豪華經濟艙'}</dd>
-        <dt>航空聯盟</dt><dd>${G.ALLY_OF && G.ALLY_OF[c.code] ? esc(G.ALLIANCES[G.ALLY_OF[c.code]].zh) + (G.isPartner(c.code) ? '（你的盟友）' : '') : G.isPartner && G.isPartner(c.code) ? '你的盟友' : '未加入'}</dd>
+        <dt>航空聯盟</dt><dd>${G.isAcquired && G.isAcquired(c.code) ? (G.isSub(c.code) ? '已退出原本的聯盟（你的子公司）' : '已整合進你的公司') : G.ALLY_OF && G.ALLY_OF[c.code] ? esc(G.ALLIANCES[G.ALLY_OF[c.code]].zh) + (G.isPartner(c.code) ? '（你的盟友）' : '') : G.isPartner && G.isPartner(c.code) ? '你的盟友' : '未加入'}</dd>
         ${G.STOCK_OF && G.STOCK_OF[c.code] ? (() => { const k = G.STOCK_OF[c.code], q = G.quote(k); return `<dt>股票</dt><dd>${esc(G.LISTED[k].zh)} ${q ? `$${q.p.toFixed(2)}${G.stakeIn(c.code) ? `，你持有 ${(G.stakeIn(c.code) * 100).toFixed(2)}%` : ''}` : '已下市（被你收購）'}</dd>`; })() : ''}</dl>
       <div class="row-btns"><button class="btn sm ${on ? 'primary' : ''}" data-act="rv-map" data-code="${c.code}">${on ? '隱藏地圖航網' : '在地圖顯示航網'}</button>
-        ${G.allyState && G.allyState().kind === 'own' && !G.isPartner(c.code) ? `<button class="btn sm" data-act="ally-inv-ai" data-code="${c.code}">邀請加入${esc(G.allyState().name)}</button>` : ''}
+        ${G.allyState && G.allyState().kind === 'own' && !G.isPartner(c.code) && !(G.isAcquired && G.isAcquired(c.code)) ? `<button class="btn sm" data-act="ally-inv-ai" data-code="${c.code}">邀請加入${esc(G.allyState().name)}</button>` : ''}
         ${G.STOCK_OF && G.STOCK_OF[c.code] && G.quote(G.STOCK_OF[c.code]) ? `<button class="btn sm" data-act="stk-goto" data-k="${G.STOCK_OF[c.code]}">買賣股票</button>` : ''}</div>
       ${U.rvExtra ? U.rvExtra(c) : ''}
       ${ov.length ? `<h4>與你重疊的航線</h4>${ov.map((r) => { const x = G.rivalsOn(r.a, r.b).find((y) => y.code === c.code); return `<p class="rv-line"><b>${r.a}–${r.b}</b> 每日約 ${x.f.toFixed(1)} 班 · 票價 ${x.war ? `<b class="neg">${pct(x.p)}</b>（降價中）` : pct(x.p)} · 你的${esc(G.cname('Y'))} ${pct(r.fare.Y || 1)}</p>`; }).join('')}` : ''}

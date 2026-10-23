@@ -13,6 +13,7 @@
 
   // 其他頁面用：航空公司的聯盟標籤
   U.allyChip = (code) => {
+    if (G.allySync) G.allySync();
     const id = G.ALLY_OF[code];
     if (id) { const a = G.ALLIANCES[id]; return `<span class="chip ally" style="--c:${a.color}" title="${esc(a.name)}">${esc(a.zh)}</span>`; }
     const al = G.allyState();
@@ -124,6 +125,7 @@
         <button class="btn primary" data-act="ally-found" ${ok ? '' : 'disabled'}>成立聯盟</button></div>`;
   }
   U.allianceTab = () => {
+    if (G.allySync) G.allySync();
     const al = G.allyState();
     return `<p class="note disclaimer">${DISC}</p>
       <h3>你的聯盟</h3>${current()}

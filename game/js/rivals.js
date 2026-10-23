@@ -18,7 +18,7 @@
   };
   // ---------- 載入資料 ----------
   const C = (G.CARRIERS = {});
-  const PAIRS = new Map(), AT = new Map();
+  const PAIRS = new Map(), AT = new Map(), AT_PAIRS = new Map();
   (window.CARRIERS || []).forEach(([code, name, zh, cc, lcc, hubs, nDest]) => {
     C[code] = { code, name, zh, cc, lcc: !!lcc, hubs: hubs ? hubs.split(' ') : [], nDest, routes: [] };
   });
@@ -29,13 +29,37 @@
       c.routes.push(k);
       if (!PAIRS.has(k)) PAIRS.set(k, []);
       PAIRS.get(k).push(code);
-      [k.slice(0, 3), k.slice(3)].forEach((ap) => { if (!AT.has(ap)) AT.set(ap, new Map()); const m = AT.get(ap); m.set(code, (m.get(code) || 0) + 1); });
+      [k.slice(0, 3), k.slice(3)].forEach((ap) => { if (!AT.has(ap)) { AT.set(ap, new Map()); AT_PAIRS.set(ap, new Set()); } const m = AT.get(ap); m.set(code, (m.get(code) || 0) + 1); AT_PAIRS.get(ap).add(k); });
     });
   });
   G.carrierName = (c) => (c.zh || c.name);
   G.pairKey = (a, b) => (a < b ? a + b : b + a);
   G.carriersOn = (a, b) => (PAIRS.get(G.pairKey(a, b)) || []).filter((code) => !G.S || code !== G.S.company.code);
   G.carriersAt = (iata) => [...(AT.get(iata) || new Map()).entries()].filter(([code]) => !G.S || code !== G.S.company.code).sort((x, y) => y[1] - x[1]);
+  // v1.1.0 機場的其他航空每日離場：把每條航線上對手「目前」的班次加總（對手加班、減班、被你整合都會立刻反映）
+  // 已被你整合的航空公司不計；子公司的班次另外列出（算進你的集團）；沒有航空公司資料的機場仍用人口估算
+  const odCache = new Map();
+  let odKey = '';
+  G.otherDepartures = (iata) => {
+    const S = G.S, ap = G.AP[iata];
+    const key = Math.floor(S.time / DAY) + ':' + ((S.rivals && S.rivals.ver) || 0) + ':' + ((G.net && G.net.ver) || 0) + ':' + (G.mnaSig ? G.mnaSig() : '') + ':' + S.company.code;
+    if (key !== odKey) { odKey = key; odCache.clear(); }
+    let v = odCache.get(iata);
+    if (v) return v;
+    const ks = AT_PAIRS.get(iata);
+    if (!ks || !ks.size) v = { total: G.baselineDepartures(ap), subs: 0, by: [], est: true };
+    else {
+      const by = new Map();
+      let total = 0, subs = 0;
+      ks.forEach((k) => G.rivalsOn(k.slice(0, 3), k.slice(3)).forEach((r) => {
+        if (G.isSub && G.isSub(r.code)) subs += r.f; else total += r.f;
+        by.set(r.code, (by.get(r.code) || 0) + r.f);
+      }));
+      v = { total, subs, by: [...by.entries()].sort((x, y) => y[1] - x[1]), est: false };
+    }
+    odCache.set(iata, v);
+    return v;
+  };
   G.carrierColor = (code) => { let h = 0; for (const ch of code) h = (h * 31 + ch.charCodeAt(0)) % 360; return `hsl(${h}, 62%, 46%)`; };
 
   // ---------- 估算對手在某航線的班次 ----------
@@ -149,7 +173,7 @@
         // 玩家明顯比較便宜、而且搶到一定旅客 → 樞紐航空與低成本航空降價迎戰
         const ally = G.isPartner && G.isPartner(x.code); // v0.9.0 盟友不打價格戰、不加班搶客
         const cool = o.cool && S.time < o.cool; // v1.0 價格戰打太久會停火一段時間
-        if (!ally && !cool && (x.hub || x.c.lcc) && share > R.warShare && pY < p * R.warGap && pY < x.p0 * 0.95 && p > fl + 0.001 && Math.random() < R.warProb) {
+        if (!ally && !cool && (x.hub || x.c.lcc) && share > R.warShare && pY < p * R.warGap && pY < x.p0 * 0.95 && p > fl + 0.001 && Math.random() < R.warProb * (G.dmod ? G.dmod('war') : 1)) {
           o.p = Math.max(fl, +(p * (1 - R.cut)).toFixed(3));
           if (!o.warned || S.time - o.warned > 30 * DAY) { o.warned = S.time; news(`${G.carrierName(x.c)}在 ${r.a}–${r.b} 調降票價迎戰`, x.code, k); }
         } else if (p < x.p0) o.p = Math.min(x.p0, +(p * (1 + R.recover * (cool ? 2 : 1))).toFixed(3));

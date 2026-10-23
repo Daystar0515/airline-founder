@@ -71,7 +71,7 @@
     document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === U.tab)));
     const body = $('#panel-body');
     const keep = body.scrollTop;
-    const html = (U.tabHeader ? U.tabHeader(U.tab) : '') + ({ overview, airport, fleet, routes, hubs, finance: U.financeTab || finance, staff: U.staffTab, service: U.serviceTab, social: U.socialTab, gov: U.govTab, rivals: U.rivalsTab, alliance: U.allianceTab })[U.tab]();
+    const html = (U.tabHeader ? U.tabHeader(U.tab) : '') + ({ overview, airport, fleet, routes, hubs, finance: U.financeTab || finance, staff: U.staffTab, service: U.serviceTab, social: U.socialTab, gov: U.govTab, rivals: U.rivalsTab, alliance: U.allianceTab, me: U.meTab })[U.tab]();
     if (html !== lastHtml || body.dataset.tab !== U.tab) { body.innerHTML = html; lastHtml = html; body.dataset.tab = U.tab; body.scrollTop = keep; } // 內容沒變就不重建，避免卡頓
     if (U.socialBadge) U.socialBadge();
     if (U.govBadge) U.govBadge();
@@ -121,7 +121,8 @@
     const hubIatas = Object.keys(S.hubs);
     const routesHere = S.routes.filter((r) => r.a === iata || r.b === iata);
     const pop = ap.popK >= 1000 ? (ap.popK / 1000).toFixed(1) + ' 百萬' : G.num(ap.popK) + ' 千';
-    const hs = hub ? G.hubStats(iata) : null;
+    const hs = hub || routesHere.length ? G.hubStats(iata) : null;
+    const subTxt = (h) => (h.subs ? `（另有子公司 ${h.subs.toFixed(1)} 班，算進你的集團）` : '');
     return `
       <header class="ap-head">
         <div class="iata">${ap.iata}</div>
@@ -135,9 +136,10 @@
         <dt>宵禁</dt><dd>${cf ? `<span class="chip curfew">${cf.from}–${cf.to}</span> ${esc(cf.note)}${cf.src === 'verify' ? '<small>（待校對）</small>' : ''}` : '無'}</dd>
         <dt>腹地人口</dt><dd>約 ${pop} 人</dd>
         <dt>人均 GDP 係數</dt><dd>${G.wealth(ap.cc).toFixed(2)}</dd>
-        <dt>其他航空每日離場</dt><dd>約 ${G.num(G.baselineDepartures(ap))} 班</dd>
+        <dt>其他航空每日離場</dt><dd>約 ${G.num(Math.round(G.hubStats(iata).base))} 班<small class="src">${G.hubStats(iata).est ? '這座機場沒有航空公司航線資料，依腹地人口估算' : '依在此營運的航空公司目前的班次即時加總；已被你整合的航空公司不計'}</small></dd>
+        ${hs && !hub ? `<dt>你的航班占比</dt><dd>${pct(hs.share)}<small class="src">你的每日離場 ${hs.deps.toFixed(1)} 班${subTxt(hs)}</small></dd>` : ''}
       </dl>
-      ${hub ? `<div class="callout hub"><b>${hub.type === 'primary' ? '主要樞紐' : '次要樞紐'}${hs.fortress ? '・要塞樞紐' : ''}</b><p>你的每日離場 ${hs.deps.toFixed(1)} 班，占機場 ${pct(hs.share)}${hub.type === 'primary' ? `（超過 ${pct(G.FORTRESS_SHARE)} 升格為要塞樞紐）` : ''}</p><button class="btn" data-act="go" data-tab="hubs">管理樞紐</button></div>` : ''}
+      ${hub ? `<div class="callout hub"><b>${hub.type === 'primary' ? '主要樞紐' : '次要樞紐'}${hs.fortress ? '・要塞樞紐' : ''}</b><p>你的每日離場 ${hs.deps.toFixed(1)} 班${subTxt(hs)}，占機場 ${pct(hs.share)}${hub.type === 'primary' ? `（超過 ${pct(G.FORTRESS_SHARE)} 升格為要塞樞紐）` : ''}</p><button class="btn" data-act="go" data-tab="hubs">管理樞紐</button></div>` : ''}
       <div class="row-btns">
         ${hubIatas.length && !hub ? `<button class="btn primary" data-act="route-new" data-b="${iata}">開設航線到這裡</button>` : ''}
         ${hub ? `<button class="btn primary" data-act="route-new-from" data-a="${iata}">從這裡開設航線</button>` : ''}
@@ -193,9 +195,10 @@
       const tags = (ac.refurbQueue && ac.st !== 'refurb' ? `<span class="chip warn">待整修${ac.refurbQueue.at ? '（' + ac.refurbQueue.at + '）' : '（委外）'}</span>` : '') + (ac.refitQueue && ac.st !== 'refit' ? `<span class="chip warn">待改裝 ${G.money(ac.refitQueue.cost)}</span>` : '') + (ac.charter ? '<span class="chip warn">政府包機任務</span>' : '') + (ac.grounded ? '<span class="chip curfew">稽查停飛</span>' : '') + (ac.mxQueue ? `<span class="chip warn">待${G.CHECKS[ac.mxQueue].name}</span>` : '') + (ac.leg && ac.leg.delayed >= 60 && ac.st === 'sched' ? `<span class="chip warn">機械延誤</span>` : '');
       return `<article class="ac ${ac.st}${ac.grounded ? ' grounded' : ''}">
         <header><b>${esc(ac.reg)}</b><span>${esc(t.model)}</span><span class="st">${stTxt}</span></header>
+        ${U.acThumb ? U.acThumb(ac) : ''}
         <p>${where} <small>${eta}</small>${tags}</p>
         ${mxBars(ac)}
-        <p class="meta">${G.cabinSeats(ac.cabin)} 座 · ${ac.mode === 'buy' ? '自有' : '租賃 ' + G.money(ac.lease) + '/月'}${ac.cond != null ? ` · 機況 <b class="${ac.cond < 0.7 ? 'neg' : ''}">${Math.round(ac.cond * 100)}%</b>` : ''}${ac.usedBuy ? ' · 二手' : ''} · 累計 ${G.num(ac.hours)} 小時／${G.num(ac.cycles)} 起降${ll ? ` · 上一航段載客 ${ll.pax}/${ll.seats}` : ''}</p>
+        <p class="meta">${t.freighter ? `全貨機 · 酬載 ${t.cargo} 噸` : `${G.cabinSeats(ac.cabin)} 座`} · ${ac.mode === 'buy' ? '自有' : '租賃 ' + G.money(ac.lease) + '/月'}${ac.cond != null ? ` · 機況 <b class="${ac.cond < 0.7 ? 'neg' : ''}">${Math.round(ac.cond * 100)}%</b>` : ''}${ac.usedBuy ? ' · 二手' : ''} · 累計 ${G.num(ac.hours)} 小時／${G.num(ac.cycles)} 起降${ll ? ` · 上一航段載客 ${ll.pax}/${ll.seats}` : ''}</p>
         <div class="row-btns">
           <select id="as-${ac.id}" data-act="assign" data-id="${ac.id}" aria-label="指派航線">
             <option value="">未指派航線</option>
@@ -206,12 +209,13 @@
             ${G.CHECK_LEVELS.map((lv) => `<option value="${lv}">${G.CHECKS[lv].name}（${G.money(G.checkPlan(t, lv, G.hangarLevel(ac.loc)).cost)}）</option>`).join('')}
           </select>
           <label class="chk sm"><input type="checkbox" id="amx-${ac.id}" data-act="ac-automx" data-id="${ac.id}" ${ac.autoMx !== false ? 'checked' : ''} ${G.S.maintPolicy.enabled === false ? 'disabled' : ''}> 自動維修</label>
-          <button class="btn sm" data-act="cabin" data-id="${ac.id}">艙等配置</button>
+          ${t.freighter ? '' : `<button class="btn sm" data-act="cabin" data-id="${ac.id}">艙等配置</button>`}
           <button class="btn sm" data-act="reg-edit" data-id="${ac.id}">改編號</button>
           ${ac.st !== 'refurb' && !ac.refurbQueue && G.refurbPlan(ac, 2) ? `<button class="btn sm" data-act="refurb" data-id="${ac.id}">整修</button>` : ''}
           ${ac.refurbQueue && ac.st !== 'refurb' ? `<button class="btn sm" data-act="refurb-cancel" data-id="${ac.id}">取消整修</button>` : ''}
           ${ac.refitQueue && ac.st !== 'refit' ? `<button class="btn sm" data-act="refit-cancel" data-id="${ac.id}">取消改裝</button>` : ''}
           <button class="btn sm" data-act="locate" data-id="${ac.id}">定位</button>
+          ${U.acButtons ? U.acButtons(ac) : ''}
           <button class="btn sm danger" data-act="sell" data-id="${ac.id}">${ac.mode === 'buy' ? '出售' : '退租'}</button>
         </div>
       </article>`;
@@ -251,8 +255,10 @@
             <dt>本月取消航班</dt><dd>${st.cancels || 0}</dd>
             <dt>單向每日總市場</dt><dd>約 ${G.num(G.routeMarket(A, B))} 人</dd>
             ${U.segFacts ? U.segFacts(A, B) : ''}
+            ${U.routeFacts ? U.routeFacts(r) : ''}
           </dl>
           ${U.routeAdviceBox ? U.routeAdviceBox(r) : ''}
+          ${U.routeExtra ? U.routeExtra(r) : ''}
           <h4>航班編號</h4>
           <div class="fno-edit"><span class="fno-pair"><span>${esc(S.company.code)}</span><input type="number" id="fno-o-${r.id}" min="1" max="9999" value="${r.fno ? r.fno.out : ''}" aria-label="去程航班編號"><small>${r.a}→${r.b}</small></span>
             <span class="fno-pair"><span>${esc(S.company.code)}</span><input type="number" id="fno-b-${r.id}" min="1" max="9999" value="${r.fno ? r.fno.back : ''}" aria-label="回程航班編號"><small>${r.b}→${r.a}</small></span>
@@ -280,9 +286,10 @@
       return `<article class="hubcard">
         <header><div class="iata">${iata}</div><div><h2>${esc(ap.city)}</h2><p>${h.type === 'primary' ? '主要樞紐' : '次要樞紐'}${hs.fortress ? ' · <b class="pos">要塞樞紐</b>' : ''}</p></div></header>
         <div class="meter" role="img" aria-label="航班占比 ${pct(hs.share)}"><i style="width:${Math.min(100, hs.share * 100)}%"></i><b style="left:${G.FORTRESS_SHARE * 100}%"></b></div>
-        <p class="meta">你的每日離場 ${hs.deps.toFixed(1)} 班／其他航空約 ${hs.base} 班 · 占比 ${pct(hs.share)}${h.type === 'primary' ? `，超過 ${pct(G.FORTRESS_SHARE)} 升格要塞樞紐` : ''}</p>
+        <p class="meta">你的每日離場 ${hs.deps.toFixed(1)} 班${hs.subs ? `＋子公司 ${hs.subs.toFixed(1)} 班` : ''}／其他航空約 ${G.num(Math.round(hs.base))} 班 · 占比 ${pct(hs.share)}${h.type === 'primary' ? `，超過 ${pct(G.FORTRESS_SHARE)} 升格要塞樞紐` : ''}</p>
         ${Object.entries(G.UPGRADES).map(([k, u]) => `<div class="upg"><div><b>${u.name}</b> <span class="lv">${'●'.repeat(h.upgrades[k])}${'○'.repeat(u.max - h.upgrades[k])}</span><p class="meta">${u.desc}；每級月費 ${G.money(u.upkeep)}</p></div>
           <button class="btn sm" data-act="upgrade" data-iata="${iata}" data-k="${k}" ${h.upgrades[k] >= u.max ? 'disabled' : ''}>${h.upgrades[k] >= u.max ? '已滿級' : '升級 ' + G.money(u.cost)}</button></div>`).join('')}
+        ${U.hubExtra ? U.hubExtra(iata) : ''}
         <div class="row-btns">
           ${h.type !== 'primary' ? `<button class="btn" data-act="hub-set" data-iata="${iata}" data-type="primary">升為主要樞紐</button><button class="btn danger" data-act="hub-remove" data-iata="${iata}">撤銷樞紐</button>` : ''}
           <button class="btn" data-act="select" data-iata="${iata}">在地圖上查看</button>

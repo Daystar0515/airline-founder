@@ -331,6 +331,14 @@
   G.isMerged = (code) => mergedSet().has(code);
   const ro = G.rivalsOn;
   G.rivalsOn = (a, b) => { const out = ro(a, b); if (!G.S || !G.S.mna || !(G.S.mna.merged || []).length) return out; const m = mergedSet(); return out.filter((x) => !m.has(x.code)); };
+  // v1.1.0 已收購（子公司）或已整合的航空公司代碼
+  G.mnaSig = () => { const m = G.S && G.S.mna; if (!m) return ''; return m.subs.map((x) => x.key).join(',') + '|' + (m.merged || []).map((x) => x.key).join(','); };
+  G.acquiredCodes = () => { const s = mergedSet(); if (G.S && G.S.mna) subCodes().forEach((c) => s.add(c)); return s; };
+  G.isAcquired = (code) => G.acquiredCodes().has(code);
+  // 機場頁「在此營運的航空公司」不再列出已收購的公司；子公司另外列出
+  const cat = G.carriersAt;
+  G.carriersAt = (iata) => { const out = cat(iata); if (!G.S || !G.S.mna || !(G.S.mna.subs.length || (G.S.mna.merged || []).length)) return out; const m = G.acquiredCodes(); return out.filter(([code]) => !m.has(code)); };
+  G.subsAt = (iata) => { if (!G.S || !G.S.mna || !G.S.mna.subs.length) return []; const m = subCodes(); return cat(iata).filter(([code]) => m.has(code)); };
   const co = G.carriersOn;
   G.carriersOn = (a, b) => { const out = co(a, b); if (!G.S || !G.S.mna || !(G.S.mna.merged || []).length) return out; const m = mergedSet(); return out.filter((x) => !m.has(x)); };
 

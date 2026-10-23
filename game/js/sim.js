@@ -174,10 +174,12 @@
     const ap = G.AP[iata];
     let deps = 0;
     G.S.routes.forEach((r) => { if (r.a === iata || r.b === iata) deps += G.routeFreq(r); });
-    const base = G.baselineDepartures(ap);
-    const share = deps / (deps + base);
+    // v1.1.0 其他航空的班次即時計算（已整合的不計）；子公司的班次算進你的集團
+    const od = G.otherDepartures ? G.otherDepartures(iata) : { total: G.baselineDepartures(ap), subs: 0, est: true };
+    const base = od.total, subs = od.subs || 0, mine = deps + subs;
+    const share = mine + base > 0 ? mine / (mine + base) : 0;
     const h = G.S.hubs[iata];
-    return { deps, base, share, fortress: !!h && h.type === 'primary' && share > G.FORTRESS_SHARE };
+    return { deps, subs, base, share, est: !!od.est, fortress: !!h && h.type === 'primary' && share > G.FORTRESS_SHARE };
   };
   let fcRoutes = null, fcLen = -1, fcVal = null;
   G.focusCities = () => {
