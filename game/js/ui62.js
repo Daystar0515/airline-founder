@@ -69,6 +69,8 @@
     order = { t: typeId, mode, n: 1, reg: '', preset: pres.length ? pres[pres.length - 1].id : 0 };
     drawOrder();
   };
+  U.orderState = () => order;
+  U.drawOrder = () => drawOrder();
   function drawOrder() {
     const S = G.S, t = G.TYPES[order.t], pres = G.presetsFor(order.t);
     const unit = order.mode === 'buy' ? t.price * 1e6 : G.leaseMonthly(t) * 2;
@@ -77,13 +79,14 @@
       <div class="order-grid">
         <label class="field">數量<span class="qty"><button class="btn sm" data-act="ord-n" data-d="-1" aria-label="減少">−</button><input id="ord-n" type="number" min="1" max="20" value="${order.n}" data-act="ord-n-in"><button class="btn sm" data-act="ord-n" data-d="1" aria-label="增加">＋</button></span></label>
         <label class="field">第一架的飛機編號（選填）<input id="ord-reg" maxlength="10" placeholder="留白 = ${esc(G.defaultReg())}" value="${esc(order.reg)}" autocomplete="off" data-act="ord-reg"></label>
-        <label class="field">艙位設定<select id="ord-preset" data-act="ord-preset">
+        ${t.freighter ? '' : `<label class="field">艙位設定<select id="ord-preset" data-act="ord-preset">
           <option value="0" ${!order.preset ? 'selected' : ''}>原廠預設配置（交機後可免費調整）</option>
           ${pres.map((p) => `<option value="${p.id}" ${p.id === order.preset ? 'selected' : ''}>${esc(p.name)} · ${G.cabinSeats(p.cabin)} 座</option>`).join('')}
-        </select></label>
+        </select></label>`}
       </div>
-      <div id="ord-sum">${orderSummary()}</div>
-      <div class="row-btns"><span class="spacer"></span><button class="btn" data-act="buy">返回機型列表</button><button class="btn primary" data-act="ord-go">確認${order.mode === 'buy' ? '購買' : '租賃'}</button></div>`);
+      ${U.orderExtra ? U.orderExtra(order) : ''}
+      <div id="ord-sum" ${order.queue ? 'hidden' : ''}>${orderSummary()}</div>
+      <div class="row-btns"><span class="spacer"></span><button class="btn" data-act="buy">返回機型列表</button><button class="btn primary" data-act="ord-go">${order.queue ? '確認訂購' : `確認${order.mode === 'buy' ? '購買' : '租賃'}`}</button></div>`);
   }
   function orderSummary() {
     const S = G.S, t = G.TYPES[order.t];
@@ -94,7 +97,7 @@
     const regs = seq.ok ? (seq.regs.length > 4 ? `${seq.regs.slice(0, 3).join('、')} … ${seq.regs[seq.regs.length - 1]}` : seq.regs.join('、')) : '';
     return `<dl class="order-sum">
       <dt>編號</dt><dd>${seq.ok ? esc(regs) : `<span class="neg">${esc(seq.msg)}</span>`}</dd>
-      <dt>艙位</dt><dd>${G.cabinSeats(cab)} 座 · ${esc(G.cabinSummary(t, cab))}</dd>
+      <dt>${t.freighter ? '酬載' : '艙位'}</dt><dd>${t.freighter ? `全貨機 · ${t.cargo} 公噸` : `${G.cabinSeats(cab)} 座 · ${esc(G.cabinSummary(t, cab))}`}</dd>
       <dt>${order.mode === 'buy' ? '總價' : '保證金合計'}</dt><dd><b class="${S.cash < tot ? 'neg' : ''}">${M(tot)}</b>${order.mode === 'lease' ? `，之後每月租金 ${M(G.leaseMonthly(t) * order.n)}` : ''}${S.cash < tot ? '（現金不足）' : ''}</dd>
     </dl>`;
   }
@@ -147,12 +150,13 @@
       case 'order': U.orderDialog(d.t, d.mode); return;
       case 'ord-n': order.n = Math.max(1, Math.min(20, order.n + +d.d)); $('#ord-n').value = order.n; refreshOrder(); return;
       case 'ord-go': {
+        if (order.queue && U.orderGo) { U.orderGo(order); return; }
         const r = res(G.acquireMany(order.t, order.mode, order.n, order.reg || null, order.preset || null));
         if (r.ok) {
           const t = G.TYPES[order.t], acs = r.acs;
           U.toast(`${acs.length} 架 ${t.model}（${acs.length > 1 ? acs[0].reg + '–' + acs[acs.length - 1].reg : acs[0].reg}）已加入機隊${r.msg ? '；' + r.msg : ''}`);
           U.tab = 'fleet'; U.render();
-          if (!order.preset) { batch = { type: order.t, mode: order.mode, ids: acs.map((x) => x.id) }; U.cabinDialog(acs[0].id); } else U.closeModal();
+          if (!order.preset && !t.freighter) { batch = { type: order.t, mode: order.mode, ids: acs.map((x) => x.id) }; U.cabinDialog(acs[0].id); } else U.closeModal();
         }
         return;
       }
@@ -185,7 +189,7 @@
   document.addEventListener('input', (e) => {
     const a = e.target.dataset && e.target.dataset.act;
     if (!order) return;
-    if (a === 'ord-n-in') { order.n = Math.max(1, Math.min(20, Math.round(+e.target.value || 1))); refreshOrder(); }
+    if (a === 'ord-n-in') { order.n = Math.max(1, Math.min(20, Math.round(+e.target.value || 1))); if (order.queue) U.drawOrder(); else refreshOrder(); }
     if (a === 'ord-reg') { order.reg = e.target.value.trim(); refreshOrder(); }
   });
   document.addEventListener('change', (e) => {

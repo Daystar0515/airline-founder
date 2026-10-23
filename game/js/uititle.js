@@ -91,7 +91,9 @@
         <li><b>真實機隊數</b>：維基百科「List of largest airlines」各洲列表與航空公司條目（CC BY-SA）</li>
         <li><b>航空聯盟成員</b>：維基百科 Star Alliance、Oneworld、SkyTeam 條目（2026 年 10 月，CC BY-SA）</li>
         <li><b>地圖、國界、海岸線、人口與經濟</b>：Natural Earth（公有領域）；底圖 Natural Earth I</li>
-        <li><b>封閉空域</b>：依 Natural Earth 國界計算</li>
+        <li><b>封閉空域與航路（2026 年 10 月）</b>：依 Natural Earth 國界計算；中東衝突區依歐洲航空安全局（EASA）的建議與新聞報導，印巴互相關閉領空依巴基斯坦民航局航行通告的新聞報導，台灣出發航班的航路依聯合報報導與香港、三亞飛航情報區的航路配置估算</li>
+        <li><b>機場年旅客量（2024–2025）</b>：維基百科各國與各區「busiest airports」列表（CC BY-SA），用於校正腹地人口、航線需求與對手班次；少數機場為新聞與機場公布的約略值</li>
+        <li><b>各國所屬的洲與區域</b>：Natural Earth（公有領域）</li>
         <li><b>雙邊旅客統計（2024）</b>：日本 JNTO、台灣交通部觀光署、韓國觀光公社、泰國、越南、新加坡 STB、香港旅發局、西班牙 INE Frontur</li>
         <li><b>國際商務城市等級</b>：GaWC 2024 World Cities</li>
         <li><b>宵禁</b>：設計者提供、維基百科 Night flying restrictions；部分標註「待校對」</li>

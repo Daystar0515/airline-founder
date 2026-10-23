@@ -194,7 +194,7 @@
       return { sc: { k: 'pair', a: N.home, b: cc }, days: rnd(90, 240), fx: { L: rnd(0.5, 0.7), B: rnd(0.75, 0.9) }, sev: 'bad', title, text }; } },
     outbreak: { name: '傳染病疫情', icon: 'virus', w: 3, make: (S, N) => {
       const rg = Object.keys(N.rgs).length && Math.random() < 0.8 ? wpick(Object.entries(N.rgs).map(([k, v]) => [k, Math.sqrt(v)])) : pick(Object.keys(G.REGIONS));
-      return { sc: { k: 'region', rg }, days: rnd(60, 150), fx: { L: rnd(0.5, 0.7), B: rnd(0.65, 0.85) }, sector: -0.04, sev: 'bad',
+      return { sc: { k: 'region', rg }, days: rnd(60, 150), fx: { L: rnd(0.5, 0.7), B: rnd(0.65, 0.85), C: rnd(1.1, 1.25) }, sector: -0.04, sev: 'bad',
         title: `${G.REGIONS[rg]}爆發傳染病疫情`, text: `${G.REGIONS[rg]}出現新型呼吸道傳染病群聚，多國提高防疫等級。旅客取消行程，進出${G.REGIONS[rg]}的航班訂位大幅下滑。` }; } },
     recession: { name: '經濟衰退', icon: 'chart', w: 4, make: (S, N) => {
       const glob = Math.random() < 0.3;
@@ -214,6 +214,8 @@
       title: up ? `${cz(N.home)}貨幣升值` : `${cz(N.home)}貨幣貶值`, text: up ? `${cz(N.home)}貨幣走強，出國旅遊變便宜，國際線觀光需求升溫。` : `${cz(N.home)}貨幣走弱，出國旅遊變貴，國際線觀光需求轉弱。` }; } },
     election: { name: '大選', icon: 'flag', w: 3, make: (S, N) => ({ sc: { k: 'cc', cc: N.home }, days: rnd(30, 50), fx: { B: rnd(0.88, 0.95) }, sev: 'bad',
       title: `${cz(N.home)}舉行大選`, text: `${cz(N.home)}大選前後，企業觀望、延後投資與出差，商務旅客小幅減少。` }) },
+    ecom: { name: '電商貨運熱潮', icon: 'star', w: 3, make: (S, N) => { const glob = Math.random() < 0.4; const rg = glob ? null : pick(['EA', 'SEA', 'NA', 'EU']); const m = rnd(1.2, 1.45); return { sc: glob ? { k: 'global' } : { k: 'region', rg }, days: rnd(90, 180), fx: { C: m }, sev: 'good',
+      title: glob ? '跨境電商帶動全球航空貨運' : `${G.REGIONS[rg]}跨境電商貨量暴增`, text: `${glob ? '全球' : G.REGIONS[rg]}跨境電商與半導體出貨大增，航空貨運需求上升約 ${Math.round((m - 1) * 100)}%，貨機艙位搶手。` }; } },
     fees: { name: '機場規費調漲', icon: 'coin', w: 4, make: (S, N) => { const cc = Math.random() < 0.5 ? N.home : pickCC(N, false); const m = rnd(1.12, 1.3); return { sc: { k: 'cc', cc }, days: 365, flat: true, fx: { cost: { airport: m } }, sev: 'bad',
       title: `${cz(cc)}調漲機場與航路規費`, text: `${cz(cc)}民航主管機關宣布，起降費、旅客服務費與航路費調漲約 ${Math.round((m - 1) * 100)}%，為期一年。` }; } },
     parts: { name: '零件短缺', icon: 'gear', w: 3, make: () => { const m = rnd(1.2, 1.35); return { sc: { k: 'global' }, days: rnd(120, 240), fx: { cost: { maint: m } }, sev: 'bad',
@@ -231,7 +233,7 @@
       const base = near.length && Math.random() < 0.7 ? pick(near) : pick(vs);
       if (!base) return null;
       const list = G.AIRPORTS.filter((a) => G.dist(a, base) < 160).sort((a, b) => G.dist(a, base) - G.dist(b, base)).map((a) => a.iata).slice(0, 12);
-      return { sc: { k: 'aps', list }, days: rnd(3, 6), flat: true, fx: { closed: true }, sev: 'bad', where: base.iata,
+      return { sc: { k: 'aps', list }, days: rnd(3, 6), flat: true, fx: { closed: true }, sev: 'bad', where: base.iata, radius: 160, wx: '火山灰',
         title: `${cityT(base)}附近火山爆發`, text: `${cityT(base)}附近火山噴發，火山灰籠罩空域，周邊 ${list.length} 座機場暫停起降，航空公司紛紛取消航班。` }; } },
   };
   // 颱風、暴風雪、濃霧等天氣事件：只發生在玩家航網的機場，關閉 1–3 天
@@ -251,7 +253,7 @@
     const radius = kind === '颱風' || kind === '颶風' ? 300 : kind === '暴風雪' ? 150 : 40;
     const list = G.AIRPORTS.filter((a) => G.dist(a, ap) < radius && (a.size <= 1 || a.iata === ap.iata)).map((a) => a.iata).slice(0, 25);
     const days = kind === '颱風' || kind === '颶風' ? rnd(1, 2.5) : kind === '暴風雪' ? rnd(1, 2) : rnd(0.4, 1);
-    return { type: 'storm', name: '天候', icon: 'storm', sc: { k: 'aps', list }, days, flat: true, fx: { closed: true }, sev: 'bad', where: ap.iata,
+    return { type: 'storm', name: '天候', icon: 'storm', sc: { k: 'aps', list }, days, flat: true, fx: { closed: true }, sev: 'bad', where: ap.iata, radius, wx: kind,
       title: `${kind}襲擊${cityT(ap)}`, text: `${kind}影響${cityT(ap)}一帶，${list.length > 1 ? `${ap.iata} 等 ${list.length} 座機場` : `${ap.iata}`}暫停起降約 ${Math.max(1, Math.round(days * 24))} 小時，航空公司紛紛取消航班。` };
   }
 
@@ -311,6 +313,7 @@
     if (f.fare) out.push([`票價附加費 ${p(f.fare)}`, f.fare > 1 ? 'good' : 'bad']);
     if (f.L) out.push([`觀光需求 ${p(f.L)}`, f.L > 1 ? 'good' : 'bad']);
     if (f.B) out.push([`商務需求 ${p(f.B)}`, f.B > 1 ? 'good' : 'bad']);
+    if (f.C) out.push([`貨運需求 ${p(f.C)}`, f.C > 1 ? 'good' : 'bad']);
     if (f.closed) out.push([`${e.sc.list.length} 座機場關閉`, 'bad']);
     if (f.cancel) out.push([`約 ${Math.round(f.cancel * 100)}% 航班取消`, 'bad']);
     if (f.cost && f.cost.airport) out.push([`機場規費 ${p(f.cost.airport)}`, 'bad']);
@@ -327,6 +330,9 @@
   function startEvent(S, type, body) {
     const w = W();
     const lead = (body.lead || 0) * DAY;
+    // v1.0.0 難度：事件的衝擊放大或縮小
+    const sev = G.dmod ? G.dmod('sev') : 1;
+    if (sev !== 1) { ['L', 'B', 'C', 'fuel'].forEach((k) => { if (body.fx[k]) body.fx[k] = Math.max(0.1, 1 + (body.fx[k] - 1) * sev); }); if (body.fx.cost) Object.keys(body.fx.cost).forEach((k) => (body.fx.cost[k] = 1 + (body.fx.cost[k] - 1) * sev)); }
     const tidy = (x) => x.trim().replace(/ +([，。、（）])/g, '$1').replace(/([，。、（）]) +/g, '$1');
     const e = { id: w.seq++, type, name: body.name || TYPES[type].name, icon: body.icon || TYPES[type].icon, title: tidy(body.title), text: tidy(body.text), sc: body.sc, fx: body.fx, sev: body.sev, flat: !!body.flat, where: body.where || null,
       announced: S.time, start: S.time + lead, end: S.time + lead + body.days * DAY };
@@ -363,12 +369,12 @@
     if (!S.routes.length && !S.fleet.length) { w.nextMajor = Math.max(w.nextMajor, S.time + 30 * DAY); return; }
     const N = network(S);
     if (S.time >= w.nextStorm) {
-      w.nextStorm = S.time + rnd(18, 45) * DAY;
+      w.nextStorm = S.time + (rnd(18, 45) * DAY) / (G.dmod ? G.dmod('events') : 1);
       const busy = w.events.filter((e) => e.type === 'storm').length;
       if (busy < 2) { const b = makeStorm(S, N); if (b) startEvent(S, 'storm', b); }
     }
     if (S.time >= w.nextMajor) {
-      w.nextMajor = S.time + rnd(50, 100) * DAY;
+      w.nextMajor = S.time + (rnd(50, 100) * DAY) / (G.dmod ? G.dmod('events') : 1);
       const live = w.events.filter((e) => e.type !== 'storm');
       if (live.length >= 3) return;
       const busy = new Set(live.map((e) => e.type));

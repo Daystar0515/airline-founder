@@ -120,12 +120,18 @@
     $('#intro-step2').hidden = true;
     if (G.ui.titleScreen) G.ui.titleScreen();
     $('#swatches').innerHTML = COLORS.map((c, i) => `<button type="button" class="sw" style="background:${c}" data-color="${c}" aria-label="顏色 ${i + 1}" aria-pressed="${i === 0}"></button>`).join('');
-    draft = { color: COLORS[0], founder: 'classic', logo: null, logoSeed: 0 };
+    draft = { color: COLORS[0], founder: 'classic', logo: null, logoSeed: 0, diff: 'normal' };
     $('#founders').innerHTML = G.ui.founderCards(draft.founder);
+    drawDiffs();
     introLogo();
     G.map.onPick = null;
     G.map.flyTo('TPE', 5);
   };
+  // v1.0.0 難度
+  function drawDiffs() {
+    const el = $('#diffs'); if (!el) return;
+    el.innerHTML = G.DIFF_ORDER.map((k) => { const d = G.DIFF[k]; return `<button type="button" class="dcard" data-diff="${k}" aria-pressed="${k === draft.diff}"><b>${d.name}</b><small>${d.desc}</small><em>分數 ×${d.score}</em></button>`; }).join('');
+  }
   // 開場的標誌預覽：沒有上傳就依名稱、代碼、企業色即時產生
   function introLogo() {
     if (draft.logo) return;
@@ -152,16 +158,16 @@
     const box = $('#hub-choice');
     if (!ap) { box.innerHTML = '<p class="sub">在地圖上點選一座機場，或從下方快速選擇。滾輪縮放、拖曳移動地圖。</p>'; return; }
     const F = G.FOUNDERS[draft.founder];
-    const fee = G.hubFee(ap, 'primary') * (F.hubFee || 1), cf = G.curfew(ap), startCash = G.START_CASH * F.cash;
+    const fee = G.hubFee(ap, 'primary') * (F.hubFee || 1), cf = G.curfew(ap), startCash = G.START_CASH * F.cash * G.DIFF[draft.diff || 'normal'].cash;
     box.innerHTML = `<div class="ap-head"><div class="iata">${ap.iata}</div><div><h2>${ap.name}</h2><p>${ap.city} · ${G.countryZh(ap.cc)} · ${G.SIZE_ZH[ap.size]}</p></div></div>
-      <dl class="facts"><dt>設立費用</dt><dd>${G.money(fee)}（起始資金 ${G.money(startCash)}，${F.name}）</dd><dt>最長跑道</dt><dd>${ap.rwy ? G.num(ap.rwy) + ' 公尺' : '資料不詳'}</dd>
+      <dl class="facts"><dt>設立費用</dt><dd>${G.money(fee)}（起始資金 ${G.money(startCash)}，${F.name}・${G.DIFF[draft.diff || 'normal'].name}）</dd><dt>最長跑道</dt><dd>${ap.rwy ? G.num(ap.rwy) + ' 公尺' : '資料不詳'}</dd>
       <dt>腹地人口</dt><dd>約 ${G.num(ap.popK)} 千人</dd><dt>宵禁</dt><dd>${cf ? cf.from + '–' + cf.to : '無'}</dd></dl>
       <button class="btn primary big" id="found" data-iata="${ap.iata}">以 ${ap.iata} 為主要樞紐，創立 ${draft.name}</button>`;
     $('#found').onclick = () => {
       const auto = !draft.logo;
       const logo = draft.logo || G.genLogo({ name: draft.name, code: draft.code, color: draft.color, seed: draft.logoSeed }).url;
       if (G.useSlotForNew) G.useSlotForNew(G._newSlot || null); // v1.0 存到選定的欄位
-      G.newGame({ name: draft.name, code: draft.code, color: draft.color, logo, logoAuto: auto ? { seed: draft.logoSeed } : null, hub: ap.iata, founder: draft.founder });
+      G.newGame({ name: draft.name, code: draft.code, color: draft.color, logo, logoAuto: auto ? { seed: draft.logoSeed } : null, hub: ap.iata, founder: draft.founder, diff: draft.diff || 'normal' });
       endIntro();
       if (G.afterNewGame) G.afterNewGame();
       G.ui.toast(`${draft.name} 正式成立！`);
@@ -173,7 +179,8 @@
   G.startNewGame = () => {
     $('#intro-title').hidden = true; $('#intro-step1').hidden = false; $('#intro-step2').hidden = true;
     $('#f-name').value = ''; $('#f-code').value = '';
-    draft = { color: COLORS[0], founder: 'classic', logo: null, logoSeed: 0 };
+    draft = { color: COLORS[0], founder: 'classic', logo: null, logoSeed: 0, diff: 'normal' };
+    drawDiffs();
     document.querySelectorAll('#swatches .sw').forEach((x, i) => x.setAttribute('aria-pressed', String(i === 0)));
     $('#founders').innerHTML = G.ui.founderCards(draft.founder);
     introLogo();
@@ -205,6 +212,11 @@
       const b = e.target.closest('[data-founder]'); if (!b) return;
       draft.founder = b.dataset.founder;
       document.querySelectorAll('#founders .fcard').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    });
+    $('#diffs').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-diff]'); if (!b) return;
+      draft.diff = b.dataset.diff;
+      document.querySelectorAll('#diffs .dcard').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
     });
     $('#swatches').addEventListener('click', (e) => {
       const b = e.target.closest('[data-color]'); if (!b) return;

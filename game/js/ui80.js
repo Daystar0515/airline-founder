@@ -10,7 +10,7 @@
   // ---------- 地圖顯示 ----------
   const syncLayers = () => {
     const s = G.map.show, k = s.routes && s.planes ? 'both' : s.routes ? 'routes' : 'planes';
-    document.querySelectorAll('#layers button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === k)));
+    document.querySelectorAll('#layers button[data-act="layers"]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === k)));
   };
   U.setLayers = (k) => {
     G.map.show = { routes: k !== 'planes', planes: k !== 'routes' };

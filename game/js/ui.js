@@ -228,6 +228,7 @@
 
   function routes() {
     const S = G.S;
+    if (!S.routes.length && U.routesEmpty) return U.routesEmpty();
     if (!S.routes.length) return `<div class="empty"><b>還沒有航線</b><p>點選地圖上的機場，再從機場資訊開設航線。每條航線必須從你的樞紐出發。</p></div>`;
     const rowOf = (r) => {
       const A = G.AP[r.a], B = G.AP[r.b], d = G.dist(A, B), st = r.stats;

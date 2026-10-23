@@ -80,10 +80,14 @@
   G.expectPax = (r, cls, tier, freq, pen) => {
     const A = G.AP[r.a], B = G.AP[r.b], sg = G.routeSegments(A, B), m = sg.cls[cls];
     // v1.0.0-rc2 突發事件改變市場大小（疫情、政局、旅遊熱潮……）
-    const eL = G.evDemand ? G.evDemand(A, B, 'L') : 1, eB = G.evDemand ? G.evDemand(A, B, 'B') : 1;
-    const l = m.L * eL * G.segShare(r, 'L', cls, tier, freq, pen), b = m.B * eB * G.segShare(r, 'B', cls, tier, freq, pen);
-    const n = Math.max(freq, 0.5);
-    return { pax: (l + b) / n, leisure: l + b > 0 ? l / (l + b) : 1 };
+    // v1.0.0 淡旺季與難度
+    const dm = G.dmod ? G.dmod('demand') : 1, sL = G.seasonMul ? G.seasonMul(A, B, 'L') : 1, sB = G.seasonMul ? G.seasonMul(A, B, 'B') : 1;
+    const eL = (G.evDemand ? G.evDemand(A, B, 'L') : 1) * sL * dm, eB = (G.evDemand ? G.evDemand(A, B, 'B') : 1) * sB * dm;
+    let l = m.L * eL * G.segShare(r, 'L', cls, tier, freq, pen), b = m.B * eB * G.segShare(r, 'B', cls, tier, freq, pen);
+    // v1.0.0 在樞紐轉機的旅客（已含攬客率）
+    const xf = G.xferFor ? G.xferFor(r) : null, xl = xf ? xf[cls].L * sL * dm : 0, xb = xf ? xf[cls].B * sB * dm : 0;
+    const n = Math.max(freq, 0.5), tot = l + b + xl + xb;
+    return { pax: tot / n, leisure: tot > 0 ? (l + xl) / tot : 1, xfer: tot > 0 ? (xl + xb) / tot : 0 };
   };
   // 舊介面相容：整體攬客率
   G.captureShare = (r, cls, tier, freq, pen) => {

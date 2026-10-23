@@ -399,7 +399,8 @@
     const tsr = st.yearStartPrice ? (st.price - st.yearStartPrice) / st.yearStartPrice : 0;
     const yieldPct = (dividend + (S.fin.bbYear || 0)) / (st.price * st.shares); // v1.0.0-rc3 庫藏股買回也算回饋股東
     S.fin.bbYear = 0;
-    let approval = clamp(50 + tsr * 80 + yieldPct * 300 + (S.rep - 50) * 0.3, 0, 100);
+    let approval = clamp(50 + tsr * 80 + yieldPct * 300 + (S.rep - 50) * 0.3 - (st.pillPenalty || 0), 0, 100); // v1.2.0 毒丸條款引起股東不滿
+    st.pillPenalty = 0;
     // v0.9.0 盟友等友好股東的持股一律支持經營團隊
     const floatShares = st.shares * (1 - S.founder.equity / 100), friendly = G.friendlyStake ? G.friendlyStake() : 0;
     if (friendly > 0 && floatShares > 0) { const w = clamp(friendly / floatShares, 0, 1); approval = approval * (1 - w) + 100 * w; }

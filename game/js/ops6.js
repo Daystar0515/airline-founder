@@ -91,14 +91,21 @@
       if (!units.some(({ ac }) => ac.cabin[c] && ac.cabin[c].seats > 0)) { out[c] = { p: r.fare[c] || 1, rev: 0, lf: null }; return; }
       const cap = r.fareCap && r.fareCap[c] != null ? r.fareCap[c] : 1.6;
       let best = null;
-      for (let p = 0.6; p <= cap + 1e-9; p += 0.02) {
-        const v = classRevenue(r, c, +p.toFixed(2), units, freq, market, cs, G.refFare(d, c));
-        if (!best || v.rev > best.rev * 1.002) best = { p: +p.toFixed(2), rev: v.rev, lf: v.seats ? v.pax / v.seats : null };
-      }
+      const tryP = (p) => {
+        p = +Math.min(cap, Math.max(0.6, p)).toFixed(2);
+        const v = classRevenue(r, c, p, units, freq, market, cs, G.refFare(d, c));
+        if (!best || v.rev > best.rev * 1.002 || (p < best.p && v.rev >= best.rev / 1.002 && v.rev > best.rev)) best = { p, rev: v.rev, lf: v.seats ? v.pax / v.seats : null };
+      };
+      // v1.2.0 先以 0.1 為間隔粗找，再在最佳值附近以 0.02 細找（營收對票價是單峰，結果與逐一嘗試相同，快約 2.5 倍）
+      for (let p = 0.6; p <= cap + 1e-9; p += 0.1) tryP(p);
+      tryP(cap);
+      const c0 = best.p;
+      for (let p = c0 - 0.08; p <= c0 + 0.08 + 1e-9; p += 0.02) if (Math.abs(p - c0) > 1e-9) tryP(p);
       out[c] = best;
     });
     return out;
   }
+  G._bestFares = bestFares; // v1.2.0 給航線調度工具估算一組飛機的航線貢獻
   G.optimizeFares = (r, apply) => {
     const acs = G.routeAircraft(r).filter((ac) => !ac.grounded);
     if (!acs.length) return null;

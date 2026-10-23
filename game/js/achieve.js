@@ -108,7 +108,7 @@
         strike: () => '員工罷工',
         ipo: () => `股票上市，募得 ${G.money(d.net)}`,
         bankrupt: () => '公司破產',
-        dismissed: () => (d.reason === 'shareholders' ? '被股東會撤換' : '被董事會撤換'),
+        dismissed: () => ({ shareholders: '被股東會撤換', takeover: '被惡意併購，失去經營權', sold: '公司被收購' }[d.reason] || '被董事會撤換'),
         repossess: () => '銀行收回抵押的飛機',
       }[d.kind];
       if (T) G.addTimeline(d.kind, T());

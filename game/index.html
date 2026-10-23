@@ -18,7 +18,7 @@
     <canvas id="base"></canvas>
     <canvas id="top"></canvas>
     <div id="tip" hidden></div>
-    <div id="layers" role="group" aria-label="地圖顯示"><button type="button" data-act="layers" data-k="both" aria-pressed="true">航線＋飛機</button><button type="button" data-act="layers" data-k="routes" aria-pressed="false">只顯示航線</button><button type="button" data-act="layers" data-k="planes" aria-pressed="false">只顯示飛機</button></div>
+    <div id="layers" role="group" aria-label="地圖顯示"><button type="button" data-act="layers" data-k="both" aria-pressed="true">航線＋飛機</button><button type="button" data-act="layers" data-k="routes" aria-pressed="false">只顯示航線</button><button type="button" data-act="layers" data-k="planes" aria-pressed="false">只顯示飛機</button><button type="button" class="lx" data-act="layer-x" data-k="night" aria-pressed="false">晝夜</button><button type="button" class="lx" data-act="layer-x" data-k="wx" aria-pressed="true">天候</button></div>
     <div id="zoom"><button type="button" data-act="zoom" data-f="2" aria-label="放大">+</button><button type="button" data-act="zoom" data-f="0.5" aria-label="縮小">−</button></div>
     <div id="legend" aria-hidden="true">
       <span><svg viewBox="-13 -13 26 26" width="18" height="18" aria-hidden="true"><polygon points="11,0 9,-1.9 3.2,-2 -1.6,-11.5 -4.2,-11.5 -2.2,-2 -7.6,-1.7 -10,-5.4 -11.8,-5.4 -10.8,-1.2 -11.4,0 -10.8,1.2 -11.8,5.4 -10,5.4 -7.6,1.7 -2.2,2 -4.2,11.5 -1.6,11.5 3.2,2 9,1.9" transform="rotate(-90)" fill="#fff" stroke="rgba(0,0,0,.7)" stroke-width="1.2" stroke-linejoin="round"/></svg>寬體機</span><span><svg viewBox="-13 -13 26 26" width="16" height="16" aria-hidden="true"><polygon points="9,0 7.4,-1.2 2.2,-1.3 -1.2,-8.2 -3.2,-8.2 -1.6,-1.3 -6,-1.1 -7.9,-4.2 -9.4,-4.2 -8.6,-0.8 -9.2,0 -8.6,0.8 -9.4,4.2 -7.9,4.2 -6,1.1 -1.6,1.3 -3.2,8.2 -1.2,8.2 2.2,1.3 7.4,1.2" transform="rotate(-90)" fill="#fff" stroke="rgba(0,0,0,.7)" stroke-width="1.2" stroke-linejoin="round"/></svg>窄體／區域機</span><span><svg viewBox="-13 -13 26 26" width="15" height="15" aria-hidden="true"><polygon points="8.2,0 6.8,-1.1 1.6,-1.1 1.6,-9.4 -0.6,-9.4 -0.6,-1.1 -5.4,-0.9 -6.4,-3.6 -7.8,-3.6 -7.2,-0.6 -8,0 -7.2,0.6 -7.8,3.6 -6.4,3.6 -5.4,0.9 -0.6,1.1 -0.6,9.4 1.6,9.4 1.6,1.1 6.8,1.1" transform="rotate(-90)" fill="#fff" stroke="rgba(0,0,0,.7)" stroke-width="1.2" stroke-linejoin="round"/></svg>螺旋槳機</span><span><i class="d hub"></i>你的樞紐</span><span><i class="d big"></i>大型機場</span><span><i class="d"></i>中小型機場</span><span><i class="d cf"></i>有宵禁</span>
@@ -38,6 +38,7 @@
       <button class="tab2" data-act="tab" data-tab="rivals" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l6-6M14 10l6-6M15 4h5v5M9 20H4v-5"/><path d="M4 4l16 16"/></svg>競爭</button>
       <button class="tab2" data-act="tab" data-tab="alliance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.3 3.8 8.5s-1.2 6.1-3.8 8.5M12 3.5C9.4 5.9 8.2 8.8 8.2 12s1.2 6.1 3.8 8.5"/></svg>聯盟</button>
       <button class="tab2" data-act="tab" data-tab="gov" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-5 9 5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg>合約</button>
+      <button class="tab2" data-act="tab" data-tab="me" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>個人</button>
       <button data-act="tab" data-tab="finance" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>財務</button>
       <button class="tab-more" data-act="tab-more" aria-haspopup="true" aria-expanded="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>更多</span></button>
     </nav>
@@ -67,6 +68,7 @@
       <div id="title-cont"></div>
       <div class="title-menu">
         <button class="btn primary big" type="button" data-act="t-new">新遊戲</button>
+        <button class="btn big" type="button" data-act="t-scen">劇本模式</button>
         <button class="btn big" type="button" data-act="t-slots">存檔管理</button>
         <button class="btn big" type="button" data-act="t-import">匯入存檔</button>
         <button class="btn big" type="button" data-act="t-help">遊戲百科</button>
@@ -83,6 +85,7 @@
         <label>航空公司名稱<input id="f-name" maxlength="20" placeholder="例如：蓬萊航空" autocomplete="off"></label>
         <label>兩碼航空公司代碼<input id="f-code" maxlength="2" placeholder="例如：PL" autocomplete="off"></label>
         <div><span class="lbl">創始人背景</span><div id="founders" class="founders"></div></div>
+        <div><span class="lbl">難度</span><div id="diffs" class="diffs"></div></div>
         <div><span class="lbl">企業色</span><div id="swatches"></div></div>
         <div class="logo-set"><div class="logo-prev" id="intro-logo"><span>LOGO</span></div><div><b>企業標誌</b><p class="meta" id="intro-logo-note">沒有上傳時，會依公司名稱、代碼與企業色自動產生。也可以匯入 500×500 像素的圖片。</p><div class="row-btns"><button class="btn sm" type="button" id="f-logo-gen">換一個樣式</button><button class="btn sm" type="button" id="f-logo">匯入標誌</button></div></div></div>
       </form>
@@ -109,6 +112,7 @@
 <script src="js/lz.js"></script>
 <script src="data/airports.js"></script>
 <script src="data/world.js"></script>
+  <script src="data/continents.js"></script>
 <script src="data/aircraft.js"></script>
 <script src="data/curfews.js"></script>
 <script src="data/runways.js"></script>
@@ -124,7 +128,9 @@
 <script src="js/sim.js"></script>
 <script src="data/demand.js"></script>
 <script src="js/segments.js"></script>
-<script src="js/rivals.js"></script>
+<script src="data/calib.js"></script>
+  <script src="js/calib.js"></script>
+  <script src="js/rivals.js"></script>
 <script src="js/hr.js"></script>
 <script src="js/finance.js"></script>
 <script src="js/social.js"></script>
@@ -139,7 +145,15 @@
 <script src="js/stocks.js"></script>
 <script src="js/saves.js"></script>
 <script src="js/achieve.js"></script>
+<script src="js/personal.js"></script>
+<script src="js/ops10.js"></script>
+<script src="js/mna.js"></script>
+<script src="js/livery.js"></script>
+  <script src="js/ops12.js"></script>
+  <script src="js/takeover.js"></script>
+  <script src="js/scenario.js"></script>
 <script src="js/map.js"></script>
+<script src="js/map10.js"></script>
 <script src="js/logo.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/ui3.js"></script>
@@ -160,7 +174,13 @@
 <script src="js/uihelp.js"></script>
 <script src="js/uiach.js"></script>
 <script src="js/ui100.js"></script>
+<script src="js/uime.js"></script>
+<script src="js/ui10.js"></script>
+  <script src="js/ui12.js"></script>
+  <script src="js/uihto.js"></script>
+<script src="js/net10.js"></script>
 <script src="js/main.js"></script>
+  <script src="js/uiscen.js"></script>
 <script src="js/guard.js"></script>
 <script src="js/pwa.js"></script>
 <!--/BUNDLE:SCRIPTS-->

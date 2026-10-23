@@ -32,6 +32,7 @@
       <dt>飛安</dt><dd>${S.safety.crashes ? `${S.safety.crashes} 起失事` : '零失事'} · 緊急轉降 ${S.safety.emergencies}</dd>
       ${S.fin && S.fin.stock.listed ? `<dt>市值</dt><dd>${M(S.fin.stock.price * S.fin.stock.shares)}</dd>` : ''}
       ${S.ally && S.ally.kind ? `<dt>航空聯盟</dt><dd>${esc(G.allyName())}</dd>` : ''}
+      ${S.me && G.netWorth ? `<dt>創辦人個人身價</dt><dd>${M(G.netWorth())}（最高 ${M(Math.max(st.peakWorth || 0, G.netWorth()))}）· 累計捐款 ${M(S.me.given)}</dd>` : ''}
       <dt>成就</dt><dd>${Object.keys(S.ach || {}).length}／${G.ACHIEVEMENTS.length}</dd></dl>`;
   }
   function timeline(S, n) {
@@ -68,8 +69,12 @@
     const S = G.S;
     S.over = reason; G.ensureAch();
     G.save({ force: true });
-    const title = reason === 'bankrupt' ? '公司破產' : '你被撤換了';
-    const why = reason === 'bankrupt' ? '現金長期為負、無法再借款，或貸款與公司債連續違約，法院宣告破產。' : reason === 'shareholders' ? '持股未過半，年度股東會連續兩年支持度不足，股東會撤換經營者。' : '董事會決議解除你的經營職務。';
+    const R = (S.hto && S.hto.result) || {};
+    const title = { bankrupt: '公司破產', takeover: '公司被惡意併購', sold: '公司已經賣出' }[reason] || '你被撤換了';
+    const why = reason === 'bankrupt' ? '現金長期為負、無法再借款，或貸款與公司債連續違約，法院宣告破產。'
+      : reason === 'takeover' ? `${esc(R.name || '收購方')}以每股 $${(R.price || 0).toFixed(2)} 公開收購，取得 ${((R.pct || 0) * 100).toFixed(1)}% 股權，新的經營團隊接手。你手上的持股也以收購價賣出，得款 ${G.money(R.proceeds || 0)}。`
+      : reason === 'sold' ? `你接受${esc(R.name || '對方')}的收購提案，以 ${G.money(R.value || 0)} 出售公司，依持股分得 ${G.money(R.proceeds || 0)}。`
+      : reason === 'shareholders' ? '持股未過半，年度股東會連續兩年支持度不足，股東會撤換經營者。' : '董事會決議解除你的經營職務。';
     U.modal(`<p class="eyebrow danger-ink">遊戲結束</p><h2>${title}</h2><p>${why}</p>
       <h3>${esc(S.company.name)} 經營回顧</h3>
       ${statsFacts(S)}

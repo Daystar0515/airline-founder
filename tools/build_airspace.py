@@ -5,9 +5,15 @@ import json, sys, base64
 import numpy as np
 ROOT = sys.argv[1] if len(sys.argv) > 1 else '.'
 SETS = {
-    'all': ['UA', 'KP', 'SY', 'LY', 'YE'],   # 幾乎所有民航機都避開
+    'all': ['UA', 'KP', 'SY', 'LY', 'YE', 'SD'],  # 幾乎所有民航機都避開（v1.2.0 加入蘇丹）
     'ru': ['RU', 'BY'],                      # 對制裁國家的航空公司關閉（或自主避飛）
+    'mid': ['IR', 'IQ', 'LB'],               # v1.2.0 2026 年中東衝突：除了當地航空公司，多數航空公司避開
+    'pk': ['PK'],                            # v1.2.0 巴基斯坦對印度航空公司關閉
+    'in': ['IN'],                            # v1.2.0 印度對巴基斯坦航空公司關閉
+    'cn': ['CN'],                            # v1.2.0 台灣出發的航班不能直接穿越海峽進入中國大陸（另走航路）
 }
+# v1.2.0 青藏高原：地形高，客機失壓時無法下降到安全高度，中國以外的航空公司多半避開（近似多邊形）
+EXTRA = {'tibet': [[78.0, 35.5], [80.0, 36.5], [86.0, 36.2], [91.0, 36.5], [97.0, 35.0], [101.0, 33.6], [101.2, 31.0], [99.5, 28.6], [97.0, 28.2], [94.0, 28.6], [89.0, 28.4], [85.0, 29.0], [81.0, 30.2], [78.5, 32.0], [78.0, 35.5]]}
 feats = json.load(open(f'{ROOT}/ne/geojson/ne_50m_admin_0_countries.geojson', encoding='utf-8'))['features']
 def iso(p):
     v = p.get('ISO_A2_EH') if p.get('ISO_A2_EH') not in (None, '-99') else p.get('ISO_A2')
@@ -45,6 +51,11 @@ for name, ccs in SETS.items():
     bits = np.packbits(cell.astype(np.uint8).ravel())
     out[name] = base64.b64encode(bits.tobytes()).decode()
     print(name, ccs, 'cells', int(cell.sum()))
+for name, ring in EXTRA.items():
+    m = pip(ring, LON, LAT)
+    cell = m.reshape(180, SUB, 360, SUB).any(axis=(1, 3))
+    out[name] = base64.b64encode(np.packbits(cell.astype(np.uint8).ravel()).tobytes()).decode()
+    print(name, 'cells', int(cell.sum()))
 js = ('// v0.7.0 封閉空域格點（tools/build_airspace.py 產生）。資料：Natural Earth 50m 國界。\n'
       '// 360×180 的 1° 格，第 0 列是北緯 89–90°、第 0 欄是西經 180–179°；base64 編碼的位元圖。\n'
       f'window.AIRSPACE_MASKS={json.dumps(out)};\n')

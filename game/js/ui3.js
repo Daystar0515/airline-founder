@@ -16,7 +16,7 @@
     let html = '';
     if (strikes.length) html += `<div class="callout warn"><b>${strikes.map((g) => G.STAFF[g].name).join('、')}${strikes.some((g) => S.hr.unions[g].strike.active) ? '罷工中' : '即將罷工'}</b><p>罷工期間大部分航班取消，社會評價每天下滑。可以到「人事」與工會和解。</p><button class="btn" data-act="go" data-tab="staff">前往人事</button></div>`;
     else if (pending.length) html += `<div class="callout"><b>${pending.length} 項工會訴求待回應</b><p>${pending.map((g) => `${G.STAFF[g].name}：${esc(S.hr.unions[g].demand.text)}（剩 ${days(S.hr.unions[g].demand.deadline - S.time)} 天）`).join('<br>')}</p><button class="btn" data-act="go" data-tab="staff">前往人事</button></div>`;
-    html += `<section class="founder-card"><div><span class="lbl">創始人背景</span><b>${esc(F.name)}</b><em>${esc(F.tag)}</em></div><div><span class="lbl">你的持股</span><b>${S.founder.equity}%</b><em>${S.founder.equity === 100 ? '全資擁有' : S.founder.equity === 0 ? '受託經營，未持股' : '其餘由投資人持有'}</em></div></section>`;
+    html += `<section class="founder-card"><div><span class="lbl">創始人背景</span><b>${esc(F.name)}</b><em>${esc(F.tag)}</em></div><div><span class="lbl">你的持股</span><b>${S.founder.equity}%</b><em>${S.founder.equity === 100 ? '全資擁有' : S.founder.equity === 0 ? '受託經營，未持股' : '其餘由投資人持有'}</em></div>${G.netWorth ? `<button class="fc-worth" data-act="tab" data-tab="me"><span class="lbl">你的個人身價</span><b>${G.money(G.netWorth())}</b><em>個人現金 ${G.money(G.S.me.cash)} · 查看個人帳戶 ›</em></button>` : ''}</section>`;
     if (B) {
       const prog = Math.max(0, Math.min(1, B.termProfit / B.target));
       const left = B.probation ? B.probation.end - S.time : B.end - S.time;

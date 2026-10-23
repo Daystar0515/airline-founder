@@ -42,5 +42,13 @@ window.AIRCRAFT = [
   { id: 'B788', mfr: 'Boeing', model: '787-8', body: 'wide', wide: true, maxSeats: 381, units: 320, range: 13530, speed: 903, rwy: 2600, price: 248, fuel: 4900 },
   { id: 'B789', mfr: 'Boeing', model: '787-9', body: 'wide', wide: true, maxSeats: 420, units: 360, range: 14010, speed: 903, rwy: 2800, price: 292, fuel: 5400 },
   { id: 'B78X', mfr: 'Boeing', model: '787-10', body: 'wide', wide: true, maxSeats: 440, units: 385, range: 11910, speed: 903, rwy: 2900, price: 338, fuel: 5800 },
+  // ---- v1.0.0 全貨機（cargo：最大酬載公噸；units 只用來計算起降費）----
+  { id: 'AT7F', mfr: 'ATR', model: 'ATR 72-600F（全貨機）', body: 'turboprop', wide: false, freighter: true, cargo: 8.6, maxSeats: 0, units: 72, range: 1500, speed: 510, rwy: 1333, price: 24, fuel: 650 },
+  { id: 'B38F', mfr: 'Boeing', model: '737-800BCF（客改貨）', body: 'narrow', wide: false, freighter: true, cargo: 23, maxSeats: 0, units: 189, range: 3700, speed: 842, rwy: 2300, price: 24, fuel: 2500, used: true },
+  { id: 'B76F', mfr: 'Boeing', model: '767-300F（全貨機）', body: 'wide', wide: true, freighter: true, cargo: 52, maxSeats: 0, units: 269, range: 6000, speed: 851, rwy: 2600, price: 220, fuel: 5000 },
+  { id: 'A33F', mfr: 'Airbus', model: 'A330-200F（全貨機）', body: 'wide', wide: true, freighter: true, cargo: 70, maxSeats: 0, units: 300, range: 7400, speed: 871, rwy: 2700, price: 95, fuel: 5700, used: true },
+  { id: 'B77F', mfr: 'Boeing', model: '777F（全貨機）', body: 'wide', wide: true, freighter: true, cargo: 102, maxSeats: 0, units: 396, range: 9000, speed: 896, rwy: 2900, price: 352, fuel: 7500 },
+  { id: 'A35F', mfr: 'Airbus', model: 'A350F（全貨機）', body: 'wide', wide: true, freighter: true, cargo: 111, maxSeats: 0, units: 400, range: 8700, speed: 903, rwy: 2800, price: 370, fuel: 6800 },
+  { id: 'B74F', mfr: 'Boeing', model: '747-8F（全貨機）', body: 'wide', wide: true, freighter: true, cargo: 134, maxSeats: 0, units: 467, range: 8100, speed: 908, rwy: 3100, price: 160, fuel: 9500, used: true },
 ];
 window.MFR_ZH = { Airbus: '空中巴士', Boeing: '波音', Embraer: '巴西航空工業', ATR: 'ATR', Bombardier: '龐巴迪', COMAC: '中國商飛' };

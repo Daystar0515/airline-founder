@@ -13,6 +13,10 @@
     rep: { fsc: 72, lcc: 62 }, price: { fsc: 1, lcc: 0.78 },
     floor: { fsc: 0.82, lcc: 0.62 }, cut: 0.03, recover: 0.02, maxFreqUp: 1.5,
     k: 0.4, // 對手吸引力的整體係數（平衡用）
+    // v1.2.0 需求校正後：熱門航線可以有更多班次；機隊校正倍率最多 1.25（座位約是旅客的 1.25 倍，接近真實載客率八成）
+    caps: [24, 6, 10, 3, 3, 1.5], // 每家每天最多幾班：樞紐短程、其他短程、樞紐中程、其他中程、樞紐長程、其他長程
+    scaleMin: 0.25, scaleMax: 1.25, // 依真實機隊數校正班次的倍率上下限
+    util: 13, fMin: 0.3, // 每架飛機每天的平均飛行時數（含備用機、維修）；每家每條航線最少班次
     warShare: 0.1, warGap: 0.92, warProb: 0.28, // 玩家搶到 10% 以上、比對手便宜 8% 以上時，每週有三成五的機會降價迎戰
     fClass: ['EK', 'QR', 'EY', 'SQ', 'CX', 'JL', 'NH', 'LH', 'AF', 'BA', 'AA', 'UA', 'KE', 'OZ', 'TG', 'MH', 'GA', 'SV', 'LX', 'AI', 'CA', 'MU', 'CZ', 'QF', 'TK', 'WY'],
   };
@@ -41,7 +45,7 @@
   // 已被你整合的航空公司不計；子公司的班次另外算（算進你的集團）；沒有航空公司資料的機場維持人口估算。
   const odCache = new Map(), refCache = new Map();
   let odKey = '', refCode = '';
-  const defF = (x) => Math.round(clamp(x.f0 * G.fleetScale(x.code), 0.43, x.cap * 1.5) * 10) / 10;
+  const defF = (x) => Math.round(clamp(x.f0 * G.fleetScale(x.code), G.RIVAL.fMin, x.cap * 1.5) * 10) / 10;
   // 對手原本的班次（遊戲資料的預設值，不含加減班、不含收購）
   const refDepartures = (iata) => {
     const me = G.S.company.code;
@@ -92,8 +96,8 @@
       base = codes.map((code, i) => {
         // 上限：樞紐航空公司短程最多每天 8 班、中程 4 班、長程 2 班；其他航空公司 2／1.5／1 班（避免小機場因重力模型高估）
         const c = C[code], hub = c.hubs.includes(a) || c.hubs.includes(b);
-        const cap = d < 1500 ? (hub ? 8 : 2) : d < 4500 ? (hub ? 4 : 1.5) : hub ? 2 : 1;
-        const f = clamp((seats * ws[i]) / sw / avgSeats(d, c.lcc), 0.43, cap);
+        const K = G.RIVAL.caps, cap = d < 1500 ? (hub ? K[0] : K[1]) : d < 4500 ? (hub ? K[2] : K[3]) : hub ? K[4] : K[5];
+        const f = clamp((seats * ws[i]) / sw / avgSeats(d, c.lcc), G.RIVAL.fMin, cap);
         return { code, c, f0: f, cap, hub, d };
       });
       est.set(k, base);
@@ -106,12 +110,12 @@
     if (c._raw != null) return c._raw;
     let hrs = 0;
     c.routes.forEach((k) => { const a = k.slice(0, 3), b = k.slice(3), r = baseOn(a, b).find((x) => x.code === code); if (r) hrs += r.f0 * 2 * (r.d / 820 + 0.5); });
-    return (c._raw = Math.max(1, hrs / 13));
+    return (c._raw = Math.max(1, hrs / G.RIVAL.util));
   };
   G.fleetScale = (code) => {
     const c = C[code], real = window.REAL_FLEETS && window.REAL_FLEETS[code];
     if (!c || !real) return 1;
-    if (c._scale == null) c._scale = clamp(real / rawFleet(code), 0.25, 3);
+    if (c._scale == null) c._scale = clamp(real / rawFleet(code), G.RIVAL.scaleMin, G.RIVAL.scaleMax);
     return c._scale;
   };
   G.rivalsOn = (a, b) => {
@@ -120,7 +124,7 @@
     const out = base.filter((x) => !G.S || x.code !== G.S.company.code).map((x) => {
       const o = st[x.code] || {};
       const p0 = x.c.lcc ? G.RIVAL.price.lcc : G.RIVAL.price.fsc;
-      const f = Math.round(clamp(x.f0 * G.fleetScale(x.code), 0.43, x.cap * 1.5) * 10) / 10;
+      const f = Math.round(clamp(x.f0 * G.fleetScale(x.code), G.RIVAL.fMin, x.cap * 1.5) * 10) / 10;
       return { ...x, f: f * (o.fm || 1), p: o.p != null ? o.p : p0, p0, war: o.p != null && o.p < p0 - 0.005 };
     });
     return G.humanRivalsOn ? out.concat(G.humanRivalsOn(a, b)) : out; // v0.8.0 多人連線：其他玩家也是對手

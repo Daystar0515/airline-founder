@@ -228,7 +228,7 @@
     const P = G.allyPartners ? G.allyPartners() : { ai: new Set() };
     // 賣出：財務投資獲利了結；盟友關係結束的策略持股
     H.slice().forEach((h) => {
-      if (h.kind !== 'ai') return;
+      if (h.kind !== 'ai' || h.why === 'raid' || h.why === 'knight') return; // v1.2.0 收購方與白騎士由 takeover.js 處理
       const gain = st.price / h.avg - 1;
       const sell = h.why === 'financial' ? (gain > 0.3 && Math.random() < 0.3) || (gain < -0.35 && Math.random() < 0.2) : !P.ai.has(h.code) && Math.random() < 0.5;
       if (!sell) return;
@@ -262,7 +262,7 @@
   }
   G.friendlyStake = () => {
     const S = G.S, st = S.fin.stock, H = st.holders || [];
-    return H.filter((h) => (h.kind === 'ai' && h.why === 'strategic' && G.isPartner && G.isPartner(h.code)) || (h.kind === 'player' && G.isPartner && G.isPartner(h.code))).reduce((s, h) => s + h.n, 0);
+    return H.filter((h) => (h.kind === 'ai' && h.why === 'knight') || (h.kind === 'ai' && h.why === 'strategic' && G.isPartner && G.isPartner(h.code)) || (h.kind === 'player' && G.isPartner && G.isPartner(h.code))).reduce((s, h) => s + h.n, 0);
   };
 
   // ---------- 每日 ----------
